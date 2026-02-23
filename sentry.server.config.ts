@@ -5,6 +5,6 @@ Sentry.init({
 
   tracesSampleRate: 0.1,
 
-  // Disable in development
-  enabled: process.env.NODE_ENV === 'production',
+  // Only send errors from Vercel production deployment (master branch)
+  enabled: process.env.VERCEL_ENV === 'production',
 })
