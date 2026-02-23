@@ -3,8 +3,10 @@ import { Space_Grotesk, Inter, JetBrains_Mono } from 'next/font/google'
 import { Suspense } from 'react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
+import Preloader from '@/components/layout/Preloader'
 import PostHogProvider from '@/components/providers/PostHogProvider'
 import PostHogPageview from '@/components/providers/PostHogPageview'
+import LenisProvider from '@/components/providers/LenisProvider'
 import './globals.css'
 
 const spaceGrotesk = Space_Grotesk({
@@ -42,14 +44,17 @@ export default function RootLayout({
     >
       <body className="antialiased">
         <PostHogProvider>
-          <Suspense fallback={null}>
-            <PostHogPageview />
-          </Suspense>
-          <Header />
-          <main id="page-wrapper" className="min-h-screen" style={{ transformStyle: 'preserve-3d' }}>
-            {children}
-          </main>
-          <Footer />
+          <LenisProvider>
+            <Preloader />
+            <Suspense fallback={null}>
+              <PostHogPageview />
+            </Suspense>
+            <Header />
+            <main id="page-wrapper" className="min-h-screen" style={{ transformStyle: 'preserve-3d' }}>
+              {children}
+            </main>
+            <Footer />
+          </LenisProvider>
         </PostHogProvider>
       </body>
     </html>

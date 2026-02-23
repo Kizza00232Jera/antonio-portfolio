@@ -1,6 +1,7 @@
 import { getFeaturedProjects, getLatestBlogPosts } from '@/lib/sanity/queries'
 import HeroSection from '@/components/sections/HeroSection'
-import AboutPreviewSection from '@/components/sections/AboutPreviewSection'
+import JourneyIntroSection from '@/components/sections/JourneyIntroSection'
+import JourneyAccordionSection from '@/components/sections/JourneyAccordionSection'
 import FeaturedProjectsSection from '@/components/sections/FeaturedProjectsSection'
 import LatestPostsSection from '@/components/sections/LatestPostsSection'
 
@@ -13,7 +14,8 @@ export default async function HomePage() {
   return (
     <>
       <HeroSection />
-      <AboutPreviewSection />
+      <JourneyIntroSection />
+      <JourneyAccordionSection />
       <FeaturedProjectsSection projects={projects} />
       <LatestPostsSection posts={posts} />
     </>
