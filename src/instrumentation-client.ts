@@ -18,3 +18,5 @@ Sentry.init({
   // Only send errors from Vercel production deployment (master branch)
   enabled: process.env.VERCEL_ENV === 'production',
 })
+
+export const onRouterTransitionStart = Sentry.captureRouterTransitionStart
