@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import { Space_Grotesk, Inter, JetBrains_Mono } from 'next/font/google'
+import Header from '@/components/layout/Header'
+import Footer from '@/components/layout/Footer'
 import './globals.css'
 
 const spaceGrotesk = Space_Grotesk({
@@ -36,7 +38,11 @@ export default function RootLayout({
       className={`${spaceGrotesk.variable} ${inter.variable} ${jetbrainsMono.variable}`}
     >
       <body className="antialiased">
-        {children}
+        <Header />
+        <main id="page-wrapper" className="min-h-screen" style={{ transformStyle: 'preserve-3d' }}>
+          {children}
+        </main>
+        <Footer />
       </body>
     </html>
   )
