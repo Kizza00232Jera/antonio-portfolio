@@ -6,6 +6,7 @@ import { schemaTypes } from './schemas'
 export default defineConfig({
   name: 'antonio-portfolio',
   title: 'Antonio Portfolio',
+  basePath: '/studio',
 
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET!,
