@@ -39,3 +39,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Claude
+CLAUDE.md
+.claude/
+
+#todo and build guide
+TODO.md
+BUILD-GUIDE.md
+DESIGN-SYSTEM.md
+ROADMAP.md
+TECH-REFERENCE.md
