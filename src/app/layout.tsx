@@ -1,7 +1,10 @@
 import type { Metadata } from 'next'
 import { Space_Grotesk, Inter, JetBrains_Mono } from 'next/font/google'
+import { Suspense } from 'react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
+import PostHogProvider from '@/components/providers/PostHogProvider'
+import PostHogPageview from '@/components/providers/PostHogPageview'
 import './globals.css'
 
 const spaceGrotesk = Space_Grotesk({
@@ -38,11 +41,16 @@ export default function RootLayout({
       className={`${spaceGrotesk.variable} ${inter.variable} ${jetbrainsMono.variable}`}
     >
       <body className="antialiased">
-        <Header />
-        <main id="page-wrapper" className="min-h-screen" style={{ transformStyle: 'preserve-3d' }}>
-          {children}
-        </main>
-        <Footer />
+        <PostHogProvider>
+          <Suspense fallback={null}>
+            <PostHogPageview />
+          </Suspense>
+          <Header />
+          <main id="page-wrapper" className="min-h-screen" style={{ transformStyle: 'preserve-3d' }}>
+            {children}
+          </main>
+          <Footer />
+        </PostHogProvider>
       </body>
     </html>
   )
