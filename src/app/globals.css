@@ -71,3 +71,77 @@ img, video {
   max-width: 100%;
   display: block;
 }
+
+/* ── Prose (Portable Text body content) ───────────────────── */
+.prose {
+  max-width: 65ch;
+  font-size: var(--text-body);
+  line-height: 1.75;
+  color: var(--color-text);
+}
+
+.prose h2 {
+  font-size: var(--text-heading);
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.prose h3 {
+  font-size: clamp(1.25rem, 1.5vw, 1.5rem);
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+}
+
+.prose p {
+  margin-bottom: 1.25rem;
+}
+
+.prose a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.prose a:hover {
+  opacity: 0.8;
+}
+
+.prose ul,
+.prose ol {
+  padding-left: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.prose li {
+  margin-bottom: 0.5rem;
+}
+
+.prose blockquote {
+  border-left: 3px solid var(--color-accent);
+  padding-left: 1rem;
+  margin: 1.5rem 0;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.prose pre {
+  background: var(--color-text);
+  color: var(--color-bg);
+  padding: 1rem 1.25rem;
+  border-radius: 0.75rem;
+  overflow-x: auto;
+  margin-bottom: 1.25rem;
+  font-size: 0.875rem;
+}
+
+.prose code {
+  font-size: 0.875em;
+  background: var(--color-border);
+  padding: 0.15em 0.35em;
+  border-radius: 0.25rem;
+}
+
+.prose pre code {
+  background: none;
+  padding: 0;
+}
