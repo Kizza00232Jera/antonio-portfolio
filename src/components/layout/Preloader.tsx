@@ -3,6 +3,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 
+declare global {
+  interface Window {
+    __preloaderDone?: boolean
+  }
+}
+
 const NAME = 'Antonio.'
 const TYPE_SPEED = 110
 const DELETE_SPEED = 65
@@ -25,9 +31,18 @@ export default function Preloader() {
   const c5Ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    // Only run the preloader animation on the homepage
+    if (window.location.pathname !== '/') {
+      window.__preloaderDone = true
+      window.dispatchEvent(new CustomEvent('preloader:done'))
+      setVisible(false)
+      return
+    }
+
     // Reduced motion: skip immediately
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (prefersReduced) {
+      window.__preloaderDone = true
       setTimeout(() => window.dispatchEvent(new CustomEvent('preloader:done')), 0)
       setVisible(false)
       return
@@ -76,6 +91,7 @@ export default function Preloader() {
           stagger: 0.1,
           delay: 0.15,
           onComplete: () => {
+            window.__preloaderDone = true
             window.dispatchEvent(new CustomEvent('preloader:done'))
             setVisible(false)
           },

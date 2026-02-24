@@ -24,8 +24,13 @@ export default function HeroSection() {
   const [typeText, setTypeText] = useState('')
   const [cursorOn, setCursorOn] = useState(true)
 
-  // Preloader always fires 'preloader:done' — wait for it every time
+  // If preloader already ran (e.g. navigating back to home), show immediately.
+  // Otherwise wait for the preloader:done event (first homepage load).
   useEffect(() => {
+    if (window.__preloaderDone) {
+      setReady(true)
+      return
+    }
     const handle = () => setReady(true)
     window.addEventListener('preloader:done', handle)
     return () => window.removeEventListener('preloader:done', handle)
