@@ -3,6 +3,7 @@ import HeroSection from '@/components/sections/HeroSection'
 import JourneyIntroSection from '@/components/sections/JourneyIntroSection'
 import JourneyAccordionSection from '@/components/sections/JourneyAccordionSection'
 import FeaturedProjectsSection from '@/components/sections/FeaturedProjectsSection'
+import TechStackSection from '@/components/sections/TechStackSection'
 import LatestPostsSection from '@/components/sections/LatestPostsSection'
 
 export default async function HomePage() {
@@ -17,6 +18,7 @@ export default async function HomePage() {
       <JourneyIntroSection />
       <JourneyAccordionSection />
       <FeaturedProjectsSection projects={projects} />
+      <TechStackSection />
       <LatestPostsSection posts={posts} />
     </>
   )
