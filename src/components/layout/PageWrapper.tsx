@@ -19,11 +19,9 @@ export function PageWrapper({ children }: { children: React.ReactNode }) {
     if (prefersReduced) {
       if (isOpen) {
         gsap.set(wrapper, {
-          x: isMobile ? '100%' : '55%',
-          y: isMobile ? '5%' : '7%',
-          rotateY: !isMobile ? -3 : 0,
-          transformPerspective: 1200,
-          transformOrigin: 'center center',
+          x: isMobile ? '100%' : '40%',
+          rotation: isMobile ? 0 : -12,
+          transformOrigin: '100% 0%',
         })
       } else {
         gsap.set(wrapper, { clearProps: 'transform' })
@@ -33,23 +31,19 @@ export function PageWrapper({ children }: { children: React.ReactNode }) {
 
     if (isOpen) {
       gsap.to(wrapper, {
-        x: isMobile ? '100%' : '55%',
-        y: isMobile ? '5%' : '7%',
-        rotateY: isMobile ? 0 : -3,
-        transformPerspective: 1200,
-        transformOrigin: 'center center',
-        duration: 0.6,
+        x: isMobile ? '100%' : '40%',
+        rotation: isMobile ? 0 : -12,
+        transformOrigin: '100% 0%',
+        duration: 1,
         ease: 'power3.inOut',
       })
     } else {
       gsap.to(wrapper, {
         x: '0%',
-        y: '0%',
-        rotateY: 0,
-        duration: 0.5,
-        ease: 'power3.out',
+        rotation: 0,
+        duration: 1,
+        ease: 'power3.inOut',
         onComplete: () => {
-          // Clear all inline styles so fixed positioning works inside the wrapper
           gsap.set(wrapper, { clearProps: 'transform' })
         },
       })
@@ -79,7 +73,6 @@ export function PageWrapper({ children }: { children: React.ReactNode }) {
       ref={wrapperRef}
       id="page-wrapper"
       className="relative z-50 min-h-screen"
-      style={{ transformStyle: 'preserve-3d' }}
     >
       {children}
     </div>
