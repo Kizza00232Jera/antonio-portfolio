@@ -4,6 +4,9 @@ import { Suspense } from 'react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import Preloader from '@/components/layout/Preloader'
+import { NavOverlay } from '@/components/layout/NavOverlay'
+import { PageWrapper } from '@/components/layout/PageWrapper'
+import { MenuProvider } from '@/contexts/MenuContext'
 import PostHogProvider from '@/components/providers/PostHogProvider'
 import PostHogPageview from '@/components/providers/PostHogPageview'
 import LenisProvider from '@/components/providers/LenisProvider'
@@ -42,18 +45,23 @@ export default function RootLayout({
       lang="en"
       className={`${spaceGrotesk.variable} ${inter.variable} ${jetbrainsMono.variable}`}
     >
-      <body className="antialiased">
+      <body className="antialiased bg-[#151515]">
         <PostHogProvider>
           <LenisProvider>
             <Preloader />
             <Suspense fallback={null}>
               <PostHogPageview />
             </Suspense>
-            <Header />
-            <main id="page-wrapper" className="min-h-screen" style={{ transformStyle: 'preserve-3d' }}>
-              {children}
-            </main>
-            <Footer />
+            <MenuProvider>
+              <NavOverlay />
+              <PageWrapper>
+                <Header />
+                <main className="min-h-screen">
+                  {children}
+                </main>
+                <Footer />
+              </PageWrapper>
+            </MenuProvider>
           </LenisProvider>
         </PostHogProvider>
       </body>

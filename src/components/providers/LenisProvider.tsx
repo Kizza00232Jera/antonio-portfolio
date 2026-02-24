@@ -27,7 +27,15 @@ export default function LenisProvider({ children }: { children: React.ReactNode 
     })
     gsap.ticker.lagSmoothing(0)
 
+    // Allow other components (e.g. PageWrapper) to stop/start Lenis via events
+    const handleStop = () => lenis.stop()
+    const handleStart = () => lenis.start()
+    window.addEventListener('lenis:stop', handleStop)
+    window.addEventListener('lenis:start', handleStart)
+
     return () => {
+      window.removeEventListener('lenis:stop', handleStop)
+      window.removeEventListener('lenis:start', handleStart)
       lenis.destroy()
       gsap.ticker.remove((time) => {
         lenis.raf(time * 1000)
