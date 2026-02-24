@@ -1,102 +1,173 @@
 'use client'
 
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useGSAP } from '@gsap/react'
 import { gsap } from 'gsap'
 
-gsap.registerPlugin()
+// Cycling phrases for the typewriter — matches Edwin's format
+const PHRASES = ['Designer.', 'Developer.', 'tech enthusiast.']
 
-const lines = [
-  'Hi, I\'m Antonio.',
-  'Designer turned',
-  'developer.',
-]
+const TYPE_SPEED = 80    // ms per char when typing
+const DELETE_SPEED = 50  // ms per char when deleting
+const PAUSE_AFTER = 1800 // ms to hold after fully typed
+const PAUSE_BETWEEN = 300 // ms pause between phrases
+
+const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms))
 
 export default function HeroSection() {
   const containerRef = useRef<HTMLElement>(null)
-  const metaRef = useRef<HTMLParagraphElement>(null)
-  const subtextRef = useRef<HTMLParagraphElement>(null)
-  const scrollCueRef = useRef<HTMLDivElement>(null)
 
-  useGSAP(() => {
-    // Respect reduced motion
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+  // True once the preloader has exited (or on repeat visits)
+  const [ready, setReady] = useState(false)
 
-    const lineEls = containerRef.current?.querySelectorAll<HTMLElement>('[data-line]')
-    if (!lineEls) return
+  // Typewriter state
+  const [typeText, setTypeText] = useState('')
+  const [cursorOn, setCursorOn] = useState(true)
 
-    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
+  // Preloader always fires 'preloader:done' — wait for it every time
+  useEffect(() => {
+    const handle = () => setReady(true)
+    window.addEventListener('preloader:done', handle)
+    return () => window.removeEventListener('preloader:done', handle)
+  }, [])
 
-    // Slide each line up from behind its mask
-    tl.fromTo(
-      lineEls,
-      { yPercent: 110 },
-      { yPercent: 0, duration: 0.9, stagger: 0.12 }
-    )
-    // Fade in meta + subtext after heading
-    .fromTo(
-      [metaRef.current, subtextRef.current],
-      { opacity: 0, y: 16 },
-      { opacity: 1, y: 0, duration: 0.6, stagger: 0.1 },
-      '-=0.4'
-    )
-    // Fade in scroll cue
-    .fromTo(
-      scrollCueRef.current,
-      { opacity: 0 },
-      { opacity: 1, duration: 0.5 },
-      '-=0.2'
-    )
-  }, { scope: containerRef })
+  // GSAP entry animation — fires once when ready
+  useGSAP(
+    () => {
+      if (!ready) return
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+
+      const line1 = containerRef.current?.querySelector<HTMLElement>('[data-line1]')
+      const line2 = containerRef.current?.querySelector<HTMLElement>('[data-line2]')
+      const para = containerRef.current?.querySelector<HTMLElement>('[data-para]')
+      const cue = containerRef.current?.querySelector<HTMLElement>('[data-cue]')
+
+      // All three content elements animate in simultaneously at t=0
+      const tl = gsap.timeline({ defaults: { ease: 'power3.out', duration: 0.85 } })
+
+      // Line 1: same fade + slide as the others
+      if (line1) tl.fromTo(line1, { opacity: 0, y: 20 }, { opacity: 1, y: 0 }, 0)
+      // Line 2: fade + slide — starts at same time as line 1
+      if (line2) tl.fromTo(line2, { opacity: 0, y: 14 }, { opacity: 1, y: 0 }, 0)
+      // Paragraph: fade + slight slide — same time
+      if (para) tl.fromTo(para, { opacity: 0, y: 10 }, { opacity: 1, y: 0 }, 0)
+      // Scroll cue fades after content is visible
+      if (cue) tl.fromTo(cue, { opacity: 0 }, { opacity: 1, duration: 0.5 }, 0.6)
+    },
+    { scope: containerRef, dependencies: [ready] },
+  )
+
+  // Typewriter cycling — starts when ready
+  useEffect(() => {
+    if (!ready) return
+
+    // Reduced motion: just show first phrase statically
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setTypeText(PHRASES[0])
+      return
+    }
+
+    let phraseIdx = 0
+    let cancelled = false
+
+    const blinkInterval = setInterval(() => setCursorOn((v) => !v), 530)
+
+    async function cycle() {
+      // All lines animate in together at 0.85s — wait just past that before typing
+      await wait(950)
+      if (cancelled) return
+
+      while (!cancelled) {
+        const phrase = PHRASES[phraseIdx % PHRASES.length]
+
+        // Type out
+        for (let i = 1; i <= phrase.length; i++) {
+          if (cancelled) return
+          setTypeText(phrase.slice(0, i))
+          await wait(TYPE_SPEED)
+        }
+
+        // Hold
+        await wait(PAUSE_AFTER)
+        if (cancelled) return
+
+        // Delete
+        for (let i = phrase.length - 1; i >= 0; i--) {
+          if (cancelled) return
+          setTypeText(phrase.slice(0, i))
+          await wait(DELETE_SPEED)
+        }
+
+        await wait(PAUSE_BETWEEN)
+        phraseIdx++
+      }
+    }
+
+    cycle()
+
+    return () => {
+      cancelled = true
+      clearInterval(blinkInterval)
+    }
+  }, [ready])
 
   return (
     <section
       ref={containerRef}
-      className="relative flex min-h-screen flex-col justify-center bg-[#0a0a0a] px-6"
+      className="relative flex min-h-screen flex-col justify-center bg-[#010101] px-6"
     >
       <div className="mx-auto w-full max-w-[var(--max-width)]">
-        {/* Role label */}
-        <p
-          ref={metaRef}
-          className="mb-6 font-mono text-xs text-white/40 uppercase tracking-widest opacity-0"
-        >
-          Designer &amp; Web Developer
-        </p>
 
-        {/* Heading — each line masked so it slides up from behind */}
+        {/* Line 1 — "Sup, I'm Antonio." */}
         <h1
-          className="font-heading font-bold text-white"
+          data-line1
+          className="font-heading font-bold text-white opacity-0"
           style={{ fontSize: 'var(--text-hero)', lineHeight: 1.05 }}
         >
-          {lines.map((line, i) => (
-            <span key={i} className="block overflow-hidden">
-              <span data-line className="block">
-                {line}
-              </span>
-            </span>
-          ))}
+          Sup, I&apos;m Antonio.
         </h1>
 
-        {/* Subtext */}
+        {/* Line 2 — "I'm a [typewriter]" — fades in, typewriter cycles */}
         <p
-          ref={subtextRef}
+          data-line2
+          className="font-heading font-bold text-white opacity-0"
+          style={{ fontSize: 'var(--text-hero)', lineHeight: 1.05 }}
+        >
+          I&apos;m a{' '}
+          <span className="text-accent">
+            {typeText}
+            {/* Blinking cursor */}
+            <span
+              className="relative inline-block bg-accent align-middle"
+              style={{
+                width: '2px',
+                height: '0.82em',
+                marginLeft: '3px',
+                top: '-0.05em',
+                opacity: cursorOn ? 1 : 0,
+                transition: 'opacity 0.08s',
+              }}
+            />
+          </span>
+        </p>
+
+        {/* Body paragraph */}
+        <p
+          data-para
           className="mt-8 max-w-md font-body text-white/50 opacity-0"
           style={{ fontSize: 'var(--text-body)', lineHeight: 1.7 }}
         >
-          From Croatia to Denmark to Sweden — building fast, accessible,
-          and a little bit delightful interfaces.
+          Passionately building web experiences rooted in design, grounded in code — from Croatia to the world.
         </p>
       </div>
 
       {/* Scroll cue */}
       <div
-        ref={scrollCueRef}
+        data-cue
         className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-0"
         aria-hidden="true"
       >
-        <span className="font-mono text-[10px] text-white/30 uppercase tracking-widest">
-          Scroll
-        </span>
+        <span className="font-mono text-[10px] text-white/30 uppercase tracking-widest">Scroll</span>
         <div className="h-10 w-px bg-gradient-to-b from-white/30 to-transparent" />
       </div>
     </section>

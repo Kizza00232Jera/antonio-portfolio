@@ -3,65 +3,133 @@
 import { useEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 
+const NAME = 'Antonio.'
+const TYPE_SPEED = 110
+const DELETE_SPEED = 65
+const PAUSE_DURATION = 700
+const INITIAL_DELAY = 350
+
+const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms))
+
 export default function Preloader() {
   const [visible, setVisible] = useState(true)
-  const col1Ref = useRef<HTMLDivElement>(null)
-  const col2Ref = useRef<HTMLDivElement>(null)
-  const col3Ref = useRef<HTMLDivElement>(null)
+  const [text, setText] = useState('')
+  const [cursorOn, setCursorOn] = useState(true)
+
+  const containerRef = useRef<HTMLDivElement>(null)
+  const textRef = useRef<HTMLDivElement>(null)
+  const c1Ref = useRef<HTMLDivElement>(null)
+  const c2Ref = useRef<HTMLDivElement>(null)
+  const c3Ref = useRef<HTMLDivElement>(null)
+  const c4Ref = useRef<HTMLDivElement>(null)
+  const c5Ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (sessionStorage.getItem('preloader-seen')) {
-      setVisible(false)
-      return
-    }
-
+    // Reduced motion: skip immediately
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (prefersReduced) {
-      sessionStorage.setItem('preloader-seen', '1')
+      setTimeout(() => window.dispatchEvent(new CustomEvent('preloader:done')), 0)
       setVisible(false)
       return
     }
 
-    // Hold briefly, then stagger-slide all 3 columns upward
-    const tl = gsap.timeline({
-      delay: 0.8,
-      onComplete: () => {
-        sessionStorage.setItem('preloader-seen', '1')
-        setVisible(false)
-      },
-    })
+    let cancelled = false
+    const blinkInterval = setInterval(() => setCursorOn((v) => !v), 530)
 
-    tl.to(
-      [col1Ref.current, col2Ref.current, col3Ref.current],
-      {
-        yPercent: -100,
-        duration: 0.9,
-        ease: 'power3.inOut',
-        stagger: 0.08,
+    async function run() {
+      await wait(INITIAL_DELAY)
+
+      // Type "Antonio"
+      for (let i = 1; i <= NAME.length; i++) {
+        if (cancelled) return
+        setText(NAME.slice(0, i))
+        await wait(TYPE_SPEED)
       }
-    )
+
+      // Hold
+      await wait(PAUSE_DURATION)
+      if (cancelled) return
+
+      // Delete
+      for (let i = NAME.length - 1; i >= 0; i--) {
+        if (cancelled) return
+        setText(NAME.slice(0, i))
+        await wait(DELETE_SPEED)
+      }
+
+      if (cancelled) return
+      await wait(150)
+
+      clearInterval(blinkInterval)
+      setCursorOn(false)
+
+      // Fade the text wrapper out
+      gsap.to(textRef.current, { opacity: 0, duration: 0.2, ease: 'power2.out' })
+
+      // Stagger the 5 columns upward — full curtain reveal in ~1 second
+      gsap.to(
+        [c1Ref.current, c2Ref.current, c3Ref.current, c4Ref.current, c5Ref.current],
+        {
+          yPercent: -100,
+          duration: 0.75,
+          ease: 'power3.inOut',
+          stagger: 0.1,
+          delay: 0.15,
+          onComplete: () => {
+            window.dispatchEvent(new CustomEvent('preloader:done'))
+            setVisible(false)
+          },
+        }
+      )
+    }
+
+    run()
+
+    return () => {
+      cancelled = true
+      clearInterval(blinkInterval)
+    }
   }, [])
 
   if (!visible) return null
 
   return (
     <div
-      className="fixed inset-0 z-[9999] flex"
+      ref={containerRef}
+      className="fixed inset-0 z-[9999] overflow-hidden"
       aria-hidden="true"
     >
-      {/* 3 equal vertical columns */}
-      <div ref={col1Ref} className="flex-1 bg-[#151515]" />
-      <div ref={col2Ref} className="flex-1 bg-[#151515]" />
-      <div ref={col3Ref} className="flex-1 bg-[#151515]" />
+      {/* 5 full-height vertical columns — the curtain */}
+      <div className="absolute inset-0 flex">
+        <div ref={c1Ref} className="flex-1 bg-[#151515]" />
+        <div ref={c2Ref} className="flex-1 bg-[#151515]" />
+        <div ref={c3Ref} className="flex-1 bg-[#151515]" />
+        <div ref={c4Ref} className="flex-1 bg-[#151515]" />
+        <div ref={c5Ref} className="flex-1 bg-[#151515]" />
+      </div>
 
-      {/* Small pill indicator — top left */}
-      <div className="absolute left-8 top-8 flex items-center gap-2">
-        <div
-          className="relative h-6 w-[18px] overflow-hidden rounded-full bg-white"
-          aria-hidden="true"
+      {/* Typing text — centered on top of columns */}
+      <div
+        ref={textRef}
+        className="absolute inset-0 z-10 flex items-center justify-center"
+      >
+        <span
+          className="font-heading font-semibold text-white"
+          style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', letterSpacing: '0.02em' }}
         >
-          <div className="absolute inset-[2px] rounded-full bg-[#010101]" />
-        </div>
+          {text}
+          <span
+            className="relative inline-block bg-white align-middle"
+            style={{
+              width: '2px',
+              height: '1em',
+              marginLeft: '3px',
+              top: '-0.05em',
+              opacity: cursorOn ? 1 : 0,
+              transition: 'opacity 0.08s',
+            }}
+          />
+        </span>
       </div>
     </div>
   )
