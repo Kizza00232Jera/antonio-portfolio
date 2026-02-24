@@ -43,7 +43,7 @@ export default function Nav() {
     <nav ref={wrapperRef} aria-label="Main navigation">
       <ul className="flex items-center gap-8 list-none m-0 p-0">
         {links.map(({ href, label }) => {
-          const isActive = pathname === href
+          const isActive = href === '/' ? pathname === '/' : pathname.startsWith(href)
           return (
             <li key={href}>
               <Link
