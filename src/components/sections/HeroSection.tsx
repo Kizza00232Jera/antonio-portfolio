@@ -127,14 +127,15 @@ export default function HeroSection() {
           Sup, I&apos;m Antonio.
         </h1>
 
-        {/* Line 2 — "I'm a [typewriter]" — fades in, typewriter cycles */}
+        {/* Line 2 — flex-wrap keeps "I'm a Designer." on one line on desktop,
+            wraps the typewriter to its own line on mobile when it doesn't fit */}
         <p
           data-line2
-          className="font-heading font-bold text-white opacity-0"
+          className="flex flex-wrap items-baseline font-heading font-bold text-white opacity-0"
           style={{ fontSize: 'var(--text-hero)', lineHeight: 1.05 }}
         >
-          I&apos;m a{' '}
-          <span className="text-accent">
+          <span>I&apos;m a&nbsp;</span>
+          <span className="whitespace-nowrap text-accent">
             {typeText}
             {/* Blinking cursor */}
             <span

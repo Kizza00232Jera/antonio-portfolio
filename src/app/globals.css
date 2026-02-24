@@ -19,7 +19,7 @@
 
 /* ── Typography scale ──────────────────────────────────────── */
 :root {
-  --text-hero:    clamp(2.5rem, 8vw, 8rem);
+  --text-hero:    clamp(2rem, 8vw, 8rem);
   --text-display: clamp(2.5rem, 4vw, 4rem);
   --text-heading: clamp(1.5rem, 2vw, 2rem);
   --text-body:    clamp(1rem, 1.125vw, 1.125rem);
