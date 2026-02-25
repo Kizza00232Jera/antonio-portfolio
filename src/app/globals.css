@@ -120,6 +120,10 @@ html.projects-theme header {
   to { transform: translateX(-50%); }
 }
 
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .marquee-track {
     animation-play-state: paused !important;

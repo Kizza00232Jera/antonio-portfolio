@@ -13,65 +13,46 @@ interface ProjectAccordionProps {
   className?: string
 }
 
-/* ── Draggable horizontal image gallery ─────────────── */
-function DraggableGallery({ images }: { images: SanityImage[] }) {
-  const galleryRef = useRef<HTMLDivElement>(null)
-  const isDragging = useRef(false)
-  const startX = useRef(0)
-  const scrollStart = useRef(0)
+/* ── Auto-scrolling image gallery (pauses on hover) ── */
+function MarqueeGallery({ images }: { images: SanityImage[] }) {
+  const trackRef = useRef<HTMLDivElement>(null)
+  // Duplicate images for seamless infinite loop
+  const doubled = [...images, ...images]
 
-  const handlePointerDown = useCallback((e: React.PointerEvent) => {
-    const el = galleryRef.current
-    if (!el) return
-    isDragging.current = true
-    startX.current = e.pageX
-    scrollStart.current = el.scrollLeft
-    el.style.cursor = 'grabbing'
-    el.setPointerCapture(e.pointerId)
+  const pause = useCallback(() => {
+    if (trackRef.current) trackRef.current.style.animationPlayState = 'paused'
   }, [])
 
-  const handlePointerMove = useCallback((e: React.PointerEvent) => {
-    if (!isDragging.current) return
-    const el = galleryRef.current
-    if (!el) return
-    e.preventDefault()
-    const walk = (e.pageX - startX.current) * 1.5
-    el.scrollLeft = scrollStart.current - walk
-  }, [])
-
-  const handlePointerUp = useCallback(() => {
-    isDragging.current = false
-    if (galleryRef.current) {
-      galleryRef.current.style.cursor = 'grab'
-    }
+  const resume = useCallback(() => {
+    if (trackRef.current) trackRef.current.style.animationPlayState = 'running'
   }, [])
 
   return (
     <div
-      ref={galleryRef}
-      className="scrollbar-hide flex cursor-grab gap-4 overflow-x-auto"
-      style={{ scrollSnapType: 'x mandatory' }}
-      onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUp}
-      onPointerCancel={handlePointerUp}
+      className="overflow-hidden"
+      onMouseEnter={pause}
+      onMouseLeave={resume}
     >
-      {images.map((img, idx) => (
-        <div
-          key={idx}
-          className="w-[260px] shrink-0 md:w-[300px]"
-          style={{ scrollSnapAlign: 'start' }}
-        >
-          <Image
-            src={urlFor(img).width(640).quality(80).url()}
-            alt=""
-            width={640}
-            height={400}
-            className="pointer-events-none w-full select-none rounded-lg"
-            draggable={false}
-          />
-        </div>
-      ))}
+      <div
+        ref={trackRef}
+        className="flex gap-4"
+        style={{
+          animation: `marquee-scroll ${images.length * 5}s linear infinite`,
+          width: 'max-content',
+        }}
+      >
+        {doubled.map((img, idx) => (
+          <div key={idx} className="relative h-[180px] w-[260px] shrink-0 overflow-hidden md:h-[200px] md:w-[300px]">
+            <Image
+              src={urlFor(img).width(640).quality(80).url()}
+              alt=""
+              fill
+              className="object-cover"
+              sizes="300px"
+            />
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
@@ -197,7 +178,7 @@ export function ProjectAccordion({
                   {/* Right column: draggable image gallery */}
                   {hasImages && (
                     <div className={cn(hasContent ? 'lg:w-[55%]' : 'w-full')}>
-                      <DraggableGallery images={section.images!} />
+                      <MarqueeGallery images={section.images!} />
                     </div>
                   )}
                 </div>
