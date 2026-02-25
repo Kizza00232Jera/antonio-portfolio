@@ -73,3 +73,40 @@
     display: block;
   }
 }
+
+/* ── Projects dark theme scope ────────────────────────────── */
+.dark-projects {
+  --color-bg:         #0a0a0a;
+  --color-bg-alt:     #141414;
+  --color-text:       #f0f0f0;
+  --color-text-muted: #7a7a7a;
+  --color-border:     #262626;
+}
+
+.dark-projects-bg {
+  position: relative;
+  background-color: #0a0a0a;
+}
+
+.dark-projects-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('/images/texture-for-gray.png');
+  background-repeat: repeat;
+  opacity: 0.08;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Tech stack marquee animation ─────────────────────────── */
+@keyframes marquee-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation-play-state: paused !important;
+  }
+}

@@ -19,6 +19,35 @@ export interface SanitySlug {
   current: string
 }
 
+export interface TechStackItem {
+  _id: string
+  _type: 'techStackItem'
+  name: string
+  slug: SanitySlug
+  icon?: SanityImage
+}
+
+export interface Tag {
+  _id: string
+  _type: 'tag'
+  name: string
+  slug: SanitySlug
+}
+
+export interface ProjectSectionLink {
+  _key: string
+  label?: string
+  url?: string
+}
+
+export interface ProjectSection {
+  _key: string
+  title: string
+  content?: PortableTextBlock[]
+  images?: SanityImage[]
+  links?: ProjectSectionLink[]
+}
+
 export interface Project {
   _id: string
   _type: 'project'
@@ -30,6 +59,9 @@ export interface Project {
   muxVideoId?: string
   focusAreas?: string[]
   techStack?: string[]
+  techStackRefs?: TechStackItem[]
+  tags?: Tag[]
+  sections?: ProjectSection[]
   githubUrl?: string
   liveUrl?: string
   featured: boolean

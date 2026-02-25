@@ -50,9 +50,25 @@ export const project = defineType({
     }),
     defineField({
       name: 'techStack',
-      title: 'Tech Stack',
+      title: 'Tech Stack (Legacy)',
       type: 'array',
       of: [{ type: 'string' }],
+      description: 'Plain-text tech list (legacy). Use "Tech Stack" references instead.',
+      hidden: true,
+    }),
+    defineField({
+      name: 'techStackRefs',
+      title: 'Tech Stack',
+      type: 'array',
+      of: [{ type: 'reference', to: [{ type: 'techStackItem' }] }],
+      description: 'Select technologies used in this project.',
+    }),
+    defineField({
+      name: 'tags',
+      title: 'Tags',
+      type: 'array',
+      of: [{ type: 'reference', to: [{ type: 'tag' }] }],
+      description: 'Tags for filtering on the projects page.',
     }),
     defineField({
       name: 'githubUrl',
@@ -81,6 +97,65 @@ export const project = defineType({
       name: 'publishedAt',
       title: 'Published At',
       type: 'datetime',
+    }),
+    defineField({
+      name: 'sections',
+      title: 'Detail Sections',
+      type: 'array',
+      description: 'Accordion sections for the project detail page.',
+      of: [
+        {
+          type: 'object',
+          name: 'projectSection',
+          title: 'Section',
+          fields: [
+            defineField({
+              name: 'title',
+              title: 'Section Title',
+              type: 'string',
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({
+              name: 'content',
+              title: 'Content',
+              type: 'blockContent',
+            }),
+            defineField({
+              name: 'images',
+              title: 'Images',
+              type: 'array',
+              of: [{ type: 'image', options: { hotspot: true } }],
+            }),
+            defineField({
+              name: 'links',
+              title: 'Links',
+              type: 'array',
+              of: [
+                {
+                  type: 'object',
+                  name: 'sectionLink',
+                  title: 'Link',
+                  fields: [
+                    defineField({
+                      name: 'label',
+                      title: 'Label',
+                      type: 'string',
+                    }),
+                    defineField({
+                      name: 'url',
+                      title: 'URL',
+                      type: 'url',
+                    }),
+                  ],
+                },
+              ],
+            }),
+          ],
+          preview: {
+            select: { title: 'title' },
+          },
+        },
+      ],
     }),
   ],
   orderings: [
