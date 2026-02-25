@@ -6,9 +6,9 @@ export default function ProjectsLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="projects-theme projects-theme-bg h-dvh overflow-hidden">
+    <div className="projects-theme projects-theme-bg">
       <ThemeScope className="projects-theme" />
-      <div className="relative h-full">{children}</div>
+      <div className="relative">{children}</div>
     </div>
   )
 }
