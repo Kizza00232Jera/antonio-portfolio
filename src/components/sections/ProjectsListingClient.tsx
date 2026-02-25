@@ -40,28 +40,33 @@ export function ProjectsListingClient({
           </div>
         ) : (
           <HorizontalScroll
-            className="h-full"
-            trackClassName="h-full pl-6 pt-[12vh] md:pl-10"
+            className="h-full flex flex-col justify-center"
+            trackClassName="flex-nowrap justify-start whitespace-nowrap"
+            trackStyle={{
+              height: 'var(--card-h)',
+            }}
             onProgress={setScrollProgress}
           >
-            {/* Intro panel — scrolls away with cards */}
-            <div className="flex h-full w-[50vw] shrink-0 flex-col justify-center pr-6 lg:w-[32vw] lg:pr-8">
-              <h1
-                className="font-heading font-bold uppercase leading-none text-text"
-                style={{ fontSize: 'clamp(2rem, 4.5vw, 4.5rem)' }}
-              >
-                Selected
-                <br />
-                Work
-              </h1>
-              <p className="mt-4 max-w-md text-sm leading-relaxed text-text-muted lg:mt-6">
-                Every project is a journey. From the first spark of an idea to
-                a polished product &mdash; with passion, precision, and a
-                focus on building things that work beautifully.
-              </p>
+            {/* Intro panel — aligned with card content */}
+            <div className="flex h-full shrink-0 flex-col justify-center whitespace-normal pl-5 mr-16 md:pl-10 md:mr-32 lg:mr-40">
+              <div className="flex flex-col justify-between" style={{ height: 'calc(50% + 6rem)' }}>
+                <h1
+                  className="font-heading font-bold uppercase leading-none text-text"
+                  style={{ fontSize: 'clamp(2rem, 4.5vw, 4.5rem)' }}
+                >
+                  Selected
+                  <br />
+                  Work
+                </h1>
+                <p className="max-w-xs text-sm leading-relaxed text-text-muted">
+                  Every project is a journey. From the first spark of an idea to
+                  a polished product &mdash; with passion, precision, and a
+                  focus on building things that work beautifully.
+                </p>
+              </div>
             </div>
 
-            {/* Project cards */}
+            {/* Project cards — border-l creates separator lines */}
             {filteredProjects.map((project) => (
               <HorizontalProjectCard
                 key={project._id}

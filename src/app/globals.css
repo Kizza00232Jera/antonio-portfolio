@@ -82,6 +82,12 @@
   --color-text-muted: #8a8580;
   --color-accent:     #F97316;
   --color-border:     #d5cfc8;
+
+  /* Layout heights for calc-based sizing (taikisato approach) */
+  --header-h: 4rem;
+  --filter-h: 2.75rem;
+  --progress-h: 1px;
+  --card-h: calc(100dvh - var(--header-h) - var(--filter-h) - var(--progress-h));
 }
 
 .projects-theme-bg {

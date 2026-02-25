@@ -8,6 +8,7 @@ interface HorizontalScrollProps {
   children: React.ReactNode
   className?: string
   trackClassName?: string
+  trackStyle?: React.CSSProperties
   onProgress?: (progress: number) => void
 }
 
@@ -15,6 +16,7 @@ export function HorizontalScroll({
   children,
   className,
   trackClassName,
+  trackStyle,
   onProgress,
 }: HorizontalScrollProps) {
   const sectionRef = useRef<HTMLDivElement>(null)
@@ -115,9 +117,10 @@ export function HorizontalScroll({
       <div
         ref={trackRef}
         className={cn(
-          'flex items-stretch will-change-transform',
+          'flex will-change-transform',
           trackClassName,
         )}
+        style={trackStyle}
       >
         {children}
       </div>
