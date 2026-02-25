@@ -1,5 +1,7 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { cn } from '@/utils/cn'
+import { urlFor } from '@/lib/sanity/image'
 import type { Project } from '@/lib/sanity/types'
 
 interface ProjectCardProps {
@@ -39,8 +41,33 @@ export default function ProjectCard({ project, className }: ProjectCardProps) {
         </p>
       )}
 
-      {/* Tech stack badges */}
-      {project.techStack && project.techStack.length > 0 && (
+      {/* Tech stack badges (prefer refs with icons, fallback to strings) */}
+      {project.techStackRefs && project.techStackRefs.length > 0 ? (
+        <ul className="flex flex-wrap gap-2 list-none m-0 p-0 mt-auto pt-2">
+          {project.techStackRefs.slice(0, 4).map((tech) => (
+            <li
+              key={tech._id}
+              className="flex items-center gap-1.5 rounded-full border border-border px-3 py-0.5 font-mono text-xs text-text-muted"
+            >
+              {tech.icon && (
+                <Image
+                  src={urlFor(tech.icon).width(16).height(16).url()}
+                  alt={tech.name}
+                  width={16}
+                  height={16}
+                  className="h-3.5 w-3.5 object-contain"
+                />
+              )}
+              {tech.name}
+            </li>
+          ))}
+          {project.techStackRefs.length > 4 && (
+            <li className="rounded-full border border-border px-3 py-0.5 font-mono text-xs text-text-muted">
+              +{project.techStackRefs.length - 4}
+            </li>
+          )}
+        </ul>
+      ) : project.techStack && project.techStack.length > 0 ? (
         <ul className="flex flex-wrap gap-2 list-none m-0 p-0 mt-auto pt-2">
           {project.techStack.slice(0, 4).map((tech) => (
             <li
@@ -56,7 +83,7 @@ export default function ProjectCard({ project, className }: ProjectCardProps) {
             </li>
           )}
         </ul>
-      )}
+      ) : null}
     </Link>
   )
 }
