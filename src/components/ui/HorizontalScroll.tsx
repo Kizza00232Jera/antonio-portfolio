@@ -8,12 +8,14 @@ interface HorizontalScrollProps {
   children: React.ReactNode
   className?: string
   trackClassName?: string
+  onProgress?: (progress: number) => void
 }
 
 export function HorizontalScroll({
   children,
   className,
   trackClassName,
+  onProgress,
 }: HorizontalScrollProps) {
   const sectionRef = useRef<HTMLDivElement>(null)
   const trackRef = useRef<HTMLDivElement>(null)
@@ -47,6 +49,10 @@ export function HorizontalScroll({
         ease: 'power2.out',
         overwrite: true,
       })
+
+      // Report scroll progress (0 → 1)
+      const progress = Math.abs(currentX.current) / maxScroll
+      onProgress?.(progress)
     }
 
     section.addEventListener('wheel', handleWheel, { passive: false })
@@ -54,7 +60,7 @@ export function HorizontalScroll({
     return () => {
       section.removeEventListener('wheel', handleWheel)
     }
-  }, [])
+  }, [onProgress])
 
   return (
     <div ref={sectionRef} className={cn('overflow-hidden', className)}>

@@ -1,3 +1,6 @@
+'use client'
+
+import { useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { urlFor } from '@/lib/sanity/image'
@@ -21,32 +24,64 @@ export function HorizontalProjectCard({
   project,
   className,
 }: HorizontalProjectCardProps) {
+  const cursorRef = useRef<HTMLDivElement>(null)
+
   const thumbnailUrl = project.muxVideoId
-    ? `https://image.mux.com/${project.muxVideoId}/thumbnail.png?width=960&height=540&fit_mode=smartcrop`
+    ? `https://image.mux.com/${project.muxVideoId}/thumbnail.png?width=800&height=1000&fit_mode=smartcrop`
     : project.coverImage
-      ? urlFor(project.coverImage).width(960).height(540).quality(80).url()
+      ? urlFor(project.coverImage).width(800).height(1000).quality(80).url()
       : null
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cursorRef.current) return
+    const rect = e.currentTarget.getBoundingClientRect()
+    cursorRef.current.style.left = `${e.clientX - rect.left}px`
+    cursorRef.current.style.top = `${e.clientY - rect.top}px`
+    cursorRef.current.style.opacity = '1'
+    cursorRef.current.style.transform = 'translate(-50%, -50%) scale(1)'
+  }
+
+  const handleMouseLeave = () => {
+    if (!cursorRef.current) return
+    cursorRef.current.style.opacity = '0'
+    cursorRef.current.style.transform = 'translate(-50%, -50%) scale(0.5)'
+  }
 
   return (
     <Link
       href={`/projects/${project.slug.current}`}
       className={cn(
-        'group block w-[85vw] shrink-0 sm:w-[70vw] lg:w-[50vw]',
+        'group block w-[85vw] shrink-0 sm:w-[70vw] lg:w-[45vw]',
         className,
       )}
     >
       {/* Image area + vertical annotation strip */}
       {thumbnailUrl && (
         <div className="flex">
-          {/* Main image */}
-          <div className="relative flex-1 aspect-[16/10] overflow-hidden">
+          {/* Main image with custom cursor */}
+          <div
+            className="relative flex-1 aspect-[4/5] cursor-none overflow-hidden"
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+          >
             <Image
               src={thumbnailUrl}
               alt={project.title}
               fill
               className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-              sizes="(max-width: 640px) 85vw, (max-width: 1024px) 70vw, 50vw"
+              sizes="(max-width: 640px) 85vw, (max-width: 1024px) 70vw, 45vw"
             />
+
+            {/* Custom "VIEW" cursor */}
+            <div
+              ref={cursorRef}
+              className="pointer-events-none absolute z-10 opacity-0 transition-[opacity,transform] duration-200"
+              style={{ transform: 'translate(-50%, -50%) scale(0.5)' }}
+            >
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-text/90 font-mono text-[10px] font-medium uppercase tracking-widest text-bg">
+                View
+              </div>
+            </div>
           </div>
 
           {/* Right annotation column — date + tags (vertical text) */}
@@ -68,17 +103,17 @@ export function HorizontalProjectCard({
       )}
 
       {/* Divider */}
-      <div className="h-px bg-border" />
+      <div className="mt-3 h-px bg-border" />
 
       {/* Title + links row */}
-      <div className="flex items-start justify-between gap-4 py-4">
-        <h2 className="font-heading text-xl font-bold leading-tight text-text md:text-2xl">
+      <div className="flex items-start justify-between gap-4 py-3">
+        <h2 className="font-heading text-lg font-bold leading-tight text-text md:text-xl">
           {project.title}
         </h2>
         <div className="flex shrink-0 gap-4 pt-0.5">
           {project.liveUrl && (
             <span
-              className="font-mono text-xs uppercase tracking-wider text-text-muted underline underline-offset-4 transition-colors hover:text-accent"
+              className="font-mono text-[10px] uppercase tracking-wider text-text-muted underline underline-offset-4 transition-colors hover:text-accent"
               onClick={(e) => {
                 e.preventDefault()
                 window.open(project.liveUrl, '_blank', 'noopener,noreferrer')
@@ -89,7 +124,7 @@ export function HorizontalProjectCard({
           )}
           {project.githubUrl && (
             <span
-              className="font-mono text-xs uppercase tracking-wider text-text-muted underline underline-offset-4 transition-colors hover:text-accent"
+              className="font-mono text-[10px] uppercase tracking-wider text-text-muted underline underline-offset-4 transition-colors hover:text-accent"
               onClick={(e) => {
                 e.preventDefault()
                 window.open(project.githubUrl, '_blank', 'noopener,noreferrer')
@@ -103,49 +138,40 @@ export function HorizontalProjectCard({
 
       {/* Description */}
       {project.tagline && (
-        <>
-          <div className="h-px bg-border" />
-          <p className="py-4 text-sm leading-relaxed text-text-muted line-clamp-3">
-            {project.tagline}
-          </p>
-        </>
+        <p className="text-xs leading-relaxed text-text-muted line-clamp-2">
+          {project.tagline}
+        </p>
       )}
 
       {/* Tech stack */}
       {project.techStackRefs && project.techStackRefs.length > 0 ? (
-        <>
-          <div className="h-px bg-border" />
-          <div className="flex flex-wrap gap-3 pt-4">
-            {project.techStackRefs.map((tech) => (
-              <span
-                key={tech._id}
-                className="flex items-center gap-1.5 font-mono text-xs text-text-muted"
-              >
-                {tech.icon && (
-                  <Image
-                    src={urlFor(tech.icon).width(20).height(20).url()}
-                    alt={tech.name}
-                    width={20}
-                    height={20}
-                    className="h-4 w-4 object-contain"
-                  />
-                )}
-                {tech.name}
-              </span>
-            ))}
-          </div>
-        </>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {project.techStackRefs.map((tech) => (
+            <span
+              key={tech._id}
+              className="flex items-center gap-1 font-mono text-[10px] text-text-muted"
+            >
+              {tech.icon && (
+                <Image
+                  src={urlFor(tech.icon).width(16).height(16).url()}
+                  alt={tech.name}
+                  width={16}
+                  height={16}
+                  className="h-3 w-3 object-contain"
+                />
+              )}
+              {tech.name}
+            </span>
+          ))}
+        </div>
       ) : project.techStack && project.techStack.length > 0 ? (
-        <>
-          <div className="h-px bg-border" />
-          <div className="flex flex-wrap gap-3 pt-4">
-            {project.techStack.map((name) => (
-              <span key={name} className="font-mono text-xs text-text-muted">
-                {name}
-              </span>
-            ))}
-          </div>
-        </>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {project.techStack.map((name) => (
+            <span key={name} className="font-mono text-[10px] text-text-muted">
+              {name}
+            </span>
+          ))}
+        </div>
       ) : null}
     </Link>
   )

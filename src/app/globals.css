@@ -74,27 +74,28 @@
   }
 }
 
-/* ── Projects dark theme scope ────────────────────────────── */
-.dark-projects {
-  --color-bg:         #0a0a0a;
-  --color-bg-alt:     #141414;
-  --color-text:       #f0f0f0;
-  --color-text-muted: #7a7a7a;
-  --color-border:     #262626;
+/* ── Projects theme scope (warm beige like taikisato) ────── */
+.projects-theme {
+  --color-bg:         #e8e2da;
+  --color-bg-alt:     #f2ede7;
+  --color-text:       #1a1a1a;
+  --color-text-muted: #8a8580;
+  --color-accent:     #F97316;
+  --color-border:     #d5cfc8;
 }
 
-.dark-projects-bg {
+.projects-theme-bg {
   position: relative;
-  background-color: #0a0a0a;
+  background-color: #e8e2da;
 }
 
-.dark-projects-bg::before {
+.projects-theme-bg::before {
   content: '';
   position: absolute;
   inset: 0;
   background-image: url('/images/texture-for-gray.png');
   background-repeat: repeat;
-  opacity: 0.08;
+  opacity: 0.35;
   pointer-events: none;
   z-index: 0;
 }
