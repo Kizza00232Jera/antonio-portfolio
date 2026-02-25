@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import type { Tag } from '@/lib/sanity/types'
 import { cn } from '@/utils/cn'
 
@@ -14,48 +15,100 @@ export function ProjectFilterBar({
   activeTag,
   onTagChange,
 }: ProjectFilterBarProps) {
+  const [isOpen, setIsOpen] = useState(false)
+
+  const activeLabel = activeTag
+    ? tags.find((t) => t.slug.current === activeTag)?.name ?? 'All'
+    : 'All'
+
+  const handleSelect = (tagSlug: string | null) => {
+    onTagChange(tagSlug)
+    setIsOpen(false)
+  }
+
   return (
-    <div className="shrink-0 border-t border-border bg-bg/80 backdrop-blur-md">
-      <div className="scrollbar-hide flex items-center gap-6 overflow-x-auto px-6 py-3 md:px-10">
-        <span className="shrink-0 font-mono text-xs uppercase tracking-widest text-text-muted">
-          Filter
-        </span>
+    <div className="relative shrink-0">
+      {/* Backdrop — closes filter on click */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-black/40"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
 
-        {/* "All" option */}
-        <button
-          type="button"
-          onClick={() => onTagChange(null)}
-          className="flex shrink-0 items-center gap-2 font-mono text-xs uppercase tracking-wider text-text-muted transition-colors hover:text-text"
-        >
-          <span
-            className={cn(
-              'h-2.5 w-2.5 rounded-full border transition-colors',
-              activeTag === null
-                ? 'border-accent bg-accent'
-                : 'border-text-muted',
-            )}
-          />
-          All
-        </button>
-
-        {tags.map((tag) => (
+      {/* Expanded options panel — slides up from bottom */}
+      <div
+        className={cn(
+          'absolute bottom-full left-0 right-0 z-40 overflow-hidden border-t border-border bg-bg transition-all duration-300 ease-out',
+          isOpen
+            ? 'max-h-[60vh] opacity-100'
+            : 'max-h-0 opacity-0',
+        )}
+      >
+        <div className="flex flex-col gap-1 px-6 py-4 md:px-10">
+          {/* "All" option */}
           <button
-            key={tag._id}
             type="button"
-            onClick={() => onTagChange(tag.slug.current)}
-            className="flex shrink-0 items-center gap-2 font-mono text-xs uppercase tracking-wider text-text-muted transition-colors hover:text-text"
+            onClick={() => handleSelect(null)}
+            className="flex items-center gap-3 py-1.5 font-mono text-xs uppercase tracking-wider text-text-muted transition-colors hover:text-text"
           >
             <span
               className={cn(
                 'h-2.5 w-2.5 rounded-full border transition-colors',
-                activeTag === tag.slug.current
-                  ? 'border-accent bg-accent'
+                activeTag === null
+                  ? 'border-text bg-text'
                   : 'border-text-muted',
               )}
             />
-            {tag.name}
+            All
           </button>
-        ))}
+
+          {tags.map((tag) => (
+            <button
+              key={tag._id}
+              type="button"
+              onClick={() => handleSelect(tag.slug.current)}
+              className="flex items-center gap-3 py-1.5 font-mono text-xs uppercase tracking-wider text-text-muted transition-colors hover:text-text"
+            >
+              <span
+                className={cn(
+                  'h-2.5 w-2.5 rounded-full border transition-colors',
+                  activeTag === tag.slug.current
+                    ? 'border-text bg-text'
+                    : 'border-text-muted',
+                )}
+              />
+              {tag.name}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Collapsed bar — always visible */}
+      <div className="relative z-40 border-t border-border bg-bg/80 backdrop-blur-md">
+        <div className="flex items-center gap-6 px-6 py-3 md:px-10">
+          <button
+            type="button"
+            onClick={() => setIsOpen((prev) => !prev)}
+            className="flex shrink-0 items-center gap-1.5 font-mono text-xs uppercase tracking-widest text-text-muted transition-colors hover:text-text"
+          >
+            Filter
+            <span
+              className={cn(
+                'text-[10px] transition-transform duration-200',
+                isOpen && 'rotate-180',
+              )}
+            >
+              &#9662;
+            </span>
+          </button>
+
+          {/* Active filter indicator */}
+          <span className="flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-text-muted">
+            <span className="h-2.5 w-2.5 rounded-full border border-text bg-text" />
+            {activeLabel}
+          </span>
+        </div>
       </div>
     </div>
   )
