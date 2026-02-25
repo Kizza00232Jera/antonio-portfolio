@@ -53,7 +53,7 @@ export function HorizontalProjectCard({
         'h-full max-w-full shrink-0 border-l border-border p-5 last:border-r md:px-10 md:pb-5 md:pt-4',
         className,
       )}
-      style={{ aspectRatio: '59 / 72' }}
+      style={{ aspectRatio: '49 / 72' }}
     >
       <Link
         href={`/projects/${project.slug.current}`}
@@ -61,7 +61,7 @@ export function HorizontalProjectCard({
       >
         {/* Image + annotation row — top 50% */}
         {thumbnailUrl && (
-          <div className="flex h-1/2 min-h-0">
+          <div className="flex h-[72%] min-h-0">
             {/* Image — Next.js fill needs a relative parent with dimensions */}
             <div
               className="relative min-w-0 flex-1 cursor-none overflow-hidden"
@@ -72,7 +72,7 @@ export function HorizontalProjectCard({
                 src={thumbnailUrl}
                 alt={project.title}
                 fill
-                className="aspect-[59/72] object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                 sizes="(max-width: 768px) 80vw, 40vw"
               />
 

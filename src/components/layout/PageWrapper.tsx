@@ -78,7 +78,7 @@ export function PageWrapper({ children }: { children: React.ReactNode }) {
     <div
       ref={wrapperRef}
       id="page-wrapper"
-      className="relative z-50 min-h-screen"
+      className="relative min-h-screen"
       style={{ transformStyle: 'preserve-3d' }}
     >
       {children}

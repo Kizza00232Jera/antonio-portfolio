@@ -14,7 +14,7 @@ export function MenuButton({ variant }: MenuButtonProps) {
       onClick={toggle}
       aria-label={isOpen ? 'Close navigation menu' : 'Open navigation menu'}
       aria-expanded={isOpen}
-      className="flex cursor-pointer items-center gap-2 font-body text-sm font-medium text-white transition-colors duration-200 hover:text-white/70"
+      className="flex cursor-pointer items-center gap-2 font-body text-sm font-medium transition-colors duration-200 hover:opacity-70"
     >
       {variant === 'header' && (
         <span className="flex flex-col gap-[4px]">

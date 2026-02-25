@@ -12,8 +12,8 @@
 
 /* ── Font utilities (resolved from next/font vars on <html>) ── */
 @theme inline {
-  --font-heading: var(--font-space-grotesk);
-  --font-body:    var(--font-inter);
+  --font-heading: var(--font-zen-old-mincho);
+  --font-body:    var(--font-zen-old-mincho);
   --font-mono:    var(--font-jetbrains-mono);
 }
 
@@ -46,7 +46,7 @@
   body {
     background-color: var(--color-bg);
     color: var(--color-text);
-    font-family: var(--font-body), system-ui, sans-serif;
+    font-family: var(--font-body), ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
     font-size: 1rem;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
@@ -54,7 +54,7 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-heading), system-ui, sans-serif;
+    font-family: var(--font-heading), ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
     font-weight: 700;
     line-height: 1.1;
   }
@@ -90,6 +90,15 @@
   --card-h: calc(100dvh - var(--header-h) - var(--filter-h) - var(--progress-h));
 }
 
+/* Header color — white by default, dark on projects pages */
+header {
+  color: #fff;
+}
+
+html.projects-theme header {
+  color: #1a1a1a;
+}
+
 .projects-theme-bg {
   position: relative;
   background-color: #e8e2da;
@@ -103,7 +112,6 @@
   background-repeat: repeat;
   opacity: 0.35;
   pointer-events: none;
-  z-index: 0;
 }
 
 /* ── Tech stack marquee animation ─────────────────────────── */

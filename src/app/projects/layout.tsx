@@ -1,3 +1,5 @@
+import { ThemeScope } from '@/components/providers/ThemeScope'
+
 export default function ProjectsLayout({
   children,
 }: {
@@ -5,7 +7,8 @@ export default function ProjectsLayout({
 }) {
   return (
     <div className="projects-theme projects-theme-bg h-dvh overflow-hidden">
-      <div className="relative z-10 h-full">{children}</div>
+      <ThemeScope className="projects-theme" />
+      <div className="relative h-full">{children}</div>
     </div>
   )
 }
