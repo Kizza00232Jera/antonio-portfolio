@@ -1,16 +1,40 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 import { notFound } from 'next/navigation'
-import PortableTextRenderer from '@/components/sanity/PortableTextRenderer'
 import { getProjectBySlug } from '@/lib/sanity/queries'
 import { urlFor } from '@/lib/sanity/image'
+
+const MuxVideoPlayer = dynamic(
+  () =>
+    import('@/components/ui/MuxVideoPlayer').then((m) => m.MuxVideoPlayer),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="aspect-video w-full animate-pulse rounded-xl bg-bg-alt" />
+    ),
+  },
+)
+
+const TechMarquee = dynamic(
+  () => import('@/components/ui/TechMarquee').then((m) => m.TechMarquee),
+  { ssr: false },
+)
+
+const ProjectAccordion = dynamic(
+  () =>
+    import('@/components/ui/ProjectAccordion').then((m) => m.ProjectAccordion),
+  { ssr: false },
+)
 
 interface ProjectPageProps {
   params: Promise<{ slug: string }>
 }
 
-export async function generateMetadata({ params }: ProjectPageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: ProjectPageProps): Promise<Metadata> {
   const { slug } = await params
   const project = await getProjectBySlug(slug)
 
@@ -32,132 +56,98 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     notFound()
   }
 
+  const posterUrl = project.coverImage
+    ? urlFor(project.coverImage).width(1920).quality(80).url()
+    : undefined
+
   return (
     <article className="mx-auto max-w-[var(--max-width)] px-6 py-[var(--section-gap)]">
-      {/* Back link */}
-      <Link
-        href="/projects"
-        className="inline-flex items-center gap-1 text-sm font-medium text-text-muted hover:text-text transition-colors mb-10"
-      >
-        ← Back to projects
-      </Link>
-
-      {/* Header */}
-      <header className="mb-12">
+      {/* Title + intro */}
+      <header className="mb-10 text-center">
         <h1
-          className="font-heading font-bold text-text leading-tight mb-4"
+          className="font-heading font-bold leading-tight text-text"
           style={{ fontSize: 'var(--text-display)' }}
         >
           {project.title}
         </h1>
 
         {project.tagline && (
-          <p
-            className="text-text-muted leading-relaxed mb-6"
-            style={{ fontSize: 'var(--text-body)' }}
-          >
+          <p className="mx-auto mt-4 max-w-2xl leading-relaxed text-text-muted">
             {project.tagline}
           </p>
         )}
-
-        {/* Tech stack badges */}
-        {project.techStack && project.techStack.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {project.techStack.map((tech) => (
-              <span
-                key={tech}
-                className="rounded-full border border-border px-3 py-0.5 font-mono text-xs text-text-muted"
-              >
-                {tech}
-              </span>
-            ))}
-          </div>
-        )}
       </header>
 
-      {/* Cover image */}
-      {project.coverImage && (
-        <div className="mb-12 overflow-hidden rounded-2xl border border-border">
-          <Image
-            src={urlFor(project.coverImage).width(1200).quality(85).url()}
-            alt={project.title}
-            width={1200}
-            height={675}
-            className="w-full"
-            sizes="(max-width: 1200px) 100vw, 1200px"
-            priority
+      {/* Video or cover image */}
+      <div className="mb-8">
+        {project.muxVideoId ? (
+          <MuxVideoPlayer
+            playbackId={project.muxVideoId}
+            poster={posterUrl}
+            title={project.title}
           />
-        </div>
-      )}
+        ) : project.coverImage ? (
+          <div className="overflow-hidden rounded-xl">
+            <Image
+              src={urlFor(project.coverImage).width(1200).quality(85).url()}
+              alt={project.title}
+              width={1200}
+              height={675}
+              className="w-full"
+              sizes="(max-width: 1200px) 100vw, 1200px"
+              priority
+            />
+          </div>
+        ) : null}
+      </div>
 
-      {/* Focus areas */}
-      {project.focusAreas && project.focusAreas.length > 0 && (
-        <div className="mb-12">
-          <p className="text-xs font-mono text-text-muted uppercase tracking-widest mb-4">
-            Focus areas
-          </p>
-          <ul className="flex flex-wrap gap-3 list-none m-0 p-0">
-            {project.focusAreas.map((area) => (
-              <li
-                key={area}
-                className="rounded-lg bg-bg-alt border border-border px-4 py-2 text-sm font-medium text-text"
-              >
-                {area}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {/* Description (Portable Text) */}
-      {project.description && (
-        <div className="mx-auto max-w-3xl mb-12">
-          <PortableTextRenderer value={project.description} />
-        </div>
-      )}
-
-      {/* Links */}
-      {(project.githubUrl || project.liveUrl) && (
-        <div className="mx-auto max-w-3xl flex flex-wrap gap-4 mb-12">
-          {project.liveUrl && (
+      {/* Links row */}
+      {(project.liveUrl || project.githubUrl) && (
+        <div className="mb-12 flex items-center justify-between">
+          {project.liveUrl ? (
             <a
               href={project.liveUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+              className="font-mono text-sm text-text-muted underline underline-offset-4 transition-colors hover:text-accent"
             >
-              View live ↗
+              View live
             </a>
+          ) : (
+            <span />
           )}
-          {project.githubUrl && (
+          {project.githubUrl ? (
             <a
               href={project.githubUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-text transition-colors hover:border-accent hover:text-accent"
+              className="font-mono text-sm text-text-muted underline underline-offset-4 transition-colors hover:text-accent"
             >
-              View on GitHub ↗
+              GitHub
             </a>
+          ) : (
+            <span />
           )}
         </div>
       )}
 
+      {/* Tech stack marquee */}
+      {project.techStackRefs && project.techStackRefs.length > 0 && (
+        <TechMarquee items={project.techStackRefs} className="mb-12" />
+      )}
+
+      {/* Accordion sections */}
+      {project.sections && project.sections.length > 0 && (
+        <ProjectAccordion sections={project.sections} className="mb-12" />
+      )}
+
       {/* Footer */}
-      <footer className="mx-auto max-w-3xl pt-8 border-t border-border">
-        {project.publishedAt && (
-          <p className="text-xs font-mono text-text-muted mb-4">
-            {new Date(project.publishedAt).toLocaleDateString('en-GB', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-            })}
-          </p>
-        )}
+      <footer className="border-t border-border pt-8">
         <Link
           href="/projects"
-          className="inline-flex items-center gap-1 text-sm font-medium text-text-muted hover:text-text transition-colors"
+          className="inline-flex items-center gap-1 text-sm font-medium text-text-muted transition-colors hover:text-text"
         >
-          ← All projects
+          &larr; All projects
         </Link>
       </footer>
     </article>
