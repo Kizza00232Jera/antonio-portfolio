@@ -27,9 +27,9 @@ export function HorizontalProjectCard({
   const cursorRef = useRef<HTMLDivElement>(null)
 
   const thumbnailUrl = project.muxVideoId
-    ? `https://image.mux.com/${project.muxVideoId}/thumbnail.png?width=800&height=1000&fit_mode=smartcrop`
+    ? `https://image.mux.com/${project.muxVideoId}/thumbnail.png?width=900&height=1200&fit_mode=smartcrop`
     : project.coverImage
-      ? urlFor(project.coverImage).width(800).height(1000).quality(80).url()
+      ? urlFor(project.coverImage).width(900).height(1200).quality(80).url()
       : null
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -51,7 +51,7 @@ export function HorizontalProjectCard({
     <Link
       href={`/projects/${project.slug.current}`}
       className={cn(
-        'group block w-[85vw] shrink-0 sm:w-[70vw] lg:w-[45vw]',
+        'group block w-[75vw] shrink-0 border-l border-border pl-8 sm:w-[55vw] lg:w-[32vw]',
         className,
       )}
     >
@@ -60,7 +60,7 @@ export function HorizontalProjectCard({
         <div className="flex">
           {/* Main image with custom cursor */}
           <div
-            className="relative flex-1 aspect-[4/5] cursor-none overflow-hidden"
+            className="relative flex-1 aspect-[3/4] cursor-none overflow-hidden"
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
           >
@@ -69,7 +69,7 @@ export function HorizontalProjectCard({
               alt={project.title}
               fill
               className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-              sizes="(max-width: 640px) 85vw, (max-width: 1024px) 70vw, 45vw"
+              sizes="(max-width: 640px) 75vw, (max-width: 1024px) 55vw, 32vw"
             />
 
             {/* Custom "VIEW" cursor */}
@@ -103,10 +103,10 @@ export function HorizontalProjectCard({
       )}
 
       {/* Divider */}
-      <div className="mt-3 h-px bg-border" />
+      <div className="mt-2 h-px bg-border" />
 
       {/* Title + links row */}
-      <div className="flex items-start justify-between gap-4 py-3">
+      <div className="flex items-start justify-between gap-4 py-2">
         <h2 className="font-heading text-lg font-bold leading-tight text-text md:text-xl">
           {project.title}
         </h2>
@@ -145,7 +145,7 @@ export function HorizontalProjectCard({
 
       {/* Tech stack */}
       {project.techStackRefs && project.techStackRefs.length > 0 ? (
-        <div className="mt-3 flex flex-wrap gap-2">
+        <div className="mt-2 flex flex-wrap gap-2">
           {project.techStackRefs.map((tech) => (
             <span
               key={tech._id}
@@ -165,7 +165,7 @@ export function HorizontalProjectCard({
           ))}
         </div>
       ) : project.techStack && project.techStack.length > 0 ? (
-        <div className="mt-3 flex flex-wrap gap-2">
+        <div className="mt-2 flex flex-wrap gap-2">
           {project.techStack.map((name) => (
             <span key={name} className="font-mono text-[10px] text-text-muted">
               {name}
