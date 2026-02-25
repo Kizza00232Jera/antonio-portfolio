@@ -1,32 +1,10 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import dynamic from 'next/dynamic'
 import { notFound } from 'next/navigation'
 import { getProjectBySlug } from '@/lib/sanity/queries'
 import { urlFor } from '@/lib/sanity/image'
-
-const MuxVideoPlayer = dynamic(
-  () =>
-    import('@/components/ui/MuxVideoPlayer').then((m) => m.MuxVideoPlayer),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="aspect-video w-full animate-pulse rounded-xl bg-bg-alt" />
-    ),
-  },
-)
-
-const TechMarquee = dynamic(
-  () => import('@/components/ui/TechMarquee').then((m) => m.TechMarquee),
-  { ssr: false },
-)
-
-const ProjectAccordion = dynamic(
-  () =>
-    import('@/components/ui/ProjectAccordion').then((m) => m.ProjectAccordion),
-  { ssr: false },
-)
+import { ProjectDetailClient } from '@/components/project/ProjectDetailClient'
 
 interface ProjectPageProps {
   params: Promise<{ slug: string }>
@@ -78,28 +56,29 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         )}
       </header>
 
-      {/* Video or cover image */}
-      <div className="mb-8">
-        {project.muxVideoId ? (
-          <MuxVideoPlayer
-            playbackId={project.muxVideoId}
-            poster={posterUrl}
-            title={project.title}
+      {/* Cover image (shown when no video) */}
+      {!project.muxVideoId && project.coverImage && (
+        <div className="mb-8 overflow-hidden rounded-xl">
+          <Image
+            src={urlFor(project.coverImage).width(1200).quality(85).url()}
+            alt={project.title}
+            width={1200}
+            height={675}
+            className="w-full"
+            sizes="(max-width: 1200px) 100vw, 1200px"
+            priority
           />
-        ) : project.coverImage ? (
-          <div className="overflow-hidden rounded-xl">
-            <Image
-              src={urlFor(project.coverImage).width(1200).quality(85).url()}
-              alt={project.title}
-              width={1200}
-              height={675}
-              className="w-full"
-              sizes="(max-width: 1200px) 100vw, 1200px"
-              priority
-            />
-          </div>
-        ) : null}
-      </div>
+        </div>
+      )}
+
+      {/* Client-rendered: video, marquee, accordion */}
+      <ProjectDetailClient
+        muxVideoId={project.muxVideoId}
+        posterUrl={posterUrl}
+        title={project.title}
+        techStackRefs={project.techStackRefs}
+        sections={project.sections}
+      />
 
       {/* Links row */}
       {(project.liveUrl || project.githubUrl) && (
@@ -129,16 +108,6 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             <span />
           )}
         </div>
-      )}
-
-      {/* Tech stack marquee */}
-      {project.techStackRefs && project.techStackRefs.length > 0 && (
-        <TechMarquee items={project.techStackRefs} className="mb-12" />
-      )}
-
-      {/* Accordion sections */}
-      {project.sections && project.sections.length > 0 && (
-        <ProjectAccordion sections={project.sections} className="mb-12" />
       )}
 
       {/* Footer */}
