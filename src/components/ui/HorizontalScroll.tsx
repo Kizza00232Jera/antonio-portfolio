@@ -115,7 +115,7 @@ export function HorizontalScroll({
       <div
         ref={trackRef}
         className={cn(
-          'flex items-center will-change-transform',
+          'flex items-stretch will-change-transform',
           trackClassName,
         )}
       >

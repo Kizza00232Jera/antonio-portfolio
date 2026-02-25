@@ -51,16 +51,16 @@ export function HorizontalProjectCard({
     <Link
       href={`/projects/${project.slug.current}`}
       className={cn(
-        'group block w-[75vw] shrink-0 border-l border-border pl-8 sm:w-[55vw] lg:w-[32vw]',
+        'group flex w-[75vw] shrink-0 flex-col border-l border-border pl-8 pb-4 sm:w-[55vw] lg:w-[32vw]',
         className,
       )}
     >
-      {/* Image area + vertical annotation strip */}
+      {/* Image area + vertical annotation strip — fills remaining space */}
       {thumbnailUrl && (
-        <div className="flex">
+        <div className="flex flex-1 min-h-0">
           {/* Main image with custom cursor */}
           <div
-            className="relative flex-1 aspect-[3/4] cursor-none overflow-hidden"
+            className="relative flex-1 cursor-none overflow-hidden"
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
           >
@@ -102,77 +102,80 @@ export function HorizontalProjectCard({
         </div>
       )}
 
-      {/* Divider */}
-      <div className="mt-2 h-px bg-border" />
+      {/* Text area — always visible, never pushed off screen */}
+      <div className="shrink-0">
+        {/* Divider */}
+        <div className="mt-2 h-px bg-border" />
 
-      {/* Title + links row */}
-      <div className="flex items-start justify-between gap-4 py-2">
-        <h2 className="font-heading text-lg font-bold leading-tight text-text md:text-xl">
-          {project.title}
-        </h2>
-        <div className="flex shrink-0 gap-4 pt-0.5">
-          {project.liveUrl && (
-            <span
-              className="font-mono text-[10px] uppercase tracking-wider text-text-muted underline underline-offset-4 transition-colors hover:text-accent"
-              onClick={(e) => {
-                e.preventDefault()
-                window.open(project.liveUrl, '_blank', 'noopener,noreferrer')
-              }}
-            >
-              Demo
-            </span>
-          )}
-          {project.githubUrl && (
-            <span
-              className="font-mono text-[10px] uppercase tracking-wider text-text-muted underline underline-offset-4 transition-colors hover:text-accent"
-              onClick={(e) => {
-                e.preventDefault()
-                window.open(project.githubUrl, '_blank', 'noopener,noreferrer')
-              }}
-            >
-              GitHub
-            </span>
-          )}
+        {/* Title + links row */}
+        <div className="flex items-start justify-between gap-4 py-2">
+          <h2 className="font-heading text-lg font-bold leading-tight text-text md:text-xl">
+            {project.title}
+          </h2>
+          <div className="flex shrink-0 gap-4 pt-0.5">
+            {project.liveUrl && (
+              <span
+                className="font-mono text-[10px] uppercase tracking-wider text-text-muted underline underline-offset-4 transition-colors hover:text-accent"
+                onClick={(e) => {
+                  e.preventDefault()
+                  window.open(project.liveUrl, '_blank', 'noopener,noreferrer')
+                }}
+              >
+                Demo
+              </span>
+            )}
+            {project.githubUrl && (
+              <span
+                className="font-mono text-[10px] uppercase tracking-wider text-text-muted underline underline-offset-4 transition-colors hover:text-accent"
+                onClick={(e) => {
+                  e.preventDefault()
+                  window.open(project.githubUrl, '_blank', 'noopener,noreferrer')
+                }}
+              >
+                GitHub
+              </span>
+            )}
+          </div>
         </div>
+
+        {/* Description */}
+        {project.tagline && (
+          <p className="text-xs leading-relaxed text-text-muted line-clamp-2">
+            {project.tagline}
+          </p>
+        )}
+
+        {/* Tech stack */}
+        {project.techStackRefs && project.techStackRefs.length > 0 ? (
+          <div className="mt-2 flex flex-wrap gap-2">
+            {project.techStackRefs.map((tech) => (
+              <span
+                key={tech._id}
+                className="flex items-center gap-1 font-mono text-[10px] text-text-muted"
+              >
+                {tech.icon && (
+                  <Image
+                    src={urlFor(tech.icon).width(16).height(16).url()}
+                    alt={tech.name}
+                    width={16}
+                    height={16}
+                    className="h-3 w-3 object-contain"
+                  />
+                )}
+                {tech.name}
+              </span>
+            ))}
+          </div>
+        ) : project.techStack && project.techStack.length > 0 ? (
+          <div className="mt-2 flex flex-wrap gap-2">
+            {project.techStack.map((name) => (
+              <span key={name} className="font-mono text-[10px] text-text-muted">
+                {name}
+              </span>
+            ))}
+          </div>
+        ) : null}
       </div>
-
-      {/* Description */}
-      {project.tagline && (
-        <p className="text-xs leading-relaxed text-text-muted line-clamp-2">
-          {project.tagline}
-        </p>
-      )}
-
-      {/* Tech stack */}
-      {project.techStackRefs && project.techStackRefs.length > 0 ? (
-        <div className="mt-2 flex flex-wrap gap-2">
-          {project.techStackRefs.map((tech) => (
-            <span
-              key={tech._id}
-              className="flex items-center gap-1 font-mono text-[10px] text-text-muted"
-            >
-              {tech.icon && (
-                <Image
-                  src={urlFor(tech.icon).width(16).height(16).url()}
-                  alt={tech.name}
-                  width={16}
-                  height={16}
-                  className="h-3 w-3 object-contain"
-                />
-              )}
-              {tech.name}
-            </span>
-          ))}
-        </div>
-      ) : project.techStack && project.techStack.length > 0 ? (
-        <div className="mt-2 flex flex-wrap gap-2">
-          {project.techStack.map((name) => (
-            <span key={name} className="font-mono text-[10px] text-text-muted">
-              {name}
-            </span>
-          ))}
-        </div>
-      ) : null}
     </Link>
   )
 }
