@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getProjectBySlug } from '@/lib/sanity/queries'
 import { urlFor } from '@/lib/sanity/image'
@@ -82,15 +81,6 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         githubUrl={project.githubUrl}
       />
 
-      {/* Footer */}
-      <footer className="border-t border-border pt-8">
-        <Link
-          href="/projects"
-          className="inline-flex items-center gap-1 text-sm font-medium text-text-muted transition-colors hover:text-text"
-        >
-          &larr; All projects
-        </Link>
-      </footer>
     </article>
   )
 }

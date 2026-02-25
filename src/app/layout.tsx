@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { Space_Grotesk, Inter, JetBrains_Mono } from 'next/font/google'
 import { Suspense } from 'react'
 import Header from '@/components/layout/Header'
-import Footer from '@/components/layout/Footer'
+
 import Preloader from '@/components/layout/Preloader'
 import { NavOverlay } from '@/components/layout/NavOverlay'
 import { PageWrapper } from '@/components/layout/PageWrapper'
@@ -59,7 +59,7 @@ export default function RootLayout({
                 <main className="min-h-screen">
                   {children}
                 </main>
-                <Footer />
+
               </PageWrapper>
             </MenuProvider>
           </LenisProvider>
