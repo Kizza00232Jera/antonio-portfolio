@@ -24,7 +24,7 @@ export function MuxVideoPlayer({
       title={title}
       className={cn('aspect-video w-full rounded-xl', className)}
       accentColor="#F97316"
-      style={{ '--media-object-fit': 'cover' } as React.CSSProperties}
+      style={{ '--media-object-fit': 'cover' } as Record<string, string>}
     />
   )
 }

@@ -71,44 +71,16 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         </div>
       )}
 
-      {/* Client-rendered: video, marquee, accordion */}
+      {/* Client-rendered: video, links, marquee, accordion */}
       <ProjectDetailClient
         muxVideoId={project.muxVideoId}
         posterUrl={posterUrl}
         title={project.title}
         techStackRefs={project.techStackRefs}
         sections={project.sections}
+        liveUrl={project.liveUrl}
+        githubUrl={project.githubUrl}
       />
-
-      {/* Links row */}
-      {(project.liveUrl || project.githubUrl) && (
-        <div className="mb-12 flex items-center justify-between">
-          {project.liveUrl ? (
-            <a
-              href={project.liveUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-mono text-sm text-text-muted underline underline-offset-4 transition-colors hover:text-accent"
-            >
-              View live
-            </a>
-          ) : (
-            <span />
-          )}
-          {project.githubUrl ? (
-            <a
-              href={project.githubUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-mono text-sm text-text-muted underline underline-offset-4 transition-colors hover:text-accent"
-            >
-              GitHub
-            </a>
-          ) : (
-            <span />
-          )}
-        </div>
-      )}
 
       {/* Footer */}
       <footer className="border-t border-border pt-8">

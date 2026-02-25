@@ -31,6 +31,8 @@ interface ProjectDetailClientProps {
   title: string
   techStackRefs?: TechStackItem[]
   sections?: ProjectSection[]
+  liveUrl?: string
+  githubUrl?: string
 }
 
 export function ProjectDetailClient({
@@ -39,17 +41,49 @@ export function ProjectDetailClient({
   title,
   techStackRefs,
   sections,
+  liveUrl,
+  githubUrl,
 }: ProjectDetailClientProps) {
   return (
     <>
       {/* Video player */}
       {muxVideoId && (
-        <div className="mb-8">
+        <div className="mb-6">
           <MuxVideoPlayer
             playbackId={muxVideoId}
             poster={posterUrl}
             title={title}
           />
+        </div>
+      )}
+
+      {/* Links row — between video and marquee */}
+      {(liveUrl || githubUrl) && (
+        <div className="mb-8 flex items-center justify-between">
+          {liveUrl ? (
+            <a
+              href={liveUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-mono text-sm text-text-muted underline underline-offset-4 transition-colors hover:text-accent"
+            >
+              View live
+            </a>
+          ) : (
+            <span />
+          )}
+          {githubUrl ? (
+            <a
+              href={githubUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-mono text-sm text-text-muted underline underline-offset-4 transition-colors hover:text-accent"
+            >
+              GitHub
+            </a>
+          ) : (
+            <span />
+          )}
         </div>
       )}
 

@@ -10,9 +10,14 @@ gsap.registerPlugin(ScrollTrigger)
 interface HorizontalScrollProps {
   children: React.ReactNode
   className?: string
+  trackClassName?: string
 }
 
-export function HorizontalScroll({ children, className }: HorizontalScrollProps) {
+export function HorizontalScroll({
+  children,
+  className,
+  trackClassName,
+}: HorizontalScrollProps) {
   const sectionRef = useRef<HTMLDivElement>(null)
   const trackRef = useRef<HTMLDivElement>(null)
 
@@ -25,42 +30,56 @@ export function HorizontalScroll({ children, className }: HorizontalScrollProps)
       '(prefers-reduced-motion: reduce)',
     ).matches
 
-    // Reduced-motion fallback: native horizontal scroll
     if (prefersReduced) {
       section.style.overflow = 'auto'
       return
     }
 
-    const ctx = gsap.context(() => {
-      // Wait for layout to settle, then calculate scroll distance
-      const updateScroll = () => {
-        const scrollDistance = track.scrollWidth - section.offsetWidth
+    let timer: ReturnType<typeof setTimeout>
 
-        if (scrollDistance <= 0) return
+    const ctx = gsap.context(() => {
+      const getScrollDistance = () =>
+        Math.max(0, track.scrollWidth - section.offsetWidth)
+
+      timer = setTimeout(() => {
+        const distance = getScrollDistance()
+        if (distance <= 0) return
 
         gsap.to(track, {
-          x: -scrollDistance,
+          x: () => -getScrollDistance(),
           ease: 'none',
           scrollTrigger: {
             trigger: section,
             pin: true,
             scrub: 1,
-            end: () => `+=${scrollDistance}`,
+            end: () => `+=${getScrollDistance()}`,
             invalidateOnRefresh: true,
           },
         })
-      }
-
-      // Small delay to ensure DOM is ready
-      requestAnimationFrame(updateScroll)
+      }, 150)
     }, section)
 
-    return () => ctx.revert()
+    const ro = new ResizeObserver(() => {
+      ScrollTrigger.refresh()
+    })
+    ro.observe(track)
+
+    return () => {
+      clearTimeout(timer)
+      ro.disconnect()
+      ctx.revert()
+    }
   }, [])
 
   return (
     <div ref={sectionRef} className={cn('overflow-hidden', className)}>
-      <div ref={trackRef} className="flex gap-8 will-change-transform">
+      <div
+        ref={trackRef}
+        className={cn(
+          'flex items-center gap-8 will-change-transform',
+          trackClassName,
+        )}
+      >
         {children}
       </div>
     </div>

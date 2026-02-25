@@ -63,15 +63,16 @@ export function ProjectsListingClient({
             </div>
           ) : (
             <div className="hidden lg:block">
-              <HorizontalScroll className="h-screen">
-                <div className="flex h-full items-center gap-8 pl-8 pr-[20vw]">
-                  {filteredProjects.map((project) => (
-                    <HorizontalProjectCard
-                      key={project._id}
-                      project={project}
-                    />
-                  ))}
-                </div>
+              <HorizontalScroll
+                className="h-screen"
+                trackClassName="h-full pl-8 pr-[20vw]"
+              >
+                {filteredProjects.map((project) => (
+                  <HorizontalProjectCard
+                    key={project._id}
+                    project={project}
+                  />
+                ))}
               </HorizontalScroll>
             </div>
           )}
