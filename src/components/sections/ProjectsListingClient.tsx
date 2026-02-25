@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { HorizontalProjectCard } from '@/components/ui/HorizontalProjectCard'
 import { HorizontalScroll } from '@/components/ui/HorizontalScroll'
 import { ProjectFilterBar } from '@/components/ui/ProjectFilterBar'
@@ -26,18 +25,14 @@ export function ProjectsListingClient({
 
   const handleTagChange = useCallback((tagSlug: string | null) => {
     setActiveTag(tagSlug)
-    // Recalculate horizontal scroll distance after filter changes card count
-    requestAnimationFrame(() => {
-      ScrollTrigger.refresh()
-    })
   }, [])
 
   return (
-    <section className="relative min-h-screen pb-16">
-      {/* Desktop: two-column layout. Mobile: stacked */}
-      <div className="flex flex-col lg:flex-row">
+    <section className="flex h-full flex-col">
+      {/* Main content area */}
+      <div className="flex flex-1 flex-col overflow-hidden lg:flex-row">
         {/* Left column: heading + intro */}
-        <div className="px-6 pt-[var(--section-gap)] lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-[35vw] lg:flex-col lg:justify-center lg:px-10">
+        <div className="shrink-0 px-6 pt-20 lg:flex lg:w-[35vw] lg:flex-col lg:justify-center lg:px-10">
           <h1
             className="font-heading font-bold uppercase leading-none text-text"
             style={{ fontSize: 'clamp(2.5rem, 5vw, 5rem)' }}
@@ -54,17 +49,17 @@ export function ProjectsListingClient({
         </div>
 
         {/* Right column: horizontal scrolling cards */}
-        <div className="mt-10 flex-1 lg:mt-0">
+        <div className="flex-1 overflow-hidden">
           {filteredProjects.length === 0 ? (
-            <div className="flex h-[50vh] items-center justify-center px-6">
+            <div className="flex h-full items-center justify-center px-6">
               <p className="text-sm text-text-muted">
                 No projects match this filter.
               </p>
             </div>
           ) : (
-            <div className="hidden lg:block">
+            <div className="hidden h-full lg:block">
               <HorizontalScroll
-                className="h-screen"
+                className="h-full"
                 trackClassName="h-full pl-8 pr-[20vw]"
               >
                 {filteredProjects.map((project) => (
@@ -77,8 +72,8 @@ export function ProjectsListingClient({
             </div>
           )}
 
-          {/* Mobile: vertical card list */}
-          <div className="flex flex-col gap-10 px-6 pb-10 lg:hidden">
+          {/* Mobile: scrollable vertical list */}
+          <div className="flex h-full flex-col gap-6 overflow-y-auto px-6 py-6 lg:hidden">
             {filteredProjects.map((project) => (
               <HorizontalProjectCard
                 key={project._id}
@@ -90,7 +85,7 @@ export function ProjectsListingClient({
         </div>
       </div>
 
-      {/* Fixed bottom filter bar */}
+      {/* Filter bar at bottom */}
       {tags.length > 0 && (
         <ProjectFilterBar
           tags={tags}

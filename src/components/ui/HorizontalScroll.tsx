@@ -2,10 +2,7 @@
 
 import { useRef, useEffect } from 'react'
 import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { cn } from '@/utils/cn'
-
-gsap.registerPlugin(ScrollTrigger)
 
 interface HorizontalScrollProps {
   children: React.ReactNode
@@ -20,54 +17,42 @@ export function HorizontalScroll({
 }: HorizontalScrollProps) {
   const sectionRef = useRef<HTMLDivElement>(null)
   const trackRef = useRef<HTMLDivElement>(null)
+  const currentX = useRef(0)
 
   useEffect(() => {
     const section = sectionRef.current
     const track = trackRef.current
     if (!section || !track) return
 
-    const prefersReduced = window.matchMedia(
-      '(prefers-reduced-motion: reduce)',
-    ).matches
-
-    if (prefersReduced) {
-      section.style.overflow = 'auto'
+    // Reduced-motion fallback: native horizontal scroll
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      track.style.overflowX = 'auto'
       return
     }
 
-    let timer: ReturnType<typeof setTimeout>
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault()
+      const maxScroll = track.scrollWidth - section.offsetWidth
+      if (maxScroll <= 0) return
 
-    const ctx = gsap.context(() => {
-      const getScrollDistance = () =>
-        Math.max(0, track.scrollWidth - section.offsetWidth)
+      // Convert vertical wheel delta to horizontal movement
+      currentX.current = Math.max(
+        -maxScroll,
+        Math.min(0, currentX.current - e.deltaY),
+      )
 
-      timer = setTimeout(() => {
-        const distance = getScrollDistance()
-        if (distance <= 0) return
+      gsap.to(track, {
+        x: currentX.current,
+        duration: 0.6,
+        ease: 'power2.out',
+        overwrite: true,
+      })
+    }
 
-        gsap.to(track, {
-          x: () => -getScrollDistance(),
-          ease: 'none',
-          scrollTrigger: {
-            trigger: section,
-            pin: true,
-            scrub: 1,
-            end: () => `+=${getScrollDistance()}`,
-            invalidateOnRefresh: true,
-          },
-        })
-      }, 150)
-    }, section)
-
-    const ro = new ResizeObserver(() => {
-      ScrollTrigger.refresh()
-    })
-    ro.observe(track)
+    section.addEventListener('wheel', handleWheel, { passive: false })
 
     return () => {
-      clearTimeout(timer)
-      ro.disconnect()
-      ctx.revert()
+      section.removeEventListener('wheel', handleWheel)
     }
   }, [])
 

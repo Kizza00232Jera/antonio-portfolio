@@ -15,7 +15,7 @@ export function ProjectFilterBar({
   onTagChange,
 }: ProjectFilterBarProps) {
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-border bg-bg/80 backdrop-blur-md">
+    <div className="shrink-0 border-t border-border bg-bg/80 backdrop-blur-md">
       <div className="scrollbar-hide flex items-center gap-6 overflow-x-auto px-6 py-3 md:px-10">
         <span className="shrink-0 font-mono text-xs uppercase tracking-widest text-text-muted">
           Filter

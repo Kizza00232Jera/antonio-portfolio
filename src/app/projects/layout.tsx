@@ -4,8 +4,8 @@ export default function ProjectsLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="dark-projects dark-projects-bg min-h-screen">
-      <div className="relative z-10">{children}</div>
+    <div className="dark-projects dark-projects-bg h-dvh overflow-hidden">
+      <div className="relative z-10 h-full">{children}</div>
     </div>
   )
 }
