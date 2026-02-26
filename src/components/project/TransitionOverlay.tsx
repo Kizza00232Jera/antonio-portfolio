@@ -163,9 +163,9 @@ export function TransitionOverlay() {
     prevPathname.current = pathname
   }, [pathname, isTransitioning, direction, tryReveal])
 
-  // Exit animation
+  // Exit animation — doesn't need transitionData (works for direct URL access too)
   useEffect(() => {
-    if (!isTransitioning || direction !== 'exit' || !transitionData) return
+    if (!isTransitioning || direction !== 'exit') return
 
     const overlay = overlayRef.current
     const fade = fadeRef.current
@@ -205,7 +205,7 @@ export function TransitionOverlay() {
     return () => {
       tl.kill()
     }
-  }, [isTransitioning, direction, transitionData, router, completeTransition])
+  }, [isTransitioning, direction, router, completeTransition])
 
   // Detect route change during exit → fade listing back in
   useEffect(() => {

@@ -42,7 +42,7 @@ interface ProjectDetailPageProps {
 }
 
 export function ProjectDetailPage({ project, posterUrl }: ProjectDetailPageProps) {
-  const { isTransitioning, startExitTransition } = useProjectTransition()
+  const { isTransitioning } = useProjectTransition()
   const contentRef = useRef<HTMLDivElement>(null)
 
   // Entrance animation — only for direct URL access (no transition)
@@ -90,7 +90,7 @@ export function ProjectDetailPage({ project, posterUrl }: ProjectDetailPageProps
           <div className="grid grid-cols-2 gap-x-8 gap-y-4" data-animate>
             {/* Row 1, col 1: X close button */}
             <button
-              onClick={() => startExitTransition()}
+              onClick={() => { window.location.href = '/projects' }}
               className={closeButtonClass}
               aria-label="Back to projects"
             >
@@ -179,7 +179,7 @@ export function ProjectDetailPage({ project, posterUrl }: ProjectDetailPageProps
           {/* Left column — X close button top, "Scroll for more" bottom */}
           <div className="flex w-[25%] shrink-0 flex-col justify-between pt-28 pb-8">
             <button
-              onClick={() => startExitTransition()}
+              onClick={() => { window.location.href = '/projects' }}
               className={closeButtonClass}
               aria-label="Back to projects"
               data-animate
