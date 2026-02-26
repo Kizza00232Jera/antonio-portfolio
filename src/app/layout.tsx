@@ -6,6 +6,7 @@ import Header from '@/components/layout/Header'
 import Preloader from '@/components/layout/Preloader'
 import { NavOverlay } from '@/components/layout/NavOverlay'
 import { PageWrapper } from '@/components/layout/PageWrapper'
+import { CustomCursor } from '@/components/ui/CustomCursor'
 import { MenuProvider } from '@/contexts/MenuContext'
 import PostHogProvider from '@/components/providers/PostHogProvider'
 import PostHogPageview from '@/components/providers/PostHogPageview'
@@ -47,6 +48,7 @@ export default function RootLayout({
               <PostHogPageview />
             </Suspense>
             <MenuProvider>
+              <CustomCursor />
               <NavOverlay />
               <PageWrapper>
                 <main className="min-h-screen">

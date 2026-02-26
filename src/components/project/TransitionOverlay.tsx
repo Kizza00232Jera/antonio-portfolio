@@ -68,7 +68,7 @@ export function TransitionOverlay() {
       ease: 'power3.inOut',
     }, 0)
 
-    // Simultaneously stagger the text content in from above
+    // Stagger text content in AFTER image has settled
     if (content) {
       const animateEls = content.querySelectorAll('[data-animate]')
       tl.to(animateEls, {
@@ -77,15 +77,15 @@ export function TransitionOverlay() {
         duration: 0.7,
         stagger: 0.06,
         ease: 'power3.out',
-      }, 0.1)
+      }, 0.8)
     }
 
-    // Fade overlay image out at the end so the actual video appears seamlessly
+    // Fade overlay image out after text starts appearing
     tl.to(overlay, {
       opacity: 0,
       duration: 0.3,
       ease: 'power2.out',
-    }, 0.6)
+    }, 1.0)
   }, [completeTransition])
 
   // Enter animation

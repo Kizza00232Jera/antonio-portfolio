@@ -95,6 +95,7 @@ export function HorizontalProjectCard({
               href={`/projects/${project.slug.current}`}
               onClick={handleImageClick}
               className="group relative block min-w-0 flex-1 cursor-none overflow-hidden"
+              data-cursor-hide
             >
               <div
                 ref={imageContainerRef}

@@ -49,11 +49,20 @@ export function ProjectDetailPage({ project, posterUrl }: ProjectDetailPageProps
   const contentRef = useRef<HTMLDivElement>(null)
   const heroRef = useRef<HTMLDivElement>(null)
   const videoWrapperRef = useRef<HTMLDivElement>(null)
+  const arrivedViaTransition = useRef(false)
+
+  // Track if we ever entered via transition — prevents the entrance
+  // animation from re-firing when isTransitioning flips back to false
+  useEffect(() => {
+    if (isTransitioning) {
+      arrivedViaTransition.current = true
+    }
+  }, [isTransitioning])
 
   // Entrance animation — only for direct URL access (no transition)
   // When arriving via transition, the TransitionOverlay handles the stagger
   useEffect(() => {
-    if (isTransitioning) return
+    if (isTransitioning || arrivedViaTransition.current) return
 
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (prefersReduced) return
@@ -322,7 +331,7 @@ export function ProjectDetailPage({ project, posterUrl }: ProjectDetailPageProps
       </div>
 
       {/* Tech marquee + accordion sections */}
-      <div className="mx-auto max-w-[var(--max-width)] px-6 py-12">
+      <div className="py-12" style={{ paddingInline: 'clamp(1.5rem, 8vw, 12rem)' }}>
         {project.techStackRefs && project.techStackRefs.length > 0 && (
           <div data-animate>
             <TechMarquee items={project.techStackRefs} className="mb-12" />

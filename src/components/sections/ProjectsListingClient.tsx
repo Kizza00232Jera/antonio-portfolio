@@ -48,7 +48,7 @@ export function ProjectsListingClient({
             onProgress={setScrollProgress}
           >
             {/* Intro panel — aligned with card content */}
-            <div className="flex h-full shrink-0 flex-col justify-center whitespace-normal pl-5 mr-16 md:pl-10 md:mr-32 lg:mr-40">
+            <div className="flex h-full w-[70vw] shrink-0 flex-col justify-center whitespace-normal pl-5 pr-6 md:pl-10 md:pr-0 lg:w-[40vw]">
               <div className="flex flex-col justify-between" style={{ height: 'calc(50% + 6rem)' }}>
                 <h1
                   className="font-heading font-bold uppercase leading-none text-text"
