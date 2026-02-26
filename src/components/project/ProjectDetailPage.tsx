@@ -2,11 +2,14 @@
 
 import { useRef, useEffect } from 'react'
 import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import Image from 'next/image'
 import dynamic from 'next/dynamic'
 import { useProjectTransition } from '@/contexts/ProjectTransitionContext'
 import { urlFor } from '@/lib/sanity/image'
 import type { Project } from '@/lib/sanity/types'
+
+gsap.registerPlugin(ScrollTrigger)
 
 const MuxVideoPlayer = dynamic(
   () =>
@@ -44,6 +47,8 @@ interface ProjectDetailPageProps {
 export function ProjectDetailPage({ project, posterUrl }: ProjectDetailPageProps) {
   const { isTransitioning } = useProjectTransition()
   const contentRef = useRef<HTMLDivElement>(null)
+  const heroRef = useRef<HTMLDivElement>(null)
+  const videoWrapperRef = useRef<HTMLDivElement>(null)
 
   // Entrance animation — only for direct URL access (no transition)
   // When arriving via transition, the TransitionOverlay handles the stagger
@@ -74,6 +79,38 @@ export function ProjectDetailPage({ project, posterUrl }: ProjectDetailPageProps
     return () => ctx.revert()
   }, [isTransitioning])
 
+  // Scroll-driven video shrink — desktop only
+  // Video starts full-width and shrinks to match the hero content padding
+  useEffect(() => {
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (prefersReduced) return
+
+    const hero = heroRef.current
+    const videoWrapper = videoWrapperRef.current
+    if (!hero || !videoWrapper) return
+
+    const mm = gsap.matchMedia()
+
+    mm.add('(min-width: 1024px)', () => {
+      gsap.fromTo(videoWrapper,
+        { paddingInline: 0 },
+        {
+          paddingInline: () => parseFloat(getComputedStyle(hero).paddingLeft),
+          ease: 'none',
+          scrollTrigger: {
+            trigger: videoWrapper,
+            start: 'top 75%',
+            end: 'top 25%',
+            scrub: 0.5,
+            invalidateOnRefresh: true,
+          },
+        },
+      )
+    })
+
+    return () => mm.revert()
+  }, [])
+
   const closeButtonClass =
     'flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-border text-lg text-text-muted transition-colors hover:text-text'
   const metaLabelClass =
@@ -83,7 +120,7 @@ export function ProjectDetailPage({ project, posterUrl }: ProjectDetailPageProps
   return (
     <div ref={contentRef} className="overflow-x-hidden">
       {/* Hero section — 75dvh so the video peeks in below */}
-      <div style={{ height: '75dvh', paddingInline: 'clamp(1.5rem, 8vw, 12rem)' }}>
+      <div ref={heroRef} style={{ height: '75dvh', paddingInline: 'clamp(1.5rem, 8vw, 12rem)' }}>
 
         {/* ===== MOBILE LAYOUT (< lg): 2-col grid matching reference ===== */}
         <div className="flex h-full flex-col pt-24 pb-8 lg:hidden">
@@ -263,9 +300,8 @@ export function ProjectDetailPage({ project, posterUrl }: ProjectDetailPageProps
         </div>
       </div>
 
-      {/* Hero video or cover image — full width, no data-animate so it's
-         visible immediately under the fading overlay for seamless handoff */}
-      <div className="w-full">
+      {/* Hero video or cover image — full width, shrinks on scroll (desktop) */}
+      <div ref={videoWrapperRef} className="w-full">
         {project.muxVideoId ? (
           <MuxVideoPlayer
             playbackId={project.muxVideoId}
