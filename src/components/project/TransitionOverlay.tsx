@@ -1,11 +1,10 @@
 'use client'
 
-import { useRef, useEffect, useState } from 'react'
+import { useRef, useEffect, useState, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { useRouter, usePathname } from 'next/navigation'
 import { gsap } from 'gsap'
 import { useProjectTransition } from '@/contexts/ProjectTransitionContext'
-import type { StoredRect } from '@/contexts/ProjectTransitionContext'
 
 export function TransitionOverlay() {
   const {
@@ -25,22 +24,82 @@ export function TransitionOverlay() {
   const imageRef = useRef<HTMLImageElement>(null)
   const timelineRef = useRef<gsap.core.Timeline | null>(null)
 
+  // Gate for enter reveal: route must have changed
+  const routeChangedRef = useRef(false)
+  const revealStartedRef = useRef(false)
+
   const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null)
 
-  // Find the portal target on mount
   useEffect(() => {
     setPortalTarget(document.getElementById('transition-portal'))
   }, [])
+
+  // The reveal sequence — runs when route has changed (image is fullscreen)
+  // Slide-down and content stagger happen simultaneously
+  const tryReveal = useCallback(() => {
+    if (!routeChangedRef.current || revealStartedRef.current) return
+    revealStartedRef.current = true
+
+    const overlay = overlayRef.current
+    const imageWrapper = imageWrapperRef.current
+    if (!overlay || !imageWrapper) return
+
+    const vh = window.innerHeight
+
+    // Prepare the new page: make container visible, hide text elements
+    const content = document.getElementById('projects-content')
+    if (content) {
+      const animateEls = content.querySelectorAll('[data-animate]')
+      gsap.set(animateEls, { opacity: 0, y: 30 })
+      gsap.set(content, { opacity: 1 })
+    }
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        gsap.set(overlay, { visibility: 'hidden', opacity: 1, pointerEvents: 'none' })
+        completeTransition()
+      },
+    })
+
+    // Slide image down to where the video sits (75dvh = right below the hero section)
+    tl.to(imageWrapper, {
+      y: vh * 0.75,
+      duration: 0.8,
+      ease: 'power3.inOut',
+    }, 0)
+
+    // Simultaneously stagger the text content in from above
+    if (content) {
+      const animateEls = content.querySelectorAll('[data-animate]')
+      tl.to(animateEls, {
+        opacity: 1,
+        y: 0,
+        duration: 0.7,
+        stagger: 0.06,
+        ease: 'power3.out',
+      }, 0.1)
+    }
+
+    // Fade overlay image out at the end so the actual video appears seamlessly
+    tl.to(overlay, {
+      opacity: 0,
+      duration: 0.3,
+      ease: 'power2.out',
+    }, 0.6)
+  }, [completeTransition])
 
   // Enter animation
   useEffect(() => {
     if (!isTransitioning || direction !== 'enter' || !transitionData) return
 
     const overlay = overlayRef.current
-    const fade = fadeRef.current
     const imageWrapper = imageWrapperRef.current
     const img = imageRef.current
-    if (!overlay || !fade || !imageWrapper || !img) return
+    if (!overlay || !imageWrapper || !img) return
+
+    // Reset gates
+    routeChangedRef.current = false
+    revealStartedRef.current = false
 
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (prefersReduced) {
@@ -54,8 +113,7 @@ export function TransitionOverlay() {
 
     // Set up initial state
     img.src = transitionData.thumbnailUrl
-    gsap.set(overlay, { visibility: 'visible', pointerEvents: 'auto' })
-    gsap.set(fade, { opacity: 0 })
+    gsap.set(overlay, { visibility: 'visible', pointerEvents: 'auto', opacity: 1 })
     gsap.set(imageWrapper, {
       left: imageRect.left,
       top: imageRect.top,
@@ -67,8 +125,8 @@ export function TransitionOverlay() {
     const tl = gsap.timeline()
     timelineRef.current = tl
 
-    // Phase 1: Fade page content to 10%
-    tl.to('#page-wrapper', {
+    // Phase 1: Fade content to 10% — background stays visible
+    tl.to('#projects-content', {
       opacity: 0.1,
       duration: 0.5,
       ease: 'power2.out',
@@ -84,50 +142,26 @@ export function TransitionOverlay() {
       ease: 'power3.inOut',
     }, 0.2)
 
-    // Phase 3: Slide image down once fullscreen
-    tl.to(imageWrapper, {
-      y: vh * 0.75,
-      duration: 0.6,
-      ease: 'power3.out',
-    }, 1.0)
-
-    // Phase 4: Navigate at the start of the slide-down
+    // Phase 3: When image is fullscreen, hide content fully and navigate
+    // The slide-down + content stagger happens in tryReveal after route changes
     tl.call(() => {
+      gsap.set('#projects-content', { opacity: 0 })
       router.push(`/projects/${transitionData.slug}`)
     }, [], 1.0)
 
     return () => {
       tl.kill()
     }
-  }, [isTransitioning, direction, transitionData, router])
+  }, [isTransitioning, direction, transitionData, router, tryReveal])
 
-  // Detect route change during enter transition → fade in new page, hide overlay
+  // Detect route change — second gate for the enter reveal
   useEffect(() => {
     if (prevPathname.current !== pathname && isTransitioning && direction === 'enter') {
-      const overlay = overlayRef.current
-      if (!overlay) return
-
-      // New page mounted — fade page content in and hide overlay
-      requestAnimationFrame(() => {
-        gsap.to('#page-wrapper', {
-          opacity: 1,
-          duration: 0.5,
-          ease: 'power2.out',
-        })
-
-        gsap.to(overlay, {
-          opacity: 0,
-          duration: 0.4,
-          delay: 0.3,
-          onComplete: () => {
-            gsap.set(overlay, { visibility: 'hidden', opacity: 1, pointerEvents: 'none' })
-            completeTransition()
-          },
-        })
-      })
+      routeChangedRef.current = true
+      tryReveal()
     }
     prevPathname.current = pathname
-  }, [pathname, isTransitioning, direction, completeTransition])
+  }, [pathname, isTransitioning, direction, tryReveal])
 
   // Exit animation
   useEffect(() => {
@@ -144,13 +178,13 @@ export function TransitionOverlay() {
       return
     }
 
-    gsap.set(overlay, { visibility: 'visible', pointerEvents: 'auto' })
+    gsap.set(overlay, { visibility: 'visible', pointerEvents: 'auto', opacity: 1 })
 
     const tl = gsap.timeline()
     timelineRef.current = tl
 
     // Fade detail content out
-    tl.to('#page-wrapper', {
+    tl.to('#projects-content', {
       opacity: 0,
       duration: 0.4,
       ease: 'power2.out',
@@ -173,7 +207,7 @@ export function TransitionOverlay() {
     }
   }, [isTransitioning, direction, transitionData, router, completeTransition])
 
-  // Detect route change during exit transition → fade listing in
+  // Detect route change during exit → fade listing back in
   useEffect(() => {
     if (prevPathname.current !== pathname && isTransitioning && direction === 'exit') {
       const overlay = overlayRef.current
@@ -181,14 +215,13 @@ export function TransitionOverlay() {
       if (!overlay || !fade) return
 
       requestAnimationFrame(() => {
-        // Fade bg out, reveal listing
         gsap.to(fade, {
           opacity: 0,
           duration: 0.4,
           ease: 'power2.out',
         })
 
-        gsap.to('#page-wrapper', {
+        gsap.to('#projects-content', {
           opacity: 1,
           duration: 0.5,
           ease: 'power2.out',
@@ -206,7 +239,6 @@ export function TransitionOverlay() {
         })
       })
     }
-    // prevPathname updated in the enter effect above
   }, [pathname, isTransitioning, direction, completeTransition])
 
   // Browser back/forward safety cleanup
@@ -216,13 +248,15 @@ export function TransitionOverlay() {
         timelineRef.current.kill()
         timelineRef.current = null
       }
-      gsap.set('#page-wrapper', { opacity: 1 })
+      gsap.set('#projects-content', { opacity: 1 })
       if (overlayRef.current) {
         gsap.set(overlayRef.current, { visibility: 'hidden', opacity: 1, pointerEvents: 'none' })
       }
       if (fadeRef.current) {
         gsap.set(fadeRef.current, { opacity: 0 })
       }
+      routeChangedRef.current = false
+      revealStartedRef.current = false
       completeTransition()
     }
 
@@ -238,14 +272,14 @@ export function TransitionOverlay() {
       className="fixed inset-0 pointer-events-none"
       style={{ visibility: 'hidden' }}
     >
-      {/* Fade layer — covers page content with bg color */}
+      {/* Fade layer — covers page content with bg color (used for exit) */}
       <div
         ref={fadeRef}
         className="absolute inset-0"
         style={{ backgroundColor: '#e8e2da', opacity: 0 }}
       />
 
-      {/* Image clone — positioned absolutely, animates from card to fullscreen */}
+      {/* Image clone — animates from card to fullscreen then slides down */}
       <div
         ref={imageWrapperRef}
         className="absolute overflow-hidden"

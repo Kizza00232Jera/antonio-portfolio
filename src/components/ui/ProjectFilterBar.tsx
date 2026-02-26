@@ -89,7 +89,7 @@ export function ProjectFilterBar({
               Filter
               <span
                 className={cn(
-                  'text-[10px] transition-transform duration-200',
+                  'text-[0.625rem] transition-transform duration-200',
                   isOpen && 'rotate-180',
                 )}
               >

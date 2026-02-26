@@ -331,7 +331,7 @@ export default function JourneyAccordionSection() {
                   <div>
                     <p
                       className={cn(
-                        'mb-1 font-mono text-[10px] uppercase tracking-widest sm:mb-2 sm:text-xs',
+                        'mb-1 font-mono text-[0.625rem] uppercase tracking-widest sm:mb-2 sm:text-xs',
                         colors.label
                       )}
                     >
@@ -378,7 +378,7 @@ export default function JourneyAccordionSection() {
                       >
                         <span
                           className={cn(
-                            'flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-mono md:h-6 md:w-6 md:text-xs',
+                            'flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[0.625rem] font-mono md:h-6 md:w-6 md:text-xs',
                             theme.textColor === 'light'
                               ? 'bg-white/20 text-white'
                               : 'bg-black/10 text-[#020617]'

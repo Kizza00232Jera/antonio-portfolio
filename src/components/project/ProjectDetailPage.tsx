@@ -1,7 +1,6 @@
 'use client'
 
 import { useRef, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import { gsap } from 'gsap'
 import Image from 'next/image'
 import dynamic from 'next/dynamic'
@@ -34,8 +33,7 @@ const ProjectAccordion = dynamic(
 function formatDate(dateStr?: string): string {
   if (!dateStr) return ''
   const d = new Date(dateStr)
-  return d
-    .toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+  return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
 }
 
 interface ProjectDetailPageProps {
@@ -45,14 +43,10 @@ interface ProjectDetailPageProps {
 
 export function ProjectDetailPage({ project, posterUrl }: ProjectDetailPageProps) {
   const { isTransitioning, startExitTransition } = useProjectTransition()
-  const router = useRouter()
   const contentRef = useRef<HTMLDivElement>(null)
 
-  const handleClose = () => {
-    startExitTransition()
-  }
-
-  // Entrance animation for direct URL access (no transition)
+  // Entrance animation — only for direct URL access (no transition)
+  // When arriving via transition, the TransitionOverlay handles the stagger
   useEffect(() => {
     if (isTransitioning) return
 
@@ -72,7 +66,7 @@ export function ProjectDetailPage({ project, posterUrl }: ProjectDetailPageProps
           duration: 0.6,
           stagger: 0.08,
           ease: 'power3.out',
-          delay: 0.1,
+          delay: 0.2,
         },
       )
     }, contentRef)
@@ -80,66 +74,198 @@ export function ProjectDetailPage({ project, posterUrl }: ProjectDetailPageProps
     return () => ctx.revert()
   }, [isTransitioning])
 
-  return (
-    <div ref={contentRef} className="min-h-screen">
-      {/* Close button — top left, below header */}
-      <button
-        onClick={handleClose}
-        className="fixed left-6 top-20 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-border text-lg text-text-muted transition-colors hover:text-text"
-        aria-label="Back to projects"
-        data-animate
-      >
-        &times;
-      </button>
+  const closeButtonClass =
+    'flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-border text-lg text-text-muted transition-colors hover:text-text'
+  const metaLabelClass =
+    'block font-mono text-[0.625rem] uppercase tracking-widest text-text-muted/60'
+  const metaValueClass = 'text-sm text-text md:text-2xl'
 
-      {/* Metadata row */}
-      <div className="px-6 pt-24 pb-4" data-animate>
-        <div className="flex items-baseline gap-8 text-sm text-text-muted">
-          {project.githubUrl && (
-            <a
-              href={project.githubUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-mono text-xs uppercase tracking-widest underline underline-offset-4 transition-colors hover:text-accent"
+  return (
+    <div ref={contentRef} className="overflow-x-hidden">
+      {/* Hero section — 75dvh so the video peeks in below */}
+      <div style={{ height: '75dvh', paddingInline: 'clamp(1.5rem, 8vw, 12rem)' }}>
+
+        {/* ===== MOBILE LAYOUT (< lg): 2-col grid matching reference ===== */}
+        <div className="flex h-full flex-col pt-24 pb-8 lg:hidden">
+          <div className="grid grid-cols-2 gap-x-8 gap-y-4" data-animate>
+            {/* Row 1, col 1: X close button */}
+            <button
+              onClick={() => startExitTransition()}
+              className={closeButtonClass}
+              aria-label="Back to projects"
             >
-              GitHub
-            </a>
-          )}
-          {project.liveUrl && (
-            <a
-              href={project.liveUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-mono text-xs uppercase tracking-widest underline underline-offset-4 transition-colors hover:text-accent"
+              &times;
+            </button>
+
+            {/* Row 1, col 2: GitHub */}
+            <div>
+              {project.githubUrl ? (
+                <>
+                  <span className={metaLabelClass}>GitHub</span>
+                  <a
+                    href={project.githubUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-text transition-colors hover:text-accent"
+                  >
+                    View Repo
+                  </a>
+                </>
+              ) : (
+                <span />
+              )}
+            </div>
+
+            {/* Row 2, col 1: Date */}
+            <div>
+              {project.publishedAt && (
+                <>
+                  <span className={metaLabelClass}>Date</span>
+                  <span className="text-sm text-text">
+                    {formatDate(project.publishedAt)}
+                  </span>
+                </>
+              )}
+            </div>
+
+            {/* Row 2, col 2: Focus Areas */}
+            <div>
+              {project.focusAreas && project.focusAreas.length > 0 && (
+                <>
+                  <span className={metaLabelClass}>Focus Areas</span>
+                  {project.focusAreas.map((area) => (
+                    <p key={area} className="text-sm text-text">
+                      {area}
+                    </p>
+                  ))}
+                </>
+              )}
+            </div>
+
+            {/* Row 3, col 1: empty spacer */}
+            <div />
+
+            {/* Row 3, col 2: Live Website */}
+            {project.liveUrl && (
+              <a
+                href={project.liveUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-flex items-center gap-2 text-sm text-text underline underline-offset-4 transition-colors hover:text-accent"
+              >
+                Live Website &rarr;
+              </a>
+            )}
+          </div>
+
+          {/* Title — pushed to bottom */}
+          <div className="mt-auto" data-animate>
+            <h1
+              className="font-heading font-bold uppercase leading-[0.9] text-text"
+              style={{ fontSize: 'clamp(2rem, 8vw, 7rem)' }}
             >
-              Live Demo
-            </a>
-          )}
-          {project.publishedAt && (
-            <span className="font-mono text-xs uppercase tracking-widest">
-              {formatDate(project.publishedAt)}
+              {project.title}
+            </h1>
+            {project.tagline && (
+              <p className="mt-3 text-sm leading-relaxed text-text-muted">
+                {project.tagline}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* ===== DESKTOP LAYOUT (lg+): two-column flex ===== */}
+        <div className="hidden h-full lg:flex">
+          {/* Left column — X close button top, "Scroll for more" bottom */}
+          <div className="flex w-[25%] shrink-0 flex-col justify-between pt-28 pb-8">
+            <button
+              onClick={() => startExitTransition()}
+              className={closeButtonClass}
+              aria-label="Back to projects"
+              data-animate
+            >
+              &times;
+            </button>
+            <span
+              className="font-mono text-[0.625rem] uppercase tracking-widest text-text-muted"
+              data-animate
+            >
+              &darr; Scroll for more
             </span>
-          )}
+          </div>
+
+          {/* Right column — metadata top, huge title bottom */}
+          <div className="flex min-w-0 flex-1 flex-col justify-between pt-28 pb-8">
+            {/* Metadata row */}
+            <div className="flex items-baseline justify-between" data-animate>
+              <div className="flex items-baseline gap-8">
+                {project.githubUrl && (
+                  <div>
+                    <span className={metaLabelClass}>GitHub</span>
+                    <a
+                      href={project.githubUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`${metaValueClass} transition-colors hover:text-accent`}
+                    >
+                      View Repo
+                    </a>
+                  </div>
+                )}
+                {project.focusAreas && project.focusAreas.length > 0 && (
+                  <div>
+                    <span className={metaLabelClass}>Focus Areas</span>
+                    {project.focusAreas.map((area) => (
+                      <p key={area} className={metaValueClass}>
+                        {area}
+                      </p>
+                    ))}
+                  </div>
+                )}
+                {project.publishedAt && (
+                  <div>
+                    <span className={metaLabelClass}>Date</span>
+                    <span className={metaValueClass}>
+                      {formatDate(project.publishedAt)}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Live website link on far right */}
+              {project.liveUrl && (
+                <a
+                  href={project.liveUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`${metaValueClass} inline-flex items-center gap-2 underline underline-offset-4 transition-colors hover:text-accent`}
+                >
+                  Live Website &rarr;
+                </a>
+              )}
+            </div>
+
+            {/* Huge title — pushed to bottom */}
+            <div data-animate>
+              <h1
+                className="font-heading font-bold uppercase leading-[0.9] text-text"
+                style={{ fontSize: 'clamp(2.5rem, 8vw, 7rem)' }}
+              >
+                {project.title}
+              </h1>
+              {project.tagline && (
+                <p className="mt-4 max-w-2xl text-sm leading-relaxed text-text-muted md:text-2xl">
+                  {project.tagline}
+                </p>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Huge title */}
-      <div className="px-6 pb-8" data-animate>
-        <h1
-          className="font-heading font-bold uppercase leading-none text-text"
-          style={{ fontSize: 'clamp(2.5rem, 8vw, 7rem)' }}
-        >
-          {project.title}
-        </h1>
-        {project.tagline && (
-          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-text-muted">
-            {project.tagline}
-          </p>
-        )}
-      </div>
-
-      {/* Hero video or cover image — full width */}
-      <div className="w-full" data-animate>
+      {/* Hero video or cover image — full width, no data-animate so it's
+         visible immediately under the fading overlay for seamless handoff */}
+      <div className="w-full">
         {project.muxVideoId ? (
           <MuxVideoPlayer
             playbackId={project.muxVideoId}

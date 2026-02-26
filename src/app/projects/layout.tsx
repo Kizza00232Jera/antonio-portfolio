@@ -11,7 +11,7 @@ export default function ProjectsLayout({
     <ProjectTransitionProvider>
       <div className="projects-theme projects-theme-bg">
         <ThemeScope className="projects-theme" />
-        <div className="relative">{children}</div>
+        <div id="projects-content" className="relative">{children}</div>
       </div>
       <TransitionOverlay />
     </ProjectTransitionProvider>

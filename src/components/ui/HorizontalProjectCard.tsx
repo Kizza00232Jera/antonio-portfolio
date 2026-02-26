@@ -120,7 +120,7 @@ export function HorizontalProjectCard({
                     <div className="flex h-14 w-14 items-center justify-center rounded-full bg-bg">
                       <span className="text-xl text-text">&rarr;</span>
                     </div>
-                    <span className="whitespace-nowrap text-[10px] tracking-wide text-text-muted">
+                    <span className="whitespace-nowrap text-[0.625rem] tracking-wide text-text-muted">
                       View Project
                     </span>
                   </div>
@@ -131,12 +131,12 @@ export function HorizontalProjectCard({
             {/* Right annotation column */}
             <div className="ml-3 flex shrink-0 flex-col [writing-mode:vertical-rl]">
               {project.publishedAt && (
-                <span className="inline-block font-mono text-[10px] uppercase tracking-widest text-text-muted">
+                <span className="inline-block font-mono text-[0.625rem] uppercase tracking-widest text-text-muted">
                   {formatDate(project.publishedAt)}
                 </span>
               )}
               {project.tags && project.tags.length > 0 && (
-                <div className="mt-auto flex flex-wrap gap-4 font-mono text-[10px] uppercase tracking-widest text-text-muted">
+                <div className="mt-auto flex flex-wrap gap-4 font-mono text-[0.625rem] uppercase tracking-widest text-text-muted">
                   {project.tags.map((tag) => (
                     <span key={tag._id}>{tag.name}</span>
                   ))}
@@ -159,7 +159,7 @@ export function HorizontalProjectCard({
           )}
 
           {project.tags && project.tags.length > 0 && (
-            <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 font-mono text-[10px] uppercase tracking-wider text-text-muted">
+            <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 font-mono text-[0.625rem] uppercase tracking-wider text-text-muted">
               {project.tags.map((tag) => (
                 <span key={tag._id}>{tag.name}</span>
               ))}
@@ -171,7 +171,7 @@ export function HorizontalProjectCard({
               {project.techStackRefs.map((tech) => (
                 <span
                   key={tech._id}
-                  className="flex items-center gap-1 font-mono text-[10px] text-text-muted"
+                  className="flex items-center gap-1 font-mono text-[0.625rem] text-text-muted"
                 >
                   {tech.icon && (
                     <Image
@@ -187,7 +187,7 @@ export function HorizontalProjectCard({
               ))}
             </div>
           ) : project.techStack && project.techStack.length > 0 ? (
-            <p className="mt-1.5 font-mono text-[10px] uppercase tracking-wider text-text-muted">
+            <p className="mt-1.5 font-mono text-[0.625rem] uppercase tracking-wider text-text-muted">
               {project.techStack.join('  ·  ')}
             </p>
           ) : null}
