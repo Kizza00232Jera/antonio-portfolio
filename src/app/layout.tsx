@@ -53,6 +53,7 @@ export default function RootLayout({
                   {children}
                 </main>
               </PageWrapper>
+              <div id="transition-portal" />
               <Header />
             </MenuProvider>
           </LenisProvider>

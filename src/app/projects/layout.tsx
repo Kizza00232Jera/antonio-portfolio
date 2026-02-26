@@ -1,4 +1,6 @@
 import { ThemeScope } from '@/components/providers/ThemeScope'
+import { ProjectTransitionProvider } from '@/contexts/ProjectTransitionContext'
+import { TransitionOverlay } from '@/components/project/TransitionOverlay'
 
 export default function ProjectsLayout({
   children,
@@ -6,9 +8,12 @@ export default function ProjectsLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="projects-theme projects-theme-bg">
-      <ThemeScope className="projects-theme" />
-      <div className="relative">{children}</div>
-    </div>
+    <ProjectTransitionProvider>
+      <div className="projects-theme projects-theme-bg">
+        <ThemeScope className="projects-theme" />
+        <div className="relative">{children}</div>
+      </div>
+      <TransitionOverlay />
+    </ProjectTransitionProvider>
   )
 }

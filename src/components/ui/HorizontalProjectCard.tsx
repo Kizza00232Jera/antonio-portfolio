@@ -1,11 +1,12 @@
 'use client'
 
-import { useRef } from 'react'
+import { useRef, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { urlFor } from '@/lib/sanity/image'
 import type { Project } from '@/lib/sanity/types'
 import { cn } from '@/utils/cn'
+import { useProjectTransition } from '@/contexts/ProjectTransitionContext'
 
 interface HorizontalProjectCardProps {
   project: Project
@@ -25,6 +26,8 @@ export function HorizontalProjectCard({
   className,
 }: HorizontalProjectCardProps) {
   const cursorRef = useRef<HTMLDivElement>(null)
+  const imageContainerRef = useRef<HTMLDivElement>(null)
+  const { startTransition } = useProjectTransition()
 
   const thumbnailUrl = project.muxVideoId
     ? `https://image.mux.com/${project.muxVideoId}/thumbnail.png?width=900&height=1200&fit_mode=smartcrop`
@@ -47,6 +50,34 @@ export function HorizontalProjectCard({
     cursorRef.current.style.transform = 'translate(-50%, -50%) scale(0.5)'
   }
 
+  const handleImageClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault()
+
+      const imageEl = imageContainerRef.current
+      if (!imageEl || !thumbnailUrl) return
+
+      const rect = imageEl.getBoundingClientRect()
+
+      startTransition({
+        slug: project.slug.current,
+        thumbnailUrl,
+        imageRect: {
+          left: rect.left,
+          top: rect.top,
+          width: rect.width,
+          height: rect.height,
+        },
+        projectTitle: project.title,
+        publishedAt: project.publishedAt,
+        githubUrl: project.githubUrl,
+        liveUrl: project.liveUrl,
+        muxVideoId: project.muxVideoId,
+      })
+    },
+    [project, thumbnailUrl, startTransition],
+  )
+
   return (
     <div
       className={cn(
@@ -55,38 +86,47 @@ export function HorizontalProjectCard({
       )}
       style={{ aspectRatio: '49 / 72' }}
     >
-      <Link
-        href={`/projects/${project.slug.current}`}
-        className="group flex h-full flex-col justify-center"
-      >
-        {/* Image + annotation row — top 50% */}
+      <div className="flex h-full flex-col justify-center">
+        {/* Image + annotation row — only the image links to the project */}
         {thumbnailUrl && (
           <div className="flex h-[72%] min-h-0">
-            {/* Image — Next.js fill needs a relative parent with dimensions */}
-            <div
-              className="relative min-w-0 flex-1 cursor-none overflow-hidden"
-              onMouseMove={handleMouseMove}
-              onMouseLeave={handleMouseLeave}
+            {/* Image — clickable, triggers transition */}
+            <Link
+              href={`/projects/${project.slug.current}`}
+              onClick={handleImageClick}
+              className="group relative block min-w-0 flex-1 cursor-none overflow-hidden"
             >
-              <Image
-                src={thumbnailUrl}
-                alt={project.title}
-                fill
-                className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                sizes="(max-width: 768px) 80vw, 40vw"
-              />
-
-              {/* Custom "VIEW" cursor */}
               <div
-                ref={cursorRef}
-                className="pointer-events-none absolute z-10 opacity-0 transition-[opacity,transform] duration-200"
-                style={{ transform: 'translate(-50%, -50%) scale(0.5)' }}
+                ref={imageContainerRef}
+                className="relative h-full w-full"
+                onMouseMove={handleMouseMove}
+                onMouseLeave={handleMouseLeave}
               >
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-text/90 font-mono text-[10px] font-medium uppercase tracking-widest text-bg">
-                  View
+                <Image
+                  src={thumbnailUrl}
+                  alt={project.title}
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                  sizes="(max-width: 768px) 80vw, 40vw"
+                />
+
+                {/* Custom cursor — beige circle with arrow + "View Project" label */}
+                <div
+                  ref={cursorRef}
+                  className="pointer-events-none absolute opacity-0 transition-[opacity,transform] duration-200"
+                  style={{ transform: 'translate(-50%, -50%) scale(0.5)' }}
+                >
+                  <div className="flex flex-col items-center gap-1">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-bg">
+                      <span className="text-xl text-text">&rarr;</span>
+                    </div>
+                    <span className="whitespace-nowrap text-[10px] tracking-wide text-text-muted">
+                      View Project
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
+            </Link>
 
             {/* Right annotation column */}
             <div className="ml-3 flex shrink-0 flex-col [writing-mode:vertical-rl]">
@@ -106,7 +146,7 @@ export function HorizontalProjectCard({
           </div>
         )}
 
-        {/* Text area — natural height, centered with image by justify-center */}
+        {/* Text area — not clickable, normal cursor */}
         <div className="mt-4 shrink-0">
           <h2 className="overflow-hidden text-ellipsis whitespace-normal font-body text-base font-medium leading-snug text-text md:text-lg">
             {project.title}
@@ -152,7 +192,7 @@ export function HorizontalProjectCard({
             </p>
           ) : null}
         </div>
-      </Link>
+      </div>
     </div>
   )
 }
