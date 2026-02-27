@@ -2,12 +2,12 @@
 
 /* ── Design tokens (color utilities: bg-*, text-*, border-*) ── */
 @theme {
-  --color-bg:         #F9FAFB;
-  --color-bg-alt:     #FFFFFF;
-  --color-text:       #020617;
-  --color-text-muted: #6B7280;
+  --color-bg:         #151515;
+  --color-bg-alt:     #1e1e1e;
+  --color-text:       #B4AC97;
+  --color-text-muted: #7d7868;
   --color-accent:     #F97316;
-  --color-border:     #E5E7EB;
+  --color-border:     #2a2a2a;
 }
 
 /* ── Font utilities (resolved from next/font vars on <html>) ── */
@@ -15,6 +15,7 @@
   --font-heading: var(--font-zen-old-mincho);
   --font-body:    var(--font-zen-old-mincho);
   --font-mono:    var(--font-jetbrains-mono);
+  --font-ui:      var(--font-marcellus);
 }
 
 /* ── Typography scale ──────────────────────────────────────── */
@@ -44,7 +45,10 @@
   }
 
   body {
-    background-color: var(--color-bg);
+    background-color: #151515;
+    background-image: url('https://wa63s80c7y.ufs.sh/f/xvkaIoB9LXPWfAkRh8QDQ8nTq69kpFd5GzEliCytbf0vBVLW');
+    background-repeat: repeat;
+    background-size: auto;
     color: var(--color-text);
     font-family: var(--font-body), ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
     font-size: 1rem;
@@ -74,7 +78,7 @@
   }
 }
 
-/* ── Projects theme scope (warm beige like taikisato) ────── */
+/* ── Projects theme scope (warm beige) ───────────────────── */
 .projects-theme {
   --color-bg:         #e8e2da;
   --color-bg-alt:     #f2ede7;
@@ -83,35 +87,29 @@
   --color-accent:     #F97316;
   --color-border:     #d5cfc8;
 
-  /* Layout heights for calc-based sizing (taikisato approach) */
+  /* Layout heights for calc-based sizing */
   --header-h: 4rem;
   --filter-h: 2.75rem;
   --progress-h: 1px;
   --card-h: calc(100dvh - var(--header-h) - var(--filter-h) - var(--progress-h));
 }
 
-/* Header color — white by default, dark on projects pages */
+/* Body text on light theme — headings stay dark via text-text class */
+html.projects-theme body {
+  color: #808080;
+}
+
+/* Header uses token color in both themes */
 header {
-  color: #fff;
+  color: var(--color-text);
 }
 
-html.projects-theme header {
-  color: #1a1a1a;
-}
-
+/* ── Light background (beige) with gray texture ─────────── */
 .projects-theme-bg {
-  position: relative;
   background-color: #e8e2da;
-}
-
-.projects-theme-bg::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: url('/images/texture-for-gray.png');
+  background-image: url('https://wa63s80c7y.ufs.sh/f/xvkaIoB9LXPW4oPrLhFuDBzPlk6wKJgc9N4mGELOVpvRIro8');
   background-repeat: repeat;
-  opacity: 0.35;
-  pointer-events: none;
+  background-size: auto;
 }
 
 /* ── Tech stack marquee animation ─────────────────────────── */
@@ -126,7 +124,7 @@ html.projects-theme header {
 
 @media (prefers-reduced-motion: reduce) {
   .marquee-track {
-    animation-play-state: paused !important;
+    animation-play-state: paused;
   }
 }
 

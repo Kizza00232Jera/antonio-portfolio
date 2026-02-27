@@ -46,7 +46,7 @@ export default function ProjectCard({ project, className }: ProjectCardProps) {
           {project.techStackRefs.slice(0, 4).map((tech) => (
             <li
               key={tech._id}
-              className="flex items-center gap-1.5 rounded-full border border-border px-3 py-0.5 font-mono text-xs text-text-muted"
+              className="flex items-center gap-1.5 rounded-full border border-border px-3 py-0.5 font-ui text-xs text-text-muted"
             >
               {tech.icon && (
                 <Image
@@ -61,7 +61,7 @@ export default function ProjectCard({ project, className }: ProjectCardProps) {
             </li>
           ))}
           {project.techStackRefs.length > 4 && (
-            <li className="rounded-full border border-border px-3 py-0.5 font-mono text-xs text-text-muted">
+            <li className="rounded-full border border-border px-3 py-0.5 font-ui text-xs text-text-muted">
               +{project.techStackRefs.length - 4}
             </li>
           )}
@@ -71,13 +71,13 @@ export default function ProjectCard({ project, className }: ProjectCardProps) {
           {project.techStack.slice(0, 4).map((tech) => (
             <li
               key={tech}
-              className="rounded-full border border-border px-3 py-0.5 font-mono text-xs text-text-muted"
+              className="rounded-full border border-border px-3 py-0.5 font-ui text-xs text-text-muted"
             >
               {tech}
             </li>
           ))}
           {project.techStack.length > 4 && (
-            <li className="rounded-full border border-border px-3 py-0.5 font-mono text-xs text-text-muted">
+            <li className="rounded-full border border-border px-3 py-0.5 font-ui text-xs text-text-muted">
               +{project.techStack.length - 4}
             </li>
           )}

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Zen_Old_Mincho, JetBrains_Mono } from 'next/font/google'
+import { Zen_Old_Mincho, JetBrains_Mono, Marcellus } from 'next/font/google'
 import { Suspense } from 'react'
 import Header from '@/components/layout/Header'
 
@@ -25,6 +25,12 @@ const jetbrainsMono = JetBrains_Mono({
   weight: ['400'],
 })
 
+const marcellus = Marcellus({
+  variable: '--font-marcellus',
+  subsets: ['latin'],
+  weight: ['400'],
+})
+
 export const metadata: Metadata = {
   title: "Antonio's Portfolio",
   description: 'Designer and web developer from Croatia, based in Sweden.',
@@ -38,9 +44,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${zenOldMincho.variable} ${jetbrainsMono.variable}`}
+      className={`${zenOldMincho.variable} ${jetbrainsMono.variable} ${marcellus.variable}`}
     >
-      <body className="antialiased bg-[#151515]">
+      <body className="antialiased">
         <PostHogProvider>
           <LenisProvider>
             <Preloader />

@@ -43,10 +43,10 @@ export function CustomCursor() {
       yTo(e.clientY)
     }
 
-    // Detect interactive elements via event delegation
+    // Only grow on elements that explicitly opt in
     const isInteractive = (target: EventTarget | null): boolean => {
       if (!(target instanceof HTMLElement)) return false
-      return !!target.closest('a, button, [data-cursor="grow"]')
+      return !!target.closest('[data-cursor="grow"]')
     }
 
     const shouldHide = (target: EventTarget | null): boolean => {

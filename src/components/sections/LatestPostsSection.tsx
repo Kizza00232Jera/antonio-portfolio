@@ -11,7 +11,7 @@ export default function LatestPostsSection({ posts }: LatestPostsSectionProps) {
     <section className="mx-auto max-w-[var(--max-width)] px-6 py-[var(--section-gap)]">
       <div className="flex items-end justify-between gap-4 mb-2">
         <div>
-          <p className="mb-3 font-mono text-sm text-text-muted uppercase tracking-widest">
+          <p className="mb-3 font-ui text-sm text-text-muted uppercase tracking-widest">
             Writing
           </p>
           <h2

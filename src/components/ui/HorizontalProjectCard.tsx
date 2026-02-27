@@ -132,12 +132,12 @@ export function HorizontalProjectCard({
             {/* Right annotation column */}
             <div className="ml-3 flex shrink-0 flex-col [writing-mode:vertical-rl]">
               {project.publishedAt && (
-                <span className="inline-block font-mono text-[0.625rem] uppercase tracking-widest text-text-muted">
+                <span className="inline-block font-ui text-[0.625rem] uppercase tracking-widest text-text-muted">
                   {formatDate(project.publishedAt)}
                 </span>
               )}
               {project.tags && project.tags.length > 0 && (
-                <div className="mt-auto flex flex-wrap gap-4 font-mono text-[0.625rem] uppercase tracking-widest text-text-muted">
+                <div className="mt-auto flex flex-wrap gap-4 font-ui text-[0.625rem] uppercase tracking-widest text-text-muted">
                   {project.tags.map((tag) => (
                     <span key={tag._id}>{tag.name}</span>
                   ))}
@@ -160,7 +160,7 @@ export function HorizontalProjectCard({
           )}
 
           {project.tags && project.tags.length > 0 && (
-            <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 font-mono text-[0.625rem] uppercase tracking-wider text-text-muted">
+            <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 font-ui text-[0.625rem] uppercase tracking-wider text-text-muted">
               {project.tags.map((tag) => (
                 <span key={tag._id}>{tag.name}</span>
               ))}
@@ -172,7 +172,7 @@ export function HorizontalProjectCard({
               {project.techStackRefs.map((tech) => (
                 <span
                   key={tech._id}
-                  className="flex items-center gap-1 font-mono text-[0.625rem] text-text-muted"
+                  className="flex items-center gap-1 font-ui text-[0.625rem] text-text-muted"
                 >
                   {tech.icon && (
                     <Image
@@ -188,7 +188,7 @@ export function HorizontalProjectCard({
               ))}
             </div>
           ) : project.techStack && project.techStack.length > 0 ? (
-            <p className="mt-1.5 font-mono text-[0.625rem] uppercase tracking-wider text-text-muted">
+            <p className="mt-1.5 font-ui text-[0.625rem] uppercase tracking-wider text-text-muted">
               {project.techStack.join('  ·  ')}
             </p>
           ) : null}

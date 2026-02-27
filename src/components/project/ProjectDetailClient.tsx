@@ -65,7 +65,7 @@ export function ProjectDetailClient({
               href={liveUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="font-mono text-sm text-text-muted underline underline-offset-4 transition-colors hover:text-accent"
+              className="font-ui text-sm text-text-muted underline underline-offset-4 transition-colors hover:text-accent"
             >
               View live
             </a>
@@ -77,7 +77,7 @@ export function ProjectDetailClient({
               href={githubUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="font-mono text-sm text-text-muted underline underline-offset-4 transition-colors hover:text-accent"
+              className="font-ui text-sm text-text-muted underline underline-offset-4 transition-colors hover:text-accent"
             >
               GitHub
             </a>

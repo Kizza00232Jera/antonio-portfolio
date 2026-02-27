@@ -27,7 +27,7 @@ export default function TechStackSection() {
   return (
     <section className="mx-auto max-w-[var(--max-width)] px-6 py-[var(--section-gap)]">
       <div className="mb-10">
-        <p className="mb-3 font-mono text-sm text-text-muted uppercase tracking-widest">
+        <p className="mb-3 font-ui text-sm text-text-muted uppercase tracking-widest">
           Toolbox
         </p>
         <h2
@@ -43,7 +43,7 @@ export default function TechStackSection() {
             key={tech.name}
             className="flex flex-col gap-2 rounded-2xl border border-border bg-bg-alt p-5"
           >
-            <p className="font-mono text-xs text-text-muted uppercase tracking-widest">
+            <p className="font-ui text-xs text-text-muted uppercase tracking-widest">
               {tech.category}
             </p>
 

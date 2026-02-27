@@ -49,7 +49,7 @@ export function ProjectFilterBar({
             <button
               type="button"
               onClick={() => handleSelect(null)}
-              className="flex items-center gap-3 py-1.5 font-mono text-xs uppercase tracking-wider text-text-muted transition-colors hover:text-text"
+              className="flex items-center gap-3 py-1.5 font-ui text-xs uppercase tracking-wider text-text-muted transition-colors hover:text-text"
             >
               <span
                 className={cn(
@@ -64,7 +64,7 @@ export function ProjectFilterBar({
                 key={tag._id}
                 type="button"
                 onClick={() => handleSelect(tag.slug.current)}
-                className="flex items-center gap-3 py-1.5 font-mono text-xs uppercase tracking-wider text-text-muted transition-colors hover:text-text"
+                className="flex items-center gap-3 py-1.5 font-ui text-xs uppercase tracking-wider text-text-muted transition-colors hover:text-text"
               >
                 <span
                   className={cn(
@@ -84,7 +84,7 @@ export function ProjectFilterBar({
             <button
               type="button"
               onClick={() => setIsOpen((prev) => !prev)}
-              className="flex shrink-0 items-center gap-1.5 font-mono text-xs uppercase tracking-widest text-text-muted transition-colors hover:text-text"
+              className="flex shrink-0 items-center gap-1.5 font-ui text-xs uppercase tracking-widest text-text-muted transition-colors hover:text-text"
             >
               Filter
               <span
@@ -96,7 +96,7 @@ export function ProjectFilterBar({
                 &#9662;
               </span>
             </button>
-            <span className="flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-text-muted">
+            <span className="flex items-center gap-2 font-ui text-xs uppercase tracking-wider text-text-muted">
               <span className="h-2.5 w-2.5 rounded-full border border-text bg-text" />
               {activeLabel}
             </span>
@@ -107,14 +107,14 @@ export function ProjectFilterBar({
       {/* ── Desktop: inline horizontal row ── */}
       <div className="hidden border-t border-border bg-bg/80 backdrop-blur-md lg:block">
         <div className="scrollbar-hide flex items-center gap-6 overflow-x-auto px-10 py-3">
-          <span className="shrink-0 font-mono text-xs uppercase tracking-widest text-text-muted">
+          <span className="shrink-0 font-ui text-xs uppercase tracking-widest text-text-muted">
             Filter
           </span>
 
           <button
             type="button"
             onClick={() => onTagChange(null)}
-            className="flex shrink-0 items-center gap-2 font-mono text-xs uppercase tracking-wider text-text-muted transition-colors hover:text-text"
+            className="flex shrink-0 items-center gap-2 font-ui text-xs uppercase tracking-wider text-text-muted transition-colors hover:text-text"
           >
             <span
               className={cn(
@@ -130,7 +130,7 @@ export function ProjectFilterBar({
               key={tag._id}
               type="button"
               onClick={() => onTagChange(tag.slug.current)}
-              className="flex shrink-0 items-center gap-2 font-mono text-xs uppercase tracking-wider text-text-muted transition-colors hover:text-text"
+              className="flex shrink-0 items-center gap-2 font-ui text-xs uppercase tracking-wider text-text-muted transition-colors hover:text-text"
             >
               <span
                 className={cn(

@@ -39,7 +39,7 @@ export function TechMarquee({ items, className }: TechMarqueeProps) {
                 className="h-8 w-8 object-contain"
               />
             )}
-            <span className="font-mono text-sm uppercase tracking-wider text-text-muted">
+            <span className="font-ui text-sm uppercase tracking-wider text-text-muted">
               {item.name}
             </span>
           </div>
