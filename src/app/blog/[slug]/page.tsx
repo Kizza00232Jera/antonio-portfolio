@@ -51,8 +51,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       {/* Header */}
       <header className="mb-12">
         <h1
-          className="font-heading font-bold text-text leading-tight mb-4"
-          style={{ fontSize: 'var(--text-display)' }}
+          className="font-heading font-bold text-text leading-tight mb-4 text-[length:var(--text-display)]"
         >
           {post.title}
         </h1>
@@ -80,8 +79,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
         {post.excerpt && (
           <p
-            className="mt-6 text-text-muted leading-relaxed"
-            style={{ fontSize: 'var(--text-body)' }}
+            className="mt-6 text-text-muted leading-relaxed text-[length:var(--text-body)]"
           >
             {post.excerpt}
           </p>

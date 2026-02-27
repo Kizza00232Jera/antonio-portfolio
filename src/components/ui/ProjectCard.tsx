@@ -21,8 +21,7 @@ export default function ProjectCard({ project, className }: ProjectCardProps) {
       {/* Top row — title + arrow */}
       <div className="flex items-start justify-between gap-4">
         <h3
-          className="font-heading font-semibold text-text leading-tight"
-          style={{ fontSize: 'var(--text-heading)' }}
+          className="font-heading font-semibold text-text leading-tight text-[length:var(--text-heading)]"
         >
           {project.title}
         </h3>

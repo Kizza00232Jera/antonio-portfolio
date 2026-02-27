@@ -15,8 +15,7 @@ export default function LatestPostsSection({ posts }: LatestPostsSectionProps) {
             Writing
           </p>
           <h2
-            className="font-heading font-bold text-text leading-tight"
-            style={{ fontSize: 'var(--text-display)' }}
+            className="font-heading font-bold text-text leading-tight text-[length:var(--text-display)]"
           >
             Latest posts
           </h2>

@@ -8,8 +8,7 @@ const components: PortableTextComponents = {
   block: {
     h2: ({ children }) => (
       <h2
-        className="mt-12 mb-4 font-heading font-bold text-text leading-tight"
-        style={{ fontSize: 'var(--text-heading)' }}
+        className="mt-12 mb-4 font-heading font-bold text-text leading-tight text-[length:var(--text-heading)]"
       >
         {children}
       </h2>
@@ -26,8 +25,7 @@ const components: PortableTextComponents = {
     ),
     normal: ({ children }) => (
       <p
-        className="mb-5 text-text leading-relaxed"
-        style={{ fontSize: 'var(--text-body)' }}
+        className="mb-5 text-text leading-relaxed text-[length:var(--text-body)]"
       >
         {children}
       </p>

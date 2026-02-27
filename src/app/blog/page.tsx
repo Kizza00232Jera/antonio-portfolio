@@ -17,8 +17,7 @@ export default async function BlogPage() {
           Writing
         </p>
         <h1
-          className="font-heading font-bold text-text leading-tight"
-          style={{ fontSize: 'var(--text-display)' }}
+          className="font-heading font-bold text-text leading-tight text-[length:var(--text-display)]"
         >
           All posts
         </h1>

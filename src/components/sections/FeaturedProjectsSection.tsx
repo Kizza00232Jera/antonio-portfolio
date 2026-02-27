@@ -15,8 +15,7 @@ export default function FeaturedProjectsSection({ projects }: FeaturedProjectsSe
             Work
           </p>
           <h2
-            className="font-heading font-bold text-text leading-tight"
-            style={{ fontSize: 'var(--text-display)' }}
+            className="font-heading font-bold text-text leading-tight text-[length:var(--text-display)]"
           >
             Featured projects
           </h2>

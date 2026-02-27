@@ -31,8 +31,7 @@ export default function TechStackSection() {
           Toolbox
         </p>
         <h2
-          className="font-heading font-bold text-text leading-tight"
-          style={{ fontSize: 'var(--text-display)' }}
+          className="font-heading font-bold text-text leading-tight text-[length:var(--text-display)]"
         >
           Technologies I use
         </h2>

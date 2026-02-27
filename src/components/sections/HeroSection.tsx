@@ -126,8 +126,7 @@ export default function HeroSection() {
         {/* Line 1 — "Sup, I'm Antonio." */}
         <h1
           data-line1
-          className="font-heading font-bold text-white opacity-0"
-          style={{ fontSize: 'var(--text-hero)', lineHeight: 1.05 }}
+          className="font-heading font-bold text-white opacity-0 text-[length:var(--text-hero)] leading-[1.05]"
         >
           Sup, I&apos;m Antonio.
         </h1>
@@ -136,8 +135,7 @@ export default function HeroSection() {
             wraps the typewriter to its own line on mobile when it doesn't fit */}
         <p
           data-line2
-          className="flex flex-wrap items-baseline font-heading font-bold text-white opacity-0"
-          style={{ fontSize: 'var(--text-hero)', lineHeight: 1.05 }}
+          className="flex flex-wrap items-baseline font-heading font-bold text-white opacity-0 text-[length:var(--text-hero)] leading-[1.05]"
         >
           <span>I&apos;m a&nbsp;</span>
           <span className="whitespace-nowrap text-accent">
@@ -160,8 +158,7 @@ export default function HeroSection() {
         {/* Body paragraph */}
         <p
           data-para
-          className="mt-8 max-w-md font-body text-white/50 opacity-0"
-          style={{ fontSize: 'var(--text-body)', lineHeight: 1.7 }}
+          className="mt-8 max-w-md font-body text-white/50 opacity-0 text-[length:var(--text-body)] leading-[1.7]"
         >
           Passionately building web experiences rooted in design, grounded in code — from Croatia to the world.
         </p>
