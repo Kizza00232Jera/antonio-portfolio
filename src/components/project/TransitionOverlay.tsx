@@ -46,6 +46,10 @@ export function TransitionOverlay() {
 
     const vh = window.innerHeight
 
+    // Ensure <main> is visible (homepage transition fades it to 0)
+    const mainEl = document.querySelector('main')
+    if (mainEl) gsap.set(mainEl, { opacity: 1 })
+
     // Prepare the new page: make container visible, hide text elements
     const content = document.getElementById('projects-content')
     if (content) {
@@ -126,11 +130,14 @@ export function TransitionOverlay() {
     timelineRef.current = tl
 
     // Phase 1: Fade content to 10% — background stays visible
-    tl.to('#projects-content', {
-      opacity: 0.1,
-      duration: 0.5,
-      ease: 'power2.out',
-    }, 0)
+    const contentEl = document.getElementById('projects-content') || document.querySelector('main')
+    if (contentEl) {
+      tl.to(contentEl, {
+        opacity: 0.1,
+        duration: 0.5,
+        ease: 'power2.out',
+      }, 0)
+    }
 
     // Phase 2: Expand image from card rect to fullscreen
     tl.to(imageWrapper, {
@@ -145,7 +152,8 @@ export function TransitionOverlay() {
     // Phase 3: When image is fullscreen, hide content fully and navigate
     // The slide-down + content stagger happens in tryReveal after route changes
     tl.call(() => {
-      gsap.set('#projects-content', { opacity: 0 })
+      const hideEl = document.getElementById('projects-content') || document.querySelector('main')
+      if (hideEl) gsap.set(hideEl, { opacity: 0 })
       router.push(`/projects/${transitionData.slug}`)
     }, [], 1.0)
 
@@ -248,7 +256,8 @@ export function TransitionOverlay() {
         timelineRef.current.kill()
         timelineRef.current = null
       }
-      gsap.set('#projects-content', { opacity: 1 })
+      const safeEl = document.getElementById('projects-content') || document.querySelector('main')
+      if (safeEl) gsap.set(safeEl, { opacity: 1 })
       if (overlayRef.current) {
         gsap.set(overlayRef.current, { visibility: 'hidden', opacity: 1, pointerEvents: 'none' })
       }

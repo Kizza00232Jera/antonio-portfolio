@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { gsap } from 'gsap'
 import { urlFor } from '@/lib/sanity/image'
+import { useProjectTransition } from '@/contexts/ProjectTransitionContext'
 import type { Project } from '@/lib/sanity/types'
 
 /* ── Helpers ─────────────────────────────────────────────── */
@@ -76,6 +77,7 @@ export default function ProjectShowcaseSection({
   const animatingRef = useRef(false)
   const initialRenderRef = useRef(true)
   const touchStartRef = useRef(0)
+  const { startTransition } = useProjectTransition()
 
   const activeProject = projects[activeIndex]
 
@@ -164,6 +166,39 @@ export default function ProjectShowcaseSection({
     [navigate],
   )
 
+  /* ── Center card click → project transition ── */
+  const handleCardClick = useCallback(
+    (e: React.MouseEvent, project: Project, index: number) => {
+      if (index !== activeIndex) return
+      e.preventDefault()
+
+      const card = cardRefs.current[index]
+      if (!card) return
+
+      const thumbnailUrl = getThumbnailUrl(project)
+      if (!thumbnailUrl) return
+
+      const rect = card.getBoundingClientRect()
+
+      startTransition({
+        slug: project.slug.current,
+        thumbnailUrl,
+        imageRect: {
+          left: rect.left,
+          top: rect.top,
+          width: rect.width,
+          height: rect.height,
+        },
+        projectTitle: project.title,
+        publishedAt: project.publishedAt,
+        githubUrl: project.githubUrl,
+        liveUrl: project.liveUrl,
+        muxVideoId: project.muxVideoId,
+      })
+    },
+    [activeIndex, startTransition],
+  )
+
   /* ── Kill GSAP tweens on unmount ── */
   useEffect(() => {
     return () => {
@@ -204,6 +239,7 @@ export default function ProjectShowcaseSection({
           >
             <Link
               href={`/projects/${project.slug.current}`}
+              onClick={(e) => handleCardClick(e, project, i)}
               className="relative block h-full w-full overflow-hidden rounded-xl"
             >
               {thumbnailUrl ? (
