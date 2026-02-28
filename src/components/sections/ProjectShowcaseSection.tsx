@@ -43,9 +43,9 @@ function getThumbnailUrl(project: Project): string | null {
  * ──────────────────────────────────────────────────────── */
 
 const ARC_RADIUS = 2000
-const ANGLE_STEP = 12
-const MAX_VISIBLE = 4
-const SCALE_STEP = 0.1
+const ANGLE_STEP = 18
+const MAX_VISIBLE = 2
+const SCALE_STEP = 0.12
 const ANIM_DURATION = 0.7
 
 function getSlotProps(offset: number) {
@@ -84,9 +84,13 @@ export default function ProjectShowcaseSection({
     const animate = !initialRenderRef.current
     initialRenderRef.current = false
 
+    const total = projects.length
+
     cardRefs.current.forEach((card, i) => {
       if (!card) return
-      const offset = i - activeIndex
+      let offset = i - activeIndex
+      if (offset > total / 2) offset -= total
+      if (offset < -total / 2) offset += total
       const props = getSlotProps(offset)
       const isCenter = offset === 0
 
@@ -127,7 +131,8 @@ export default function ProjectShowcaseSection({
       if (animatingRef.current) return
       setActiveIndex((prev) => {
         const next = prev + dir
-        if (next < 0 || next >= projects.length) return prev
+        if (next < 0) return projects.length - 1
+        if (next >= projects.length) return 0
         return next
       })
     },
@@ -172,78 +177,88 @@ export default function ProjectShowcaseSection({
 
   return (
     <section
-      className="relative flex flex-col items-center overflow-hidden"
+      className="relative overflow-hidden"
       style={{ height: '100vh' }}
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
     >
-      {/* ── Carousel area ─────────────────────────────────── */}
-      <div className="relative flex-1 w-full">
-        {projects.map((project, i) => {
-          const thumbnailUrl = getThumbnailUrl(project)
+      {/* ── Cards — absolute in section, no wrapper ───────── */}
+      {projects.map((project, i) => {
+        const thumbnailUrl = getThumbnailUrl(project)
 
-          return (
-            <div
-              key={project._id}
-              ref={(el) => {
-                cardRefs.current[i] = el
-              }}
-              className="absolute will-change-transform"
-              style={{
-                width: 300,
-                height: 400,
-                left: '50%',
-                top: '45%',
-                marginLeft: -150,
-                marginTop: -200,
-              }}
+        return (
+          <div
+            key={project._id}
+            ref={(el) => {
+              cardRefs.current[i] = el
+            }}
+            className="absolute will-change-transform"
+            style={{
+              width: 300,
+              height: 400,
+              left: '50%',
+              top: '28%',
+              marginLeft: -150,
+              marginTop: -200,
+            }}
+          >
+            <Link
+              href={`/projects/${project.slug.current}`}
+              className="relative block h-full w-full overflow-hidden rounded-xl"
             >
-              <Link
-                href={`/projects/${project.slug.current}`}
-                className="relative block h-full w-full overflow-hidden rounded-xl"
-              >
-                {thumbnailUrl ? (
-                  <Image
-                    src={thumbnailUrl}
-                    alt={project.title}
-                    fill
-                    sizes="320px"
-                    className="object-cover"
-                  />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center rounded-xl bg-bg-alt text-sm text-text-muted">
-                    No image
-                  </div>
-                )}
-              </Link>
-            </div>
-          )
-        })}
-      </div>
+              {thumbnailUrl ? (
+                <Image
+                  src={thumbnailUrl}
+                  alt={project.title}
+                  fill
+                  sizes="320px"
+                  className="object-cover"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center rounded-xl bg-bg-alt text-sm text-text-muted">
+                  No image
+                </div>
+              )}
+            </Link>
+          </div>
+        )
+      })}
 
-      {/* ── Bottom: project info + navigation ─────────────── */}
-      <div className="shrink-0 pb-10 text-center px-6">
-        <p className="mb-2 font-ui text-sm uppercase tracking-widest text-text-muted">
-          Work
-        </p>
+      {/* ── Bottom: project info + navigation ─────────────── *
+       * Pinned to bottom of section. Uses percentage height
+       * so there's plenty of room for the paragraph.
+       * Title stays at a fixed position; paragraph grows
+       * downward; arrows stay at the very bottom.
+       * ───────────────────────────────────────────────────────── */}
+      <div
+        className="absolute inset-x-0 bottom-0 flex flex-col text-center px-6"
+        style={{ height: '40%' }}
+      >
+        {activeProject?.tags && activeProject.tags.length > 0 && (
+          <p className="mb-2 font-ui text-sm uppercase tracking-widest text-text-muted">
+            {activeProject.tags.map((tag) => tag.name).join(' / ')}
+          </p>
+        )}
 
         <h2 className="font-heading font-bold leading-tight text-text text-[length:var(--text-display)]">
           {activeProject?.title}
         </h2>
 
-        {activeProject?.tagline && (
-          <p className="mt-3 max-w-lg mx-auto text-text-muted leading-relaxed text-[length:var(--text-body)]">
-            {activeProject.tagline}
-          </p>
-        )}
+        {/* Paragraph — flex-1 fills all remaining space between title and arrows */}
+        <div className="mt-3 flex-1 max-w-lg mx-auto overflow-hidden">
+          {activeProject?.tagline && (
+            <p className="text-text-muted leading-relaxed text-[length:var(--text-body)]">
+              {activeProject.tagline}
+            </p>
+          )}
+        </div>
 
         {/* Navigation arrows */}
-        <div className="flex items-center justify-center gap-8 mt-6">
+        <div className="flex items-center justify-center gap-8">
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center justify-center w-12 h-12 rounded-full border border-border text-text transition-colors hover:bg-text hover:text-bg disabled:opacity-30 disabled:pointer-events-none"
+            className="flex items-center justify-center w-12 h-12 rounded-full border border-border text-text transition-colors hover:bg-text hover:text-bg"
             aria-label="Previous project"
-            disabled={activeIndex === 0}
           >
             <svg
               width="20"
@@ -265,9 +280,8 @@ export default function ProjectShowcaseSection({
 
           <button
             onClick={() => navigate(1)}
-            className="flex items-center justify-center w-12 h-12 rounded-full border border-border text-text transition-colors hover:bg-text hover:text-bg disabled:opacity-30 disabled:pointer-events-none"
+            className="flex items-center justify-center w-12 h-12 rounded-full border border-border text-text transition-colors hover:bg-text hover:text-bg"
             aria-label="Next project"
-            disabled={activeIndex === projects.length - 1}
           >
             <svg
               width="20"
@@ -283,6 +297,14 @@ export default function ProjectShowcaseSection({
             </svg>
           </button>
         </div>
+
+        {/* View all projects link */}
+        <Link
+          href="/projects"
+          className="mt-4 pb-6 inline-block text-sm font-medium text-text-muted underline underline-offset-4 decoration-border transition-colors hover:text-text hover:decoration-accent"
+        >
+          See all projects &rarr;
+        </Link>
       </div>
     </section>
   )

@@ -18,7 +18,7 @@ export async function getAllProjects(): Promise<Project[]> {
 export async function getFeaturedProjects(): Promise<Project[]> {
   return client.fetch(
     `*[_type == "project" && featured == true] | order(order asc) {
-      _id, _type, title, slug, tagline, coverImage,
+      _id, _type, title, slug, tagline, coverImage, muxVideoId,
       techStack,
       techStackRefs[]->{ _id, name, slug, icon },
       tags[]->{ _id, name, slug },
