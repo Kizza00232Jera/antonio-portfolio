@@ -12,10 +12,10 @@ import type { Project } from '@/lib/sanity/types'
 
 function getThumbnailUrl(project: Project): string | null {
   if (project.muxVideoId) {
-    return `https://image.mux.com/${project.muxVideoId}/thumbnail.png?width=500&height=670&fit_mode=smartcrop`
+    return `https://image.mux.com/${project.muxVideoId}/thumbnail.png?width=900&height=1200&fit_mode=smartcrop`
   }
   if (project.coverImage) {
-    return urlFor(project.coverImage).width(500).height(670).quality(80).url()
+    return urlFor(project.coverImage).width(900).height(1200).quality(80).url()
   }
   return null
 }
@@ -43,23 +43,29 @@ function getThumbnailUrl(project: Project): string | null {
  * than the center — following the arc curve naturally.
  * ──────────────────────────────────────────────────────── */
 
-const ARC_RADIUS = 2000
-const ANGLE_STEP = 18
-const MAX_VISIBLE = 2
-const SCALE_STEP = 0.12
 const ANIM_DURATION = 0.7
 
-function getSlotProps(offset: number) {
-  const angleDeg = offset * ANGLE_STEP
+const ARC_MOBILE = { radius: 2000, angleStep: 18, maxVisible: 2, scaleStep: 0.12 }
+const ARC_DESKTOP = { radius: 2000, angleStep: 28, maxVisible: 1, scaleStep: 0.12 }
+
+interface ArcConfig {
+  radius: number
+  angleStep: number
+  maxVisible: number
+  scaleStep: number
+}
+
+function getSlotProps(offset: number, arc: ArcConfig) {
+  const angleDeg = offset * arc.angleStep
   const angleRad = angleDeg * (Math.PI / 180)
   const absOffset = Math.abs(offset)
 
   return {
-    x: ARC_RADIUS * Math.sin(angleRad),
-    y: ARC_RADIUS * (1 - Math.cos(angleRad)),
+    x: arc.radius * Math.sin(angleRad),
+    y: arc.radius * (1 - Math.cos(angleRad)),
     rotation: angleDeg,
-    scale: Math.max(0.5, 1 - absOffset * SCALE_STEP),
-    opacity: absOffset <= MAX_VISIBLE ? 1 : 0,
+    scale: Math.max(0.5, 1 - absOffset * arc.scaleStep),
+    opacity: absOffset <= arc.maxVisible ? 1 : 0,
   }
 }
 
@@ -73,13 +79,26 @@ export default function ProjectShowcaseSection({
   projects,
 }: ProjectShowcaseSectionProps) {
   const [activeIndex, setActiveIndex] = useState(0)
+  const [isDesktop, setIsDesktop] = useState(true)
   const cardRefs = useRef<(HTMLDivElement | null)[]>([])
   const animatingRef = useRef(false)
   const initialRenderRef = useRef(true)
-  const touchStartRef = useRef(0)
+  const draggingRef = useRef(false)
+  const dragStartXRef = useRef(0)
+  const dragOffsetRef = useRef(0)
   const { startTransition } = useProjectTransition()
 
   const activeProject = projects[activeIndex]
+  const arc = isDesktop ? ARC_DESKTOP : ARC_MOBILE
+
+  /* ── Track screen size ── */
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 768px)')
+    setIsDesktop(mq.matches)
+    const onChange = (e: MediaQueryListEvent) => setIsDesktop(e.matches)
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [])
 
   /* ── Position all cards based on activeIndex ── */
   useEffect(() => {
@@ -93,7 +112,7 @@ export default function ProjectShowcaseSection({
       let offset = i - activeIndex
       if (offset > total / 2) offset -= total
       if (offset < -total / 2) offset += total
-      const props = getSlotProps(offset)
+      const props = getSlotProps(offset, arc)
       const isCenter = offset === 0
 
       if (animate) {
@@ -125,7 +144,7 @@ export default function ProjectShowcaseSection({
         animatingRef.current = false
       }, ANIM_DURATION * 1000)
     }
-  }, [activeIndex, projects])
+  }, [activeIndex, projects, arc])
 
   /* ── Navigate left / right ── */
   const navigate = useCallback(
@@ -151,20 +170,88 @@ export default function ProjectShowcaseSection({
     return () => window.removeEventListener('keydown', onKey)
   }, [navigate])
 
-  /* ── Touch / swipe ── */
-  const onTouchStart = useCallback((e: React.TouchEvent) => {
-    touchStartRef.current = e.touches[0].clientX
-  }, [])
+  /* ── Drag-to-snap (mobile touch) ── */
+  const oneCardPx = arc.radius * Math.sin(arc.angleStep * (Math.PI / 180))
 
-  const onTouchEnd = useCallback(
-    (e: React.TouchEvent) => {
-      const delta = e.changedTouches[0].clientX - touchStartRef.current
-      if (Math.abs(delta) > 50) {
-        navigate(delta > 0 ? -1 : 1)
-      }
+  const positionCards = useCallback(
+    (fractionalIndex: number) => {
+      const total = projects.length
+      cardRefs.current.forEach((card, i) => {
+        if (!card) return
+        let offset = i - fractionalIndex
+        if (offset > total / 2) offset -= total
+        if (offset < -total / 2) offset += total
+        const props = getSlotProps(offset, arc)
+        gsap.set(card, {
+          x: props.x,
+          y: props.y,
+          rotation: props.rotation,
+          scale: props.scale,
+          opacity: props.opacity,
+        })
+      })
     },
-    [navigate],
+    [projects.length, arc],
   )
+
+  const onTouchStart = useCallback(
+    (e: React.TouchEvent) => {
+      if (animatingRef.current) return
+      draggingRef.current = true
+      dragStartXRef.current = e.touches[0].clientX
+      dragOffsetRef.current = 0
+    },
+    [],
+  )
+
+  const onTouchMove = useCallback(
+    (e: React.TouchEvent) => {
+      if (!draggingRef.current) return
+      const delta = e.touches[0].clientX - dragStartXRef.current
+      dragOffsetRef.current = -delta / oneCardPx
+      positionCards(activeIndex + dragOffsetRef.current)
+    },
+    [activeIndex, oneCardPx, positionCards],
+  )
+
+  const onTouchEnd = useCallback(() => {
+    if (!draggingRef.current) return
+    draggingRef.current = false
+
+    const offset = dragOffsetRef.current
+    let snapped = 0
+    if (offset > 0.3) snapped = 1
+    else if (offset < -0.3) snapped = -1
+
+    const total = projects.length
+    let newIndex = activeIndex + snapped
+    if (newIndex < 0) newIndex = total - 1
+    if (newIndex >= total) newIndex = 0
+
+    if (newIndex === activeIndex) {
+      /* Snap back with animation */
+      cardRefs.current.forEach((card, i) => {
+        if (!card) return
+        let off = i - activeIndex
+        if (off > total / 2) off -= total
+        if (off < -total / 2) off += total
+        const props = getSlotProps(off, arc)
+        gsap.to(card, {
+          x: props.x,
+          y: props.y,
+          rotation: props.rotation,
+          scale: props.scale,
+          opacity: props.opacity,
+          duration: 0.4,
+          ease: 'power3.out',
+        })
+      })
+    } else {
+      setActiveIndex(newIndex)
+    }
+
+    dragOffsetRef.current = 0
+  }, [activeIndex, projects.length, positionCards, arc])
 
   /* ── Center card click → project transition ── */
   const handleCardClick = useCallback(
@@ -215,6 +302,7 @@ export default function ProjectShowcaseSection({
       className="relative overflow-hidden"
       style={{ height: '100vh' }}
       onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
     >
       {/* ── Cards — absolute in section, no wrapper ───────── */}
@@ -229,12 +317,12 @@ export default function ProjectShowcaseSection({
             }}
             className="absolute will-change-transform"
             style={{
-              width: 300,
-              height: 400,
+              width: isDesktop ? 600 : 300,
+              height: isDesktop ? 800 : 400,
               left: '50%',
-              top: '28%',
-              marginLeft: -150,
-              marginTop: -200,
+              top: isDesktop ? '35%' : '28%',
+              marginLeft: isDesktop ? -300 : -150,
+              marginTop: isDesktop ? -400 : -200,
             }}
           >
             <Link
@@ -247,7 +335,7 @@ export default function ProjectShowcaseSection({
                   src={thumbnailUrl}
                   alt={project.title}
                   fill
-                  sizes="320px"
+                  sizes="620px"
                   className="object-cover"
                 />
               ) : (
@@ -268,7 +356,7 @@ export default function ProjectShowcaseSection({
        * ───────────────────────────────────────────────────────── */}
       <div
         className="absolute inset-x-0 bottom-0 flex flex-col text-center px-6"
-        style={{ height: '40%' }}
+        style={{ height: isDesktop ? '30%' : '40%' }}
       >
         {activeProject?.tags && activeProject.tags.length > 0 && (
           <p className="mb-2 font-ui text-sm uppercase tracking-widest text-text-muted">
@@ -310,9 +398,12 @@ export default function ProjectShowcaseSection({
             </svg>
           </button>
 
-          <span className="font-ui text-xs text-text-muted tabular-nums">
-            {activeIndex + 1} / {projects.length}
-          </span>
+          <Link
+            href="/projects"
+            className="font-ui text-sm text-text-muted underline underline-offset-4 decoration-border transition-colors hover:text-text hover:decoration-accent"
+          >
+            See all projects
+          </Link>
 
           <button
             onClick={() => navigate(1)}
@@ -334,13 +425,8 @@ export default function ProjectShowcaseSection({
           </button>
         </div>
 
-        {/* View all projects link */}
-        <Link
-          href="/projects"
-          className="mt-4 pb-6 inline-block text-sm font-medium text-text-muted underline underline-offset-4 decoration-border transition-colors hover:text-text hover:decoration-accent"
-        >
-          See all projects &rarr;
-        </Link>
+        {/* Bottom spacing */}
+        <div className="pb-6" />
       </div>
     </section>
   )
