@@ -1,13 +1,16 @@
 import { client } from './client'
-import type { Project, BlogPost, SiteSettings } from './types'
+import type { Project, BlogPost, SiteSettings, Tag } from './types'
 
 // ─── Projects ────────────────────────────────────────────────────────────────
 
 export async function getAllProjects(): Promise<Project[]> {
   return client.fetch(
     `*[_type == "project"] | order(order asc) {
-      _id, _type, title, slug, tagline, coverImage,
-      techStack, featured, order, publishedAt
+      _id, _type, title, slug, tagline, coverImage, muxVideoId,
+      techStack,
+      techStackRefs[]->{ _id, name, slug, icon },
+      tags[]->{ _id, name, slug },
+      githubUrl, liveUrl, featured, order, publishedAt
     }`
   )
 }
@@ -15,8 +18,11 @@ export async function getAllProjects(): Promise<Project[]> {
 export async function getFeaturedProjects(): Promise<Project[]> {
   return client.fetch(
     `*[_type == "project" && featured == true] | order(order asc) {
-      _id, _type, title, slug, tagline, coverImage,
-      techStack, featured, order, publishedAt
+      _id, _type, title, slug, tagline, coverImage, muxVideoId,
+      techStack,
+      techStackRefs[]->{ _id, name, slug, icon },
+      tags[]->{ _id, name, slug },
+      featured, order, publishedAt
     }`
   )
 }
@@ -26,9 +32,22 @@ export async function getProjectBySlug(slug: string): Promise<Project | null> {
     `*[_type == "project" && slug.current == $slug][0] {
       _id, _type, title, slug, tagline, description,
       coverImage, muxVideoId, focusAreas, techStack,
+      techStackRefs[]->{ _id, name, slug, icon },
+      tags[]->{ _id, name, slug },
+      sections[]{ _key, title, content, images, links },
       githubUrl, liveUrl, featured, order, publishedAt
     }`,
     { slug }
+  )
+}
+
+// ─── Tags ────────────────────────────────────────────────────────────────────
+
+export async function getAllTags(): Promise<Tag[]> {
+  return client.fetch(
+    `*[_type == "tag"] | order(name asc) {
+      _id, _type, name, slug
+    }`
   )
 }
 

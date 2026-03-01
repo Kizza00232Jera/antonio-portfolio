@@ -119,15 +119,24 @@ export default function HeroSection() {
   return (
     <section
       ref={containerRef}
-      className="relative flex min-h-screen flex-col justify-center bg-[#010101] px-6"
+      className="relative flex min-h-screen flex-col justify-center px-6"
+      style={{
+        backgroundColor: '#e8e2da',
+        backgroundImage: [
+          "url('https://wa63s80c7y.ufs.sh/f/xvkaIoB9LXPW4oPrLhFuDBzPlk6wKJgc9N4mGELOVpvRIro8')",
+          "url('https://wa63s80c7y.ufs.sh/f/xvkaIoB9LXPWEuBM22ZsCl3YyLdkMHmvaW5ZXURTjtq2VFfu')",
+        ].join(', '),
+        backgroundSize: 'auto, cover',
+        backgroundRepeat: 'repeat, no-repeat',
+        backgroundPosition: '0 0, center',
+      }}
     >
       <div className="mx-auto w-full max-w-[var(--max-width)]">
 
         {/* Line 1 — "Sup, I'm Antonio." */}
         <h1
           data-line1
-          className="font-heading font-bold text-white opacity-0"
-          style={{ fontSize: 'var(--text-hero)', lineHeight: 1.05 }}
+          className="font-heading font-bold text-text opacity-0 text-[length:var(--text-hero)] leading-[1.05]"
         >
           Sup, I&apos;m Antonio.
         </h1>
@@ -136,8 +145,7 @@ export default function HeroSection() {
             wraps the typewriter to its own line on mobile when it doesn't fit */}
         <p
           data-line2
-          className="flex flex-wrap items-baseline font-heading font-bold text-white opacity-0"
-          style={{ fontSize: 'var(--text-hero)', lineHeight: 1.05 }}
+          className="flex flex-wrap items-baseline font-heading font-bold text-text opacity-0 text-[length:var(--text-hero)] leading-[1.05]"
         >
           <span>I&apos;m a&nbsp;</span>
           <span className="whitespace-nowrap text-accent">
@@ -160,8 +168,7 @@ export default function HeroSection() {
         {/* Body paragraph */}
         <p
           data-para
-          className="mt-8 max-w-md font-body text-white/50 opacity-0"
-          style={{ fontSize: 'var(--text-body)', lineHeight: 1.7 }}
+          className="mt-8 max-w-md font-body text-text-muted opacity-0 text-[length:var(--text-body)] leading-[1.7]"
         >
           Passionately building web experiences rooted in design, grounded in code — from Croatia to the world.
         </p>
@@ -173,8 +180,8 @@ export default function HeroSection() {
         className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-0"
         aria-hidden="true"
       >
-        <span className="font-mono text-[10px] text-white/30 uppercase tracking-widest">Scroll</span>
-        <div className="h-10 w-px bg-gradient-to-b from-white/30 to-transparent" />
+        <span className="font-ui text-[0.625rem] text-text-muted/50 uppercase tracking-widest">Scroll</span>
+        <div className="h-10 w-px bg-gradient-to-b from-text-muted/30 to-transparent" />
       </div>
     </section>
   )

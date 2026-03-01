@@ -51,15 +51,14 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       {/* Header */}
       <header className="mb-12">
         <h1
-          className="font-heading font-bold text-text leading-tight mb-4"
-          style={{ fontSize: 'var(--text-display)' }}
+          className="font-heading font-bold text-text leading-tight mb-4 text-[length:var(--text-display)]"
         >
           {post.title}
         </h1>
 
         <div className="flex flex-wrap items-center gap-4 text-sm text-text-muted">
           {post.publishedAt && (
-            <time className="font-mono" dateTime={post.publishedAt}>
+            <time className="font-ui" dateTime={post.publishedAt}>
               {formatDate(post.publishedAt)}
             </time>
           )}
@@ -69,7 +68,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               {post.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="rounded-full border border-border px-3 py-0.5 font-mono text-xs"
+                  className="rounded-full border border-border px-3 py-0.5 font-ui text-xs"
                 >
                   {tag}
                 </span>
@@ -80,8 +79,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
         {post.excerpt && (
           <p
-            className="mt-6 text-text-muted leading-relaxed"
-            style={{ fontSize: 'var(--text-body)' }}
+            className="mt-6 text-text-muted leading-relaxed text-[length:var(--text-body)]"
           >
             {post.excerpt}
           </p>
@@ -122,7 +120,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
         {post.relatedProject && (
           <div className="mt-6">
-            <p className="text-xs font-mono text-text-muted uppercase tracking-widest mb-2">
+            <p className="text-xs font-ui text-text-muted uppercase tracking-widest mb-2">
               Related project
             </p>
             <Link

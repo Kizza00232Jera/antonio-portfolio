@@ -13,12 +13,11 @@ export default async function BlogPage() {
   return (
     <section className="mx-auto max-w-[var(--max-width)] px-6 py-[var(--section-gap)]">
       <div className="mb-10">
-        <p className="mb-3 font-mono text-sm text-text-muted uppercase tracking-widest">
+        <p className="mb-3 font-ui text-sm text-text-muted uppercase tracking-widest">
           Writing
         </p>
         <h1
-          className="font-heading font-bold text-text leading-tight"
-          style={{ fontSize: 'var(--text-display)' }}
+          className="font-heading font-bold text-text leading-tight text-[length:var(--text-display)]"
         >
           All posts
         </h1>

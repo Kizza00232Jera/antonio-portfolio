@@ -37,7 +37,7 @@ export default function BlogPostCard({ post, className }: BlogPostCardProps) {
           </p>
         )}
         {post.publishedAt && (
-          <p className="font-mono text-xs text-text-muted mt-1">
+          <p className="font-ui text-xs text-text-muted mt-1">
             {formatDate(post.publishedAt)}
           </p>
         )}

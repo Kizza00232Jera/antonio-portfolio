@@ -268,7 +268,7 @@ export default function JourneyAccordionSection() {
   return (
     <section className="pb-[var(--section-gap)]">
       <div className="mx-auto max-w-[var(--max-width)] px-6">
-        <p className="mb-3 font-mono text-sm text-text-muted uppercase tracking-widest">
+        <p className="mb-3 font-ui text-sm text-text-muted uppercase tracking-widest">
           The journey
         </p>
       </div>
@@ -301,6 +301,9 @@ export default function JourneyAccordionSection() {
               style={{
                 zIndex: N - i,
                 backgroundColor: theme.bg,
+                backgroundImage: "url('https://wa63s80c7y.ufs.sh/f/xvkaIoB9LXPW4oPrLhFuDBzPlk6wKJgc9N4mGELOVpvRIro8')",
+                backgroundRepeat: 'repeat',
+                backgroundSize: 'auto',
                 borderTopRightRadius: isLast ? 0 : RADIUS,
                 borderBottomRightRadius: isLast ? 0 : RADIUS,
               }}
@@ -331,7 +334,7 @@ export default function JourneyAccordionSection() {
                   <div>
                     <p
                       className={cn(
-                        'mb-1 font-mono text-[10px] uppercase tracking-widest sm:mb-2 sm:text-xs',
+                        'mb-1 font-ui text-[0.625rem] uppercase tracking-widest sm:mb-2 sm:text-xs',
                         colors.label
                       )}
                     >
@@ -357,13 +360,13 @@ export default function JourneyAccordionSection() {
                     <div className="flex flex-col gap-1">
                       <p
                         className={cn(
-                          'font-mono text-xs uppercase tracking-widest',
+                          'font-ui text-xs uppercase tracking-widest',
                           colors.location
                         )}
                       >
                         {item.location}
                       </p>
-                      <p className={cn('font-mono text-xs', colors.label)}>
+                      <p className={cn('font-ui text-xs', colors.label)}>
                         {item.period}
                       </p>
                     </div>
@@ -378,7 +381,7 @@ export default function JourneyAccordionSection() {
                       >
                         <span
                           className={cn(
-                            'flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-mono md:h-6 md:w-6 md:text-xs',
+                            'flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[0.625rem] font-ui md:h-6 md:w-6 md:text-xs',
                             theme.textColor === 'light'
                               ? 'bg-white/20 text-white'
                               : 'bg-black/10 text-[#020617]'

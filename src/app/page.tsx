@@ -1,8 +1,9 @@
 import { getFeaturedProjects, getLatestBlogPosts } from '@/lib/sanity/queries'
+import { ThemeScope } from '@/components/providers/ThemeScope'
 import HeroSection from '@/components/sections/HeroSection'
 import JourneyIntroSection from '@/components/sections/JourneyIntroSection'
 import JourneyAccordionSection from '@/components/sections/JourneyAccordionSection'
-import FeaturedProjectsSection from '@/components/sections/FeaturedProjectsSection'
+import ProjectShowcaseSection from '@/components/sections/ProjectShowcaseSection'
 import TechStackSection from '@/components/sections/TechStackSection'
 import LatestPostsSection from '@/components/sections/LatestPostsSection'
 
@@ -13,13 +14,14 @@ export default async function HomePage() {
   ])
 
   return (
-    <>
+    <div className="projects-theme projects-theme-bg">
+      <ThemeScope className="projects-theme" />
       <HeroSection />
       <JourneyIntroSection />
       <JourneyAccordionSection />
-      <FeaturedProjectsSection projects={projects} />
+      <ProjectShowcaseSection projects={projects} />
       <TechStackSection />
       <LatestPostsSection posts={posts} />
-    </>
+    </div>
   )
 }

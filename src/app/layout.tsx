@@ -1,31 +1,34 @@
 import type { Metadata } from 'next'
-import { Space_Grotesk, Inter, JetBrains_Mono } from 'next/font/google'
+import { Zen_Old_Mincho, JetBrains_Mono, Marcellus } from 'next/font/google'
 import { Suspense } from 'react'
 import Header from '@/components/layout/Header'
-import Footer from '@/components/layout/Footer'
+
 import Preloader from '@/components/layout/Preloader'
 import { NavOverlay } from '@/components/layout/NavOverlay'
 import { PageWrapper } from '@/components/layout/PageWrapper'
+import { CustomCursor } from '@/components/ui/CustomCursor'
 import { MenuProvider } from '@/contexts/MenuContext'
+import { ProjectTransitionProvider } from '@/contexts/ProjectTransitionContext'
+import { TransitionOverlay } from '@/components/project/TransitionOverlay'
 import PostHogProvider from '@/components/providers/PostHogProvider'
 import PostHogPageview from '@/components/providers/PostHogPageview'
 import LenisProvider from '@/components/providers/LenisProvider'
 import './globals.css'
 
-const spaceGrotesk = Space_Grotesk({
-  variable: '--font-space-grotesk',
+const zenOldMincho = Zen_Old_Mincho({
+  variable: '--font-zen-old-mincho',
   subsets: ['latin'],
-  weight: ['600', '700'],
-})
-
-const inter = Inter({
-  variable: '--font-inter',
-  subsets: ['latin'],
-  weight: ['400', '500'],
+  weight: ['400', '500', '600', '700'],
 })
 
 const jetbrainsMono = JetBrains_Mono({
   variable: '--font-jetbrains-mono',
+  subsets: ['latin'],
+  weight: ['400'],
+})
+
+const marcellus = Marcellus({
+  variable: '--font-marcellus',
   subsets: ['latin'],
   weight: ['400'],
 })
@@ -43,25 +46,29 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${spaceGrotesk.variable} ${inter.variable} ${jetbrainsMono.variable}`}
+      className={`${zenOldMincho.variable} ${jetbrainsMono.variable} ${marcellus.variable}`}
     >
-      <body className="antialiased bg-[#151515]">
+      <body className="antialiased">
         <PostHogProvider>
           <LenisProvider>
             <Preloader />
             <Suspense fallback={null}>
               <PostHogPageview />
             </Suspense>
-            <MenuProvider>
-              <NavOverlay />
-              <PageWrapper>
+            <ProjectTransitionProvider>
+              <MenuProvider>
+                <CustomCursor />
+                <NavOverlay />
+                <PageWrapper>
+                  <main className="min-h-screen">
+                    {children}
+                  </main>
+                </PageWrapper>
+                <div id="transition-portal" />
                 <Header />
-                <main className="min-h-screen">
-                  {children}
-                </main>
-                <Footer />
-              </PageWrapper>
-            </MenuProvider>
+              </MenuProvider>
+              <TransitionOverlay />
+            </ProjectTransitionProvider>
           </LenisProvider>
         </PostHogProvider>
       </body>
