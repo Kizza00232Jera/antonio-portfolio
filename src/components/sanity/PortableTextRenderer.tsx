@@ -3,13 +3,40 @@ import type { PortableTextBlock } from '@portabletext/react'
 import Image from 'next/image'
 import { urlFor } from '@/lib/sanity/image'
 import type { SanityImage } from '@/lib/sanity/types'
+import { CodeBlock } from './CodeBlock'
+import { MuxVideoPlayer } from '@/components/ui/MuxVideoPlayer'
+
+/* ── Callout config ───────────────────────────────────────── */
+
+const CALLOUT_STYLES: Record<string, { border: string; bg: string; icon: string }> = {
+  tip: {
+    border: 'border-green-500',
+    bg: 'bg-green-500/10',
+    icon: '💡',
+  },
+  info: {
+    border: 'border-blue-500',
+    bg: 'bg-blue-500/10',
+    icon: 'ℹ️',
+  },
+  warning: {
+    border: 'border-amber-500',
+    bg: 'bg-amber-500/10',
+    icon: '⚠️',
+  },
+  danger: {
+    border: 'border-red-500',
+    bg: 'bg-red-500/10',
+    icon: '🚫',
+  },
+}
+
+/* ── Portable Text component map ──────────────────────────── */
 
 const components: PortableTextComponents = {
   block: {
     h2: ({ children }) => (
-      <h2
-        className="mt-12 mb-4 font-heading font-bold text-text leading-tight text-[length:var(--text-heading)]"
-      >
+      <h2 className="mt-12 mb-4 font-heading font-bold text-text leading-tight text-[length:var(--text-heading)]">
         {children}
       </h2>
     ),
@@ -24,9 +51,7 @@ const components: PortableTextComponents = {
       </blockquote>
     ),
     normal: ({ children }) => (
-      <p
-        className="mb-5 text-text leading-relaxed text-[length:var(--text-body)]"
-      >
+      <p className="mb-5 text-text leading-relaxed text-[length:var(--text-body)]">
         {children}
       </p>
     ),
@@ -52,12 +77,18 @@ const components: PortableTextComponents = {
           {...(isExternal && { target: '_blank', rel: 'noopener noreferrer' })}
         >
           {children}
+          {isExternal && (
+            <span className="inline-block ml-0.5 text-[0.75em]" aria-hidden="true">
+              ↗
+            </span>
+          )}
         </a>
       )
     },
   },
 
   types: {
+    /* ── Existing: plain image (backwards compatible) ── */
     image: ({ value }: { value: SanityImage & { alt?: string } }) => {
       const url = urlFor(value).width(1200).quality(80).url()
       return (
@@ -73,22 +104,76 @@ const components: PortableTextComponents = {
         </figure>
       )
     },
+
+    /* ── Code block: Shiki syntax highlighting ── */
     codeBlock: ({ value }: { value: { language?: string; code?: string } }) => (
-      <div className="my-6 rounded-lg bg-[#1e1e2e] overflow-hidden">
-        {value.language && (
-          <div className="px-4 py-2 text-xs font-mono text-text-muted border-b border-white/10">
-            {value.language}
-          </div>
-        )}
-        <pre className="overflow-x-auto p-4">
-          <code className="font-mono text-sm text-[#cdd6f4] leading-relaxed">
-            {value.code}
-          </code>
-        </pre>
-      </div>
+      <CodeBlock language={value.language} code={value.code} />
     ),
+
+    /* ── Mux video embed ── */
+    muxVideo: ({ value }: { value: { playbackId?: string; caption?: string } }) => {
+      if (!value.playbackId) return null
+      return (
+        <figure className="my-8">
+          <MuxVideoPlayer playbackId={value.playbackId} />
+          {value.caption && (
+            <figcaption className="mt-2 text-center text-sm italic text-text-muted">
+              {value.caption}
+            </figcaption>
+          )}
+        </figure>
+      )
+    },
+
+    /* ── Callout box ── */
+    callout: ({ value }: { value: { type?: string; content?: string } }) => {
+      const style = CALLOUT_STYLES[value.type ?? 'info'] ?? CALLOUT_STYLES.info
+      return (
+        <div
+          className={`my-6 rounded-lg border-l-4 ${style.border} ${style.bg} px-5 py-4`}
+        >
+          <div className="flex gap-3">
+            <span className="flex-shrink-0 text-lg leading-relaxed" aria-hidden="true">
+              {style.icon}
+            </span>
+            <p className="text-text leading-relaxed text-[length:var(--text-body)] m-0">
+              {value.content}
+            </p>
+          </div>
+        </div>
+      )
+    },
+
+    /* ── Image with caption ── */
+    imageWithCaption: ({
+      value,
+    }: {
+      value: { image?: SanityImage; alt?: string; caption?: string }
+    }) => {
+      if (!value.image) return null
+      const url = urlFor(value.image).width(1200).quality(80).url()
+      return (
+        <figure className="my-8">
+          <Image
+            src={url}
+            alt={value.alt ?? ''}
+            width={1200}
+            height={675}
+            className="w-full rounded-lg"
+            sizes="(max-width: 768px) 100vw, 768px"
+          />
+          {value.caption && (
+            <figcaption className="mt-2 text-center text-sm italic text-text-muted">
+              {value.caption}
+            </figcaption>
+          )}
+        </figure>
+      )
+    },
   },
 }
+
+/* ── Renderer ─────────────────────────────────────────────── */
 
 interface PortableTextRendererProps {
   value: PortableTextBlock[]

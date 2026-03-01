@@ -56,5 +56,73 @@ export const blockContent = defineType({
         },
       ],
     }),
+    defineArrayMember({
+      name: 'muxVideo',
+      type: 'object',
+      title: 'Mux Video',
+      fields: [
+        {
+          name: 'playbackId',
+          type: 'string',
+          title: 'Mux Playback ID',
+          validation: (rule) => rule.required(),
+        },
+        {
+          name: 'caption',
+          type: 'string',
+          title: 'Caption',
+        },
+      ],
+    }),
+    defineArrayMember({
+      name: 'callout',
+      type: 'object',
+      title: 'Callout',
+      fields: [
+        {
+          name: 'type',
+          type: 'string',
+          title: 'Type',
+          options: {
+            list: [
+              { title: 'Tip', value: 'tip' },
+              { title: 'Info', value: 'info' },
+              { title: 'Warning', value: 'warning' },
+              { title: 'Danger', value: 'danger' },
+            ],
+          },
+          initialValue: 'info',
+        },
+        {
+          name: 'content',
+          type: 'text',
+          title: 'Content',
+          rows: 3,
+        },
+      ],
+    }),
+    defineArrayMember({
+      name: 'imageWithCaption',
+      type: 'object',
+      title: 'Image with Caption',
+      fields: [
+        {
+          name: 'image',
+          type: 'image',
+          title: 'Image',
+          options: { hotspot: true },
+        },
+        {
+          name: 'alt',
+          type: 'string',
+          title: 'Alt Text',
+        },
+        {
+          name: 'caption',
+          type: 'string',
+          title: 'Caption',
+        },
+      ],
+    }),
   ],
 })
