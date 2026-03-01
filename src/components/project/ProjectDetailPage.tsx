@@ -315,7 +315,6 @@ export function ProjectDetailPage({ project, posterUrl }: ProjectDetailPageProps
           <MuxVideoPlayer
             playbackId={project.muxVideoId}
             poster={posterUrl}
-            title={project.title}
           />
         ) : project.coverImage ? (
           <Image

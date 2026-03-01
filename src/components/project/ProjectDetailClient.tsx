@@ -52,7 +52,6 @@ export function ProjectDetailClient({
           <MuxVideoPlayer
             playbackId={muxVideoId}
             poster={posterUrl}
-            title={title}
           />
         </div>
       )}
