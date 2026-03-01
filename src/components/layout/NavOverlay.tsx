@@ -1,11 +1,11 @@
 'use client'
 
 import { useRef, useEffect, useCallback } from 'react'
-import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { gsap } from 'gsap'
 import { useMenu } from '@/contexts/MenuContext'
+import { usePageTransition } from '@/contexts/PageTransitionContext'
 import { MenuButton } from './MenuButton'
 import { cn } from '@/utils/cn'
 
@@ -17,6 +17,7 @@ const navLinks = [
 
 export function NavOverlay() {
   const { isOpen, close } = useMenu()
+  const { navigateTo } = usePageTransition()
   const pathname = usePathname()
   const overlayRef = useRef<HTMLDivElement>(null)
   const linksRef = useRef<HTMLUListElement>(null)
@@ -121,9 +122,14 @@ export function NavOverlay() {
               const isActive = href === '/' ? pathname === '/' : pathname.startsWith(href)
               return (
                 <li key={href} className="opacity-0">
-                  <Link
+                  <a
                     href={href}
                     tabIndex={isOpen ? 0 : -1}
+                    onClick={(e) => {
+                      e.preventDefault()
+                      close()
+                      navigateTo(href)
+                    }}
                     className={cn(
                       'block font-heading font-semibold transition-colors duration-200',
                       'text-2xl md:text-3xl',
@@ -131,7 +137,7 @@ export function NavOverlay() {
                     )}
                   >
                     {label}
-                  </Link>
+                  </a>
                 </li>
               )
             })}
