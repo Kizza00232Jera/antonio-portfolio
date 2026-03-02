@@ -2,11 +2,7 @@
 
 import { useMenu } from '@/contexts/MenuContext'
 
-interface MenuButtonProps {
-  variant: 'header' | 'overlay'
-}
-
-export function MenuButton({ variant }: MenuButtonProps) {
+export function MenuButton() {
   const { isOpen, toggle } = useMenu()
 
   return (
@@ -16,16 +12,15 @@ export function MenuButton({ variant }: MenuButtonProps) {
       aria-expanded={isOpen}
       className="flex cursor-pointer items-center gap-2 font-body text-sm font-medium transition-colors duration-200 hover:opacity-70"
     >
-      {variant === 'header' && (
+      {isOpen ? (
+        <span className="text-base leading-none">&times;</span>
+      ) : (
         <span className="flex flex-col gap-[4px]">
           <span className="block h-[1.5px] w-4 bg-current" />
           <span className="block h-[1.5px] w-4 bg-current" />
         </span>
       )}
-      {variant === 'overlay' && (
-        <span className="text-base leading-none">&times;</span>
-      )}
-      {variant === 'header' ? 'Menu' : 'Close'}
+      {isOpen ? 'Close' : 'Menu'}
     </button>
   )
 }

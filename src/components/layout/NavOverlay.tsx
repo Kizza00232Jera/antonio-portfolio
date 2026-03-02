@@ -6,7 +6,6 @@ import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { gsap } from 'gsap'
 import { useMenu } from '@/contexts/MenuContext'
-import { MenuButton } from './MenuButton'
 import { cn } from '@/utils/cn'
 
 const navLinks = [
@@ -20,7 +19,6 @@ export function NavOverlay() {
   const pathname = usePathname()
   const overlayRef = useRef<HTMLDivElement>(null)
   const linksRef = useRef<HTMLUListElement>(null)
-  const closeRef = useRef<HTMLDivElement>(null)
   const imageRef = useRef<HTMLDivElement>(null)
 
   // Close menu on route change (browser back/forward, link click)
@@ -53,7 +51,7 @@ export function NavOverlay() {
       gsap.set(overlay, { visibility: 'visible' })
 
       if (prefersReduced) {
-        gsap.set([links, closeRef.current, imageRef.current], { opacity: 1 })
+        gsap.set([links, imageRef.current], { opacity: 1 })
         if (links) gsap.set(links, { x: 0 })
         return
       }
@@ -65,13 +63,6 @@ export function NavOverlay() {
         { opacity: 1, x: 0, duration: 0.5, stagger: 0.08, ease: 'power3.out', delay: 0.15 },
       )
 
-      // Close button fades in
-      gsap.fromTo(
-        closeRef.current,
-        { opacity: 0 },
-        { opacity: 1, duration: 0.4, delay: 0.1, ease: 'power2.out' },
-      )
-
       // Image fades in
       gsap.fromTo(
         imageRef.current,
@@ -81,12 +72,12 @@ export function NavOverlay() {
     } else {
       if (prefersReduced) {
         gsap.set(overlay, { visibility: 'hidden' })
-        gsap.set([links, closeRef.current, imageRef.current], { opacity: 0 })
+        gsap.set([links, imageRef.current], { opacity: 0 })
         return
       }
 
       // Fade everything out, then hide the overlay
-      gsap.to([links ? Array.from(links) : [], closeRef.current, imageRef.current].flat(), {
+      gsap.to([links ? Array.from(links) : [], imageRef.current].flat(), {
         opacity: 0,
         duration: 0.25,
         ease: 'power2.in',
@@ -104,11 +95,6 @@ export function NavOverlay() {
       style={{ visibility: 'hidden' }}
       aria-hidden={!isOpen}
     >
-      {/* Close button — top left, matching header position */}
-      <div ref={closeRef} className="absolute left-6 top-5 z-20 opacity-0">
-        <MenuButton variant="overlay" />
-      </div>
-
       {/* Content: links over the image */}
       <div className="relative flex h-full flex-col">
         {/* Nav links — positioned over the image */}
