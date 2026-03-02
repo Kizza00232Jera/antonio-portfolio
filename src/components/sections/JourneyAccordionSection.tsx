@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useState, useCallback, useEffect, useLayoutEffect } from 'react'
+import Image from 'next/image'
 import { gsap } from 'gsap'
 import { cn } from '@/utils/cn'
 
@@ -21,6 +22,8 @@ interface PanelTheme {
   bg: string
   textColor: 'light' | 'dark'
   numberColor: string
+  locationColor: string
+  flag: string
 }
 
 const items: PanelItem[] = [
@@ -40,7 +43,7 @@ const items: PanelItem[] = [
     number: '2',
     title: 'Internship — Mono',
     label: 'UI/UX placement',
-    location: 'Aalborg, Denmark',
+    location: 'Osijek, Croatia',
     period: '2022',
     description:
       'Three-month placement as a UI/UX Designer at Mono. Worked on client-facing design projects — wireframing, prototyping in Figma, and collaborating with developers to bring interfaces to life.',
@@ -62,7 +65,7 @@ const items: PanelItem[] = [
     number: '4',
     title: 'Internship — Decode',
     label: 'Developer placement',
-    location: 'Aalborg, Denmark',
+    location: 'Zagreb, Croatia',
     period: '2024',
     description:
       'Three-month placement as a Web Developer at Decode. Shipped production features, worked in a team codebase, and built the habit of writing code that others can read and maintain.',
@@ -82,11 +85,11 @@ const items: PanelItem[] = [
 ]
 
 const themes: PanelTheme[] = [
-  { bg: '#F5EDE0', textColor: 'dark', numberColor: '#5D3136' },
-  { bg: '#020617', textColor: 'light', numberColor: 'rgba(255,255,255,0.35)' },
-  { bg: '#FFFFFF', textColor: 'dark', numberColor: '#5D3136' },
-  { bg: '#F97316', textColor: 'dark', numberColor: 'rgba(0,0,0,0.2)' },
-  { bg: '#172554', textColor: 'light', numberColor: 'rgba(255,255,255,0.25)' },
+  { bg: '#F5EDE0', textColor: 'dark', numberColor: '#5D3136', locationColor: 'text-[#F97316]', flag: '/images/flags/denmark.svg' },
+  { bg: '#020617', textColor: 'light', numberColor: 'rgba(255,255,255,0.35)', locationColor: 'text-[#F97316]', flag: '/images/flags/croatia.svg' },
+  { bg: '#FFFFFF', textColor: 'dark', numberColor: '#5D3136', locationColor: 'text-[#F97316]', flag: '/images/flags/denmark.svg' },
+  { bg: '#F97316', textColor: 'dark', numberColor: 'rgba(0,0,0,0.2)', locationColor: 'text-white', flag: '/images/flags/croatia.svg' },
+  { bg: '#172554', textColor: 'light', numberColor: 'rgba(255,255,255,0.25)', locationColor: 'text-[#F97316]', flag: '/images/flags/sweden.svg' },
 ]
 
 function textClasses(theme: PanelTheme) {
@@ -95,7 +98,7 @@ function textClasses(theme: PanelTheme) {
     title: light ? 'text-white' : 'text-[#020617]',
     body: light ? 'text-white/70' : 'text-[#020617]/70',
     label: light ? 'text-white/50' : 'text-[#020617]/50',
-    location: light ? 'text-white/60' : 'text-[#F97316]',
+    location: theme.locationColor,
   }
 }
 
@@ -221,6 +224,7 @@ export default function JourneyAccordionSection() {
             gsap.set(content, { opacity: isActive ? 1 : 0, x: 0 })
           }
         }
+
       })
     },
     [activeId]
@@ -267,15 +271,9 @@ export default function JourneyAccordionSection() {
 
   return (
     <section className="pb-[var(--section-gap)]">
-      <div className="mx-auto max-w-[var(--max-width)] px-6">
-        <p className="mb-3 font-ui text-sm text-text-muted uppercase tracking-widest">
-          The journey
-        </p>
-      </div>
-
       <div
         ref={containerRef}
-        className="relative w-full h-[60vh] min-h-[420px] max-h-[800px] md:h-[70vh] md:min-h-[500px] overflow-hidden"
+        className="relative w-full h-[90vh] min-h-[500px] overflow-hidden"
         role="tablist"
         aria-label="Journey timeline"
         onKeyDown={handleKeyDown}
@@ -301,9 +299,6 @@ export default function JourneyAccordionSection() {
               style={{
                 zIndex: N - i,
                 backgroundColor: theme.bg,
-                backgroundImage: "url('https://wa63s80c7y.ufs.sh/f/xvkaIoB9LXPW4oPrLhFuDBzPlk6wKJgc9N4mGELOVpvRIro8')",
-                backgroundRepeat: 'repeat',
-                backgroundSize: 'auto',
                 borderTopRightRadius: isLast ? 0 : RADIUS,
                 borderBottomRightRadius: isLast ? 0 : RADIUS,
               }}
@@ -360,11 +355,18 @@ export default function JourneyAccordionSection() {
                     <div className="flex flex-col gap-1">
                       <p
                         className={cn(
-                          'font-ui text-xs uppercase tracking-widest',
+                          'flex items-center gap-2 font-ui text-xs uppercase tracking-widest',
                           colors.location
                         )}
                       >
                         {item.location}
+                        <Image
+                          src={theme.flag}
+                          alt=""
+                          width={32}
+                          height={20}
+                          className="h-3 w-auto rounded-[2px] object-cover md:h-4"
+                        />
                       </p>
                       <p className={cn('font-ui text-xs', colors.label)}>
                         {item.period}
@@ -372,8 +374,8 @@ export default function JourneyAccordionSection() {
                     </div>
                   </div>
 
-                  {/* Bottom: numbered skills list */}
-                  <ul className="flex flex-col gap-2 md:gap-3">
+                  {/* Bottom: numbered skills list — fades in/out with content */}
+                  <ul className="mb-15 flex flex-col gap-2 md:mb-0 md:gap-3">
                     {item.skills.map((skill, j) => (
                       <li
                         key={j}
@@ -404,14 +406,14 @@ export default function JourneyAccordionSection() {
 
               </div>
 
-              {/* Big number — pinned to card's bottom-right so it moves with the edge */}
+              {/* Bottom-right number */}
               <span
-                className="absolute bottom-3 right-3 md:bottom-8 md:right-8 lg:bottom-10 lg:right-10 font-heading font-bold leading-none select-none"
+                className="absolute bottom-3 right-3 block font-heading font-bold leading-none select-none md:bottom-8 md:right-8 lg:bottom-10 lg:right-10"
+                aria-hidden="true"
                 style={{
                   fontSize: 'clamp(2.5rem, 10vw, 8rem)',
                   color: theme.numberColor,
                 }}
-                aria-hidden="true"
               >
                 {item.number}
               </span>
