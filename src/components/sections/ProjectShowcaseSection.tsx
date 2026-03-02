@@ -69,6 +69,90 @@ function getSlotProps(offset: number, arc: ArcConfig) {
   }
 }
 
+/* ── Word-morph helpers ──────────────────────────────────── */
+
+function populateWordSpans(container: HTMLDivElement, text: string) {
+  while (container.firstChild) container.removeChild(container.firstChild)
+  text.split(' ').filter(Boolean).forEach((word) => {
+    const span = document.createElement('span')
+    span.setAttribute('data-word', '')
+    span.style.display = 'inline-block'
+    span.style.marginRight = '0.25em'
+    span.textContent = word
+    container.appendChild(span)
+  })
+}
+
+function runWordMorph(
+  fromEl: HTMLDivElement,
+  toEl: HTMLDivElement,
+  oldText: string,
+  newText: string,
+) {
+  populateWordSpans(fromEl, oldText)
+  populateWordSpans(toEl, newText)
+
+  const fromWords = fromEl.querySelectorAll<HTMLSpanElement>('[data-word]')
+  const toWords = toEl.querySelectorAll<HTMLSpanElement>('[data-word]')
+
+  gsap.set(fromWords, { x: 0, y: 0, autoAlpha: 1, color: '' })
+  gsap.set(toWords, { x: 0, y: 0, autoAlpha: 0, color: '' })
+  gsap.set(fromEl, { autoAlpha: 1 })
+  gsap.set(toEl, { autoAlpha: 1 })
+
+  const fromData = Array.from(fromWords).map((el) => ({
+    el, text: el.textContent?.trim() || '', rect: el.getBoundingClientRect(),
+  }))
+  const toData = Array.from(toWords).map((el) => ({
+    el, text: el.textContent?.trim() || '', rect: el.getBoundingClientRect(),
+  }))
+
+  const available = [...fromData]
+  const matches: { from: (typeof fromData)[0]; to: (typeof toData)[0] }[] = []
+  const unmatchedTo: typeof toData = []
+
+  for (const tw of toData) {
+    const idx = available.findIndex((fw) => fw.text === tw.text)
+    if (idx !== -1) {
+      matches.push({ from: available[idx], to: tw })
+      available.splice(idx, 1)
+    } else {
+      unmatchedTo.push(tw)
+    }
+  }
+  const unmatchedFrom = available
+
+  const tl = gsap.timeline()
+  matches.forEach((m, mi) => {
+    tl.to(m.from.el, {
+      x: m.to.rect.left - m.from.rect.left,
+      y: m.to.rect.top - m.from.rect.top,
+      duration: 0.8,
+      ease: 'power3.inOut',
+    }, mi * 0.03)
+  })
+  if (unmatchedFrom.length) {
+    tl.to(unmatchedFrom.map((w) => w.el), { autoAlpha: 0, duration: 0.3 }, 0)
+  }
+  if (unmatchedTo.length) {
+    const els = unmatchedTo.map((w) => w.el)
+    tl.fromTo(els, { autoAlpha: 0, y: 20 }, {
+      autoAlpha: 1,
+      y: 0,
+      duration: 0.5,
+      stagger: { each: 0.03, from: 'random' },
+      ease: 'power2.out',
+    })
+  }
+  tl.add(() => {
+    gsap.set(toWords, { autoAlpha: 1 })
+    gsap.set(fromEl, { autoAlpha: 0 })
+    populateWordSpans(fromEl, newText)
+    gsap.set(fromEl, { autoAlpha: 1 })
+    gsap.set(toEl, { autoAlpha: 0 })
+  })
+}
+
 /* ── Component ────────────────────────────────────────────── */
 
 interface ProjectShowcaseSectionProps {
@@ -87,6 +171,15 @@ export default function ProjectShowcaseSection({
   const dragStartXRef = useRef(0)
   const dragOffsetRef = useRef(0)
   const { startTransition } = useProjectTransition()
+  const prevTagsRef = useRef('')
+  const tagsFromRef = useRef<HTMLDivElement>(null)
+  const tagsToRef = useRef<HTMLDivElement>(null)
+  const prevTitleRef = useRef('')
+  const titleFromRef = useRef<HTMLDivElement>(null)
+  const titleToRef = useRef<HTMLDivElement>(null)
+  const prevTaglineRef = useRef('')
+  const paraFromRef = useRef<HTMLDivElement>(null)
+  const paraToRef = useRef<HTMLDivElement>(null)
 
   const activeProject = projects[activeIndex]
   const arc = isDesktop ? ARC_DESKTOP : ARC_MOBILE
@@ -137,6 +230,33 @@ export default function ProjectShowcaseSection({
 
       card.style.pointerEvents = isCenter ? 'auto' : 'none'
     })
+
+    /* ── Word morph on tags, title, and tagline ── */
+    const newTags = projects[activeIndex]?.tags?.map((t) => t.name).join(' / ') || ''
+    const newTitle = projects[activeIndex]?.title || ''
+    const newTagline = projects[activeIndex]?.tagline || ''
+
+    if (animate) {
+      if (prevTagsRef.current && newTags && prevTagsRef.current !== newTags && tagsFromRef.current && tagsToRef.current) {
+        runWordMorph(tagsFromRef.current, tagsToRef.current, prevTagsRef.current, newTags)
+      }
+      if (prevTitleRef.current && newTitle && prevTitleRef.current !== newTitle && titleFromRef.current && titleToRef.current) {
+        runWordMorph(titleFromRef.current, titleToRef.current, prevTitleRef.current, newTitle)
+      }
+      if (prevTaglineRef.current && newTagline && prevTaglineRef.current !== newTagline && paraFromRef.current && paraToRef.current) {
+        runWordMorph(paraFromRef.current, paraToRef.current, prevTaglineRef.current, newTagline)
+      }
+    } else {
+      if (tagsFromRef.current) populateWordSpans(tagsFromRef.current, newTags)
+      if (tagsToRef.current) gsap.set(tagsToRef.current, { autoAlpha: 0 })
+      if (titleFromRef.current) populateWordSpans(titleFromRef.current, newTitle)
+      if (titleToRef.current) gsap.set(titleToRef.current, { autoAlpha: 0 })
+      if (paraFromRef.current) populateWordSpans(paraFromRef.current, newTagline)
+      if (paraToRef.current) gsap.set(paraToRef.current, { autoAlpha: 0 })
+    }
+    prevTagsRef.current = newTags
+    prevTitleRef.current = newTitle
+    prevTaglineRef.current = newTagline
 
     if (animate) {
       animatingRef.current = true
@@ -358,23 +478,40 @@ export default function ProjectShowcaseSection({
         className="absolute inset-x-0 bottom-0 flex flex-col text-center px-6"
         style={{ height: isDesktop ? '30%' : '40%' }}
       >
-        {activeProject?.tags && activeProject.tags.length > 0 && (
-          <p className="mb-2 font-ui text-sm uppercase tracking-widest text-text-muted">
-            {activeProject.tags.map((tag) => tag.name).join(' / ')}
-          </p>
-        )}
+        {/* Tags — word morph */}
+        <div className="mb-2 relative">
+          <div
+            ref={tagsFromRef}
+            className="font-ui text-sm uppercase tracking-widest text-text-muted"
+          />
+          <div
+            ref={tagsToRef}
+            className="absolute inset-0 font-ui text-sm uppercase tracking-widest text-text-muted"
+          />
+        </div>
 
-        <h2 className="font-heading font-bold leading-tight text-text text-[length:var(--text-display)]">
-          {activeProject?.title}
+        {/* Title — word morph */}
+        <h2 className="relative">
+          <div
+            ref={titleFromRef}
+            className="font-heading font-bold leading-tight text-text text-[length:var(--text-display)]"
+          />
+          <div
+            ref={titleToRef}
+            className="absolute inset-0 font-heading font-bold leading-tight text-text text-[length:var(--text-display)]"
+          />
         </h2>
 
-        {/* Paragraph — flex-1 fills all remaining space between title and arrows */}
-        <div className="mt-3 flex-1 max-w-lg mx-auto overflow-hidden">
-          {activeProject?.tagline && (
-            <p className="text-text-muted leading-relaxed text-[length:var(--text-body)]">
-              {activeProject.tagline}
-            </p>
-          )}
+        {/* Paragraph — word morph between projects */}
+        <div className="mt-3 flex-1 max-w-lg mx-auto relative">
+          <div
+            ref={paraFromRef}
+            className="text-text-muted leading-relaxed text-[length:var(--text-body)]"
+          />
+          <div
+            ref={paraToRef}
+            className="absolute inset-0 text-text-muted leading-relaxed text-[length:var(--text-body)]"
+          />
         </div>
 
         {/* Navigation arrows */}

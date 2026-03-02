@@ -3,6 +3,7 @@ import { ThemeScope } from '@/components/providers/ThemeScope'
 import HeroSection from '@/components/sections/HeroSection'
 import JourneyIntroSection from '@/components/sections/JourneyIntroSection'
 import JourneyAccordionSection from '@/components/sections/JourneyAccordionSection'
+import ProjectsIntroSection from '@/components/sections/ProjectsIntroSection'
 import ProjectShowcaseSection from '@/components/sections/ProjectShowcaseSection'
 import TechStackSection from '@/components/sections/TechStackSection'
 import LatestPostsSection from '@/components/sections/LatestPostsSection'
@@ -19,6 +20,7 @@ export default async function HomePage() {
       <HeroSection />
       <JourneyIntroSection />
       <JourneyAccordionSection />
+      <ProjectsIntroSection />
       <ProjectShowcaseSection projects={projects} />
       <TechStackSection />
       <LatestPostsSection posts={posts} />
