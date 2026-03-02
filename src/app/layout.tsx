@@ -1,6 +1,10 @@
 import type { Metadata } from 'next'
 import { Zen_Old_Mincho, JetBrains_Mono, Marcellus } from 'next/font/google'
 import { Suspense } from 'react'
+import { draftMode } from 'next/headers'
+import { VisualEditing } from 'next-sanity/visual-editing'
+import { SanityLive } from '@/lib/sanity/live'
+import { DisableDraftMode } from '@/components/sanity/DisableDraftMode'
 import Header from '@/components/layout/Header'
 
 import Preloader from '@/components/layout/Preloader'
@@ -38,11 +42,13 @@ export const metadata: Metadata = {
   description: 'Designer and web developer from Croatia, based in Sweden.',
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const { isEnabled: isDraftMode } = await draftMode()
+
   return (
     <html
       lang="en"
@@ -71,6 +77,13 @@ export default function RootLayout({
             </ProjectTransitionProvider>
           </LenisProvider>
         </PostHogProvider>
+        <SanityLive />
+        {isDraftMode && (
+          <>
+            <VisualEditing />
+            <DisableDraftMode />
+          </>
+        )}
       </body>
     </html>
   )
