@@ -1,94 +1,69 @@
-import { client } from './client'
+import { sanityFetch } from './live'
 import type { Project, BlogPost, SiteSettings, Tag } from './types'
+import {
+  ALL_PROJECTS_QUERY,
+  FEATURED_PROJECTS_QUERY,
+  PROJECT_BY_SLUG_QUERY,
+  ALL_TAGS_QUERY,
+  ALL_BLOG_POSTS_QUERY,
+  LATEST_BLOG_POSTS_QUERY,
+  BLOG_POST_BY_SLUG_QUERY,
+  SITE_SETTINGS_QUERY,
+} from './queries.defined'
 
 // ─── Projects ────────────────────────────────────────────────────────────────
 
 export async function getAllProjects(): Promise<Project[]> {
-  return client.fetch(
-    `*[_type == "project"] | order(order asc) {
-      _id, _type, title, slug, tagline, coverImage, muxVideoId,
-      techStack,
-      techStackRefs[]->{ _id, name, slug, icon },
-      tags[]->{ _id, name, slug },
-      githubUrl, liveUrl, featured, order, publishedAt
-    }`
-  )
+  const { data } = await sanityFetch({ query: ALL_PROJECTS_QUERY })
+  return data as Project[]
 }
 
 export async function getFeaturedProjects(): Promise<Project[]> {
-  return client.fetch(
-    `*[_type == "project" && featured == true] | order(order asc) {
-      _id, _type, title, slug, tagline, coverImage, muxVideoId,
-      techStack,
-      techStackRefs[]->{ _id, name, slug, icon },
-      tags[]->{ _id, name, slug },
-      featured, order, publishedAt
-    }`
-  )
+  const { data } = await sanityFetch({ query: FEATURED_PROJECTS_QUERY })
+  return data as Project[]
 }
 
 export async function getProjectBySlug(slug: string): Promise<Project | null> {
-  return client.fetch(
-    `*[_type == "project" && slug.current == $slug][0] {
-      _id, _type, title, slug, tagline, description,
-      coverImage, muxVideoId, focusAreas, techStack,
-      techStackRefs[]->{ _id, name, slug, icon },
-      tags[]->{ _id, name, slug },
-      sections[]{ _key, title, content, images, links },
-      githubUrl, liveUrl, featured, order, publishedAt
-    }`,
-    { slug }
-  )
+  const { data } = await sanityFetch({
+    query: PROJECT_BY_SLUG_QUERY,
+    params: { slug },
+  })
+  return data as Project | null
 }
 
 // ─── Tags ────────────────────────────────────────────────────────────────────
 
 export async function getAllTags(): Promise<Tag[]> {
-  return client.fetch(
-    `*[_type == "tag"] | order(name asc) {
-      _id, _type, name, slug
-    }`
-  )
+  const { data } = await sanityFetch({ query: ALL_TAGS_QUERY })
+  return data as Tag[]
 }
 
 // ─── Blog ─────────────────────────────────────────────────────────────────────
 
 export async function getAllBlogPosts(): Promise<BlogPost[]> {
-  return client.fetch(
-    `*[_type == "blogPost"] | order(publishedAt desc) {
-      _id, _type, title, slug, publishedAt, excerpt, tags
-    }`
-  )
+  const { data } = await sanityFetch({ query: ALL_BLOG_POSTS_QUERY })
+  return data as BlogPost[]
 }
 
 export async function getLatestBlogPosts(count = 3): Promise<BlogPost[]> {
-  return client.fetch(
-    `*[_type == "blogPost"] | order(publishedAt desc) [0...$count] {
-      _id, _type, title, slug, publishedAt, excerpt, tags
-    }`,
-    { count }
-  )
+  const { data } = await sanityFetch({
+    query: LATEST_BLOG_POSTS_QUERY,
+    params: { count },
+  })
+  return data as BlogPost[]
 }
 
 export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> {
-  return client.fetch(
-    `*[_type == "blogPost" && slug.current == $slug][0] {
-      _id, _type, title, slug, publishedAt, excerpt,
-      body, muxVideoId, githubUrl, appUrl, tags,
-      relatedProject->{ _id, title, slug, tagline }
-    }`,
-    { slug }
-  )
+  const { data } = await sanityFetch({
+    query: BLOG_POST_BY_SLUG_QUERY,
+    params: { slug },
+  })
+  return data as BlogPost | null
 }
 
 // ─── Site Settings ────────────────────────────────────────────────────────────
 
 export async function getSiteSettings(): Promise<SiteSettings | null> {
-  return client.fetch(
-    `*[_type == "siteSettings"][0] {
-      _id, _type, title, description,
-      author->{ _id, name, bio, githubUrl, linkedinUrl },
-      ogImage
-    }`
-  )
+  const { data } = await sanityFetch({ query: SITE_SETTINGS_QUERY })
+  return data as SiteSettings | null
 }
