@@ -18,7 +18,14 @@ export function PageWrapper({ children }: { children: React.ReactNode }) {
 
     if (prefersReduced) {
       if (isOpen) {
+        const scrollY = window.scrollY
+        const wrapperH = wrapper.scrollHeight
+        const vh = window.innerHeight
+        const clipTop = scrollY
+        const clipBottom = Math.max(0, wrapperH - scrollY - vh)
+
         gsap.set(wrapper, {
+          clipPath: `inset(${clipTop}px 0 ${clipBottom}px 0 round 12px)`,
           x: isMobile ? '100%' : '55%',
           y: isMobile ? '12vh' : '20vh',
           rotateY: !isMobile ? -3 : 0,
@@ -26,12 +33,23 @@ export function PageWrapper({ children }: { children: React.ReactNode }) {
           transformOrigin: 'center center',
         })
       } else {
-        gsap.set(wrapper, { clearProps: 'transform' })
+        gsap.set(wrapper, { clearProps: 'transform,clipPath' })
       }
       return
     }
 
     if (isOpen) {
+      /* Clip to viewport so the shrunk page looks like a card, not a tall strip */
+      const scrollY = window.scrollY
+      const wrapperH = wrapper.scrollHeight
+      const vh = window.innerHeight
+      const clipTop = scrollY
+      const clipBottom = Math.max(0, wrapperH - scrollY - vh)
+
+      gsap.set(wrapper, {
+        clipPath: `inset(${clipTop}px 0 ${clipBottom}px 0 round 12px)`,
+      })
+
       gsap.to(wrapper, {
         x: isMobile ? '100%' : '55%',
         y: isMobile ? '12vh' : '20vh',
@@ -49,8 +67,7 @@ export function PageWrapper({ children }: { children: React.ReactNode }) {
         duration: 0.5,
         ease: 'power3.out',
         onComplete: () => {
-          // Clear all inline styles so fixed positioning works inside the wrapper
-          gsap.set(wrapper, { clearProps: 'transform' })
+          gsap.set(wrapper, { clearProps: 'transform,clipPath' })
         },
       })
     }

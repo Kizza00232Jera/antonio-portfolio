@@ -119,7 +119,7 @@ export default function HeroSection() {
   return (
     <section
       ref={containerRef}
-      className="relative flex min-h-screen flex-col justify-center px-6"
+      className="sticky top-0 relative flex min-h-screen flex-col justify-center px-6"
       style={{
         backgroundColor: '#e8e2da',
         backgroundImage: [

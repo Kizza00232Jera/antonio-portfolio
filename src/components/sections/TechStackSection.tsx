@@ -520,9 +520,12 @@ export default function TechStackSection() {
   return (
     <section
       ref={sectionRef}
-      className="flex min-h-screen flex-col px-6 py-12"
-      style={{ maxWidth: 'var(--max-width)', margin: '0 auto' }}
+      className="sticky top-0 min-h-screen projects-theme-bg"
     >
+      <div
+        className="flex min-h-screen flex-col px-6 py-12"
+        style={{ maxWidth: 'var(--max-width)', margin: '0 auto' }}
+      >
       {/* Eyebrow */}
       <p className="mb-6 font-ui text-sm text-text-muted uppercase tracking-widest">
         Toolbox
@@ -651,6 +654,7 @@ export default function TechStackSection() {
           />
         </div>
       )}
+      </div>
     </section>
   )
 }

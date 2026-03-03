@@ -95,7 +95,7 @@ export default function JourneyIntroSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative py-6"
+      className="sticky top-0 relative py-6 projects-theme-bg"
       style={{ height: '140vh' }}
     >
       <div className="sticky top-0 px-6 pt-[35vh] md:px-16">

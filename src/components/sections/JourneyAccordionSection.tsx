@@ -270,7 +270,7 @@ export default function JourneyAccordionSection() {
   /* ── Render ── */
 
   return (
-    <section className="pb-[var(--section-gap)]">
+    <section className="sticky top-0 min-h-screen pb-[var(--section-gap)] projects-theme-bg">
       <div
         ref={containerRef}
         className="relative w-full h-[90vh] min-h-[500px] overflow-hidden"
