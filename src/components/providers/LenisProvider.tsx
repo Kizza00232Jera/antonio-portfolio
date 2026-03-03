@@ -30,12 +30,21 @@ export default function LenisProvider({ children }: { children: React.ReactNode 
     // Allow other components (e.g. PageWrapper) to stop/start Lenis via events
     const handleStop = () => lenis.stop()
     const handleStart = () => lenis.start()
+
+    // Allow other components to trigger smooth scroll via lenis:scrollTo event
+    const handleScrollTo = (e: Event) => {
+      const { target, duration } = (e as CustomEvent).detail
+      lenis.scrollTo(target as number, { duration })
+    }
+
     window.addEventListener('lenis:stop', handleStop)
     window.addEventListener('lenis:start', handleStart)
+    window.addEventListener('lenis:scrollTo', handleScrollTo)
 
     return () => {
       window.removeEventListener('lenis:stop', handleStop)
       window.removeEventListener('lenis:start', handleStart)
+      window.removeEventListener('lenis:scrollTo', handleScrollTo)
       lenis.destroy()
       gsap.ticker.remove((time) => {
         lenis.raf(time * 1000)

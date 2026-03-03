@@ -103,11 +103,13 @@ const ROW_3: MainTech[] = [
 const ALL_TECHS = [...ROW_1, ...ROW_2, ...ROW_3]
 const TECH_ROWS = [ROW_1, ROW_2, ROW_3]
 
-/* Row font sizes — row 1 biggest, row 3 smallest */
+/* Row font sizes — row 1 biggest, row 3 smallest
+   Mobile minimums are smaller so the text list stays compact
+   and leaves more room for the physics container. */
 const ROW_FONT_SIZES = [
-  'clamp(1.75rem, 3vw, 2.5rem)',
-  'clamp(1.25rem, 2.2vw, 1.75rem)',
-  'clamp(1rem, 1.6vw, 1.25rem)',
+  'clamp(1.15rem, 3vw, 2.5rem)',
+  'clamp(0.95rem, 2.2vw, 1.75rem)',
+  'clamp(0.8rem, 1.6vw, 1.25rem)',
 ]
 
 const ROW_DEFAULT_OPACITIES = [0.9, 0.7, 0.5]
@@ -295,67 +297,54 @@ export default function TechStackSection() {
   const textListRef = useRef<HTMLDivElement>(null)
   const engineRef = useRef<Matter.Engine | null>(null)
   const runnerRef = useRef<Matter.Runner | null>(null)
-  const bodiesRef = useRef<Matter.Body[]>([])
   const rafRef = useRef<number>(0)
   const [reducedMotion, setReducedMotion] = useState(false)
-  const [hoveredGroup, setHoveredGroup] = useState<MainTechGroup | null>(null)
-  const hoveredGroupRef = useRef<MainTechGroup | null>(null)
+  const [selectedGroups, setSelectedGroups] = useState<Set<MainTechGroup>>(new Set())
+  const selectedGroupsRef = useRef<Set<MainTechGroup>>(new Set())
 
-  /* ── Build / rebuild the physics world ── */
-  const buildWorld = useCallback(() => {
+  const toggleGroupRef = useRef<(group: MainTechGroup) => void>(() => {})
+  const cursorRef = useRef<SVGSVGElement>(null)
+  const rippleRef = useRef<HTMLSpanElement>(null)
+  const [isTouchDevice, setIsTouchDevice] = useState(false)
+
+  /* Body tracking: group → [{ body, itemIndex }] */
+  const groupBodiesRef = useRef<Map<string, Array<{ body: Matter.Body; idx: number }>>>(new Map())
+
+  /* Keep ref in sync so callbacks can read current selection */
+  useEffect(() => {
+    selectedGroupsRef.current = selectedGroups
+  }, [selectedGroups])
+
+  /* ── Drop pills for a group into the container ── */
+  const addGroupBodies = useCallback((group: string) => {
     const container = containerRef.current
-    const canvas = canvasRef.current
-    if (!container || !canvas) return
-
-    /* Tear down previous world */
-    cancelAnimationFrame(rafRef.current)
-    if (runnerRef.current) Runner.stop(runnerRef.current)
-    if (engineRef.current) Engine.clear(engineRef.current)
+    const engine = engineRef.current
+    if (!container || !engine) return
 
     const cw = container.offsetWidth
-    const ch = container.offsetHeight
-    const wallT = 50
+    const entries: Array<{ body: Matter.Body; idx: number }> = []
 
-    /* Resize canvas to match container */
-    canvas.width = cw
-    canvas.height = ch
-
-    /* Engine + runner */
-    const engine = Engine.create({ gravity: { x: 0, y: 1, scale: 0.001 } })
-    engineRef.current = engine
-    const runner = Runner.create()
-    runnerRef.current = runner
-    Runner.run(runner, engine)
-
-    /* Walls — inset so pills stay fully visible inside the container */
-    const wallOpts = { isStatic: true, render: { visible: false } }
-    const inset = 4
-    Composite.add(engine.world, [
-      Bodies.rectangle(cw / 2, -wallT / 2 + inset, cw + wallT * 2, wallT, wallOpts),
-      Bodies.rectangle(cw / 2, ch + wallT / 2 - inset, cw + wallT * 2, wallT, wallOpts),
-      Bodies.rectangle(-wallT / 2 + inset, ch / 2, wallT, ch + wallT * 2, wallOpts),
-      Bodies.rectangle(cw + wallT / 2 - inset, ch / 2, wallT, ch + wallT * 2, wallOpts),
-    ])
-
-    /* Bodies from measured DOM elements */
-    const bodies: Matter.Body[] = []
-    const bodyOpts = { frictionAir: 0.01, friction: 0.1, restitution: 0.6 }
-
-    itemRefs.current.forEach((el, i) => {
+    PHYSICS_ITEMS.forEach((item, i) => {
+      if (item.group !== group) return
+      const el = itemRefs.current[i]
       if (!el) return
+
+      el.style.opacity = '1'
+
       const rect = el.getBoundingClientRect()
       const w = rect.width
       const h = rect.height
       if (w === 0 || h === 0) return
 
-      const x = Math.random() * (cw - w - 20) + w / 2 + 10
-      const y = Math.random() * (ch * 0.3) + h
+      const x = Math.random() * (cw - w - 40) + w / 2 + 20
+      const y = h // near top — gravity pulls them down
 
-      const isIcon = PHYSICS_ITEMS[i].type === 'icon'
+      const isIcon = item.type === 'icon'
       const body = Bodies.rectangle(x, y, w, h, {
-        ...bodyOpts,
+        frictionAir: 0.01,
+        friction: 0.1,
+        restitution: 0.6,
         chamfer: { radius: isIcon ? 6 : h / 2 },
-        label: PHYSICS_ITEMS[i].label,
       })
 
       Body.setVelocity(body, {
@@ -363,52 +352,142 @@ export default function TechStackSection() {
         y: Math.random() * 2,
       })
 
-      bodies.push(body)
+      Composite.add(engine.world, body)
+      entries.push({ body, idx: i })
     })
 
-    bodiesRef.current = bodies
-    Composite.add(engine.world, bodies)
+    groupBodiesRef.current.set(group, entries)
+  }, [])
 
-    /* Show items */
-    itemRefs.current.forEach((el) => {
-      if (el) el.style.opacity = '1'
+  /* ── Explode + remove pills for a group ── */
+  const removeGroupBodies = useCallback((group: string) => {
+    const engine = engineRef.current
+    if (!engine) return
+
+    const entries = groupBodiesRef.current.get(group)
+    if (!entries) return
+
+    // Explosion: fling upward + random sideways
+    entries.forEach(({ body }) => {
+      Body.setVelocity(body, {
+        x: (Math.random() - 0.5) * 20,
+        y: -(Math.random() * 15 + 5),
+      })
     })
 
-    /* Mouse / touch via canvas overlay */
-    const mouse = Mouse.create(canvas)
-    mouse.pixelRatio = window.devicePixelRatio || 1
-    const mouseConstraint = MouseConstraint.create(engine, {
-      mouse,
-      constraint: { stiffness: 0.2, render: { visible: false } },
-    })
-    Composite.add(engine.world, mouseConstraint)
-
-    /* RAF — apply magnet forces + sync DOM to physics */
-    const sync = () => {
-      const hg = hoveredGroupRef.current
-
-      bodies.forEach((body, i) => {
-        const el = itemRefs.current[i]
-        if (!el) return
-
-        /* Magnet: pull matching pills up, nudge others down to clear the way */
-        if (hg !== null) {
-          if (PHYSICS_ITEMS[i].group === hg) {
-            Body.applyForce(body, body.position, { x: 0, y: -0.001 * body.mass })
-          } else {
-            Body.applyForce(body, body.position, { x: 0, y: 0.0003 * body.mass })
-          }
+    // After 500 ms remove from world and hide DOM elements
+    setTimeout(() => {
+      entries.forEach(({ body, idx }) => {
+        try {
+          Composite.remove(engine.world, body)
+        } catch {
+          /* body already removed (e.g. resize rebuild) */
         }
+        const el = itemRefs.current[idx]
+        if (el) {
+          el.style.opacity = '0'
+          el.style.transform = ''
+        }
+      })
+      groupBodiesRef.current.delete(group)
+    }, 500)
+  }, [])
 
-        const { x, y } = body.position
-        const w = el.offsetWidth
-        const h = el.offsetHeight
-        el.style.transform = `translate(${x - w / 2}px, ${y - h / 2}px) rotate(${body.angle}rad)`
+  /* ── Build / rebuild the physics world ── */
+  const buildWorld = useCallback(() => {
+    const container = containerRef.current
+    const canvas = canvasRef.current
+    if (!container || !canvas) return
+
+    const cw = container.offsetWidth
+    const ch = container.offsetHeight
+    if (cw === 0 || ch === 0) return
+
+    /* Tear down previous */
+    cancelAnimationFrame(rafRef.current)
+    if (runnerRef.current) Runner.stop(runnerRef.current)
+    if (engineRef.current) Engine.clear(engineRef.current)
+    groupBodiesRef.current.clear()
+
+    /* Hide all items */
+    itemRefs.current.forEach((el) => {
+      if (el) { el.style.opacity = '0'; el.style.transform = '' }
+    })
+
+    canvas.width = cw
+    canvas.height = ch
+
+    /* Fresh engine — default gravity scale (0.001) */
+    const engine = Engine.create()
+    engineRef.current = engine
+
+    /* Walls — flush with container edges, thick enough to catch everything */
+    const wallT = 60
+    const wo = { isStatic: true, render: { visible: false } }
+    Composite.add(engine.world, [
+      Bodies.rectangle(cw / 2, -wallT / 2, cw + wallT * 2, wallT, wo),
+      Bodies.rectangle(cw / 2, ch + wallT / 2, cw + wallT * 2, wallT, wo),
+      Bodies.rectangle(-wallT / 2, ch / 2, wallT, ch + wallT * 2, wo),
+      Bodies.rectangle(cw + wallT / 2, ch / 2, wallT, ch + wallT * 2, wo),
+    ])
+
+    /* Mouse drag — desktop only (touch listeners block scroll on mobile) */
+    if (!window.matchMedia('(pointer: coarse)').matches) {
+      const mouse = Mouse.create(canvas)
+      mouse.pixelRatio = window.devicePixelRatio || 1
+      Composite.add(engine.world, MouseConstraint.create(engine, {
+        mouse,
+        constraint: { stiffness: 0.2, render: { visible: false } },
+      }))
+    }
+
+    /* Re-add bodies for currently selected groups */
+    selectedGroupsRef.current.forEach((group) => addGroupBodies(group))
+
+    /* Runner handles physics timing (battle-tested across devices) */
+    const runner = Runner.create()
+    Runner.run(runner, engine)
+    runnerRef.current = runner
+
+    /* RAF loop — DOM sync only, no physics stepping */
+    const sync = () => {
+      groupBodiesRef.current.forEach((entries) => {
+        entries.forEach(({ body, idx }) => {
+          const el = itemRefs.current[idx]
+          if (!el) return
+          const { x, y } = body.position
+          const w = el.offsetWidth
+          const h = el.offsetHeight
+          el.style.transform = `translate(${x - w / 2}px, ${y - h / 2}px) rotate(${body.angle}rad)`
+        })
       })
       rafRef.current = requestAnimationFrame(sync)
     }
     rafRef.current = requestAnimationFrame(sync)
-  }, [])
+  }, [addGroupBodies])
+
+  /* ── Toggle a tech group on/off ── */
+  const toggleGroup = useCallback(
+    (group: MainTechGroup) => {
+      setSelectedGroups((prev) => {
+        const next = new Set(prev)
+        if (next.has(group)) {
+          next.delete(group)
+          removeGroupBodies(group)
+        } else {
+          next.add(group)
+          addGroupBodies(group)
+        }
+        return next
+      })
+    },
+    [addGroupBodies, removeGroupBodies],
+  )
+
+  /* Keep ref in sync so the demo effect can call toggleGroup */
+  useEffect(() => {
+    toggleGroupRef.current = toggleGroup
+  }, [toggleGroup])
 
   /* ── Mount / unmount ── */
   useEffect(() => {
@@ -418,35 +497,102 @@ export default function TechStackSection() {
       return
     }
 
-    /* Wait for fonts + images before measuring */
-    document.fonts.ready.then(() => {
-      const images = containerRef.current?.querySelectorAll('img') ?? []
-      const promises = Array.from(images).map((img) =>
-        img.complete
-          ? Promise.resolve()
-          : new Promise<void>((resolve) => {
-              img.onload = () => resolve()
-              img.onerror = () => resolve()
-            }),
-      )
-      Promise.all(promises).then(buildWorld)
-    })
+    setIsTouchDevice(window.matchMedia('(pointer: coarse)').matches)
 
+    /* Build world immediately — engine is ready for interactions. */
+    buildWorld()
+
+    /* Wait for fonts so text rows have their final height before we
+       measure the container for wall placement. fonts.ready resolves
+       even if fonts fail to load, so this never blocks indefinitely. */
+    document.fonts.ready.then(() => buildWorld())
+
+    /* ResizeObserver catches any later dimension change (viewport
+       rotation, browser resize, dynamic content) and rebuilds. */
+    const container = containerRef.current
     let resizeTimer: ReturnType<typeof setTimeout>
-    const onResize = () => {
+    const ro = new ResizeObserver(() => {
       clearTimeout(resizeTimer)
-      resizeTimer = setTimeout(buildWorld, 300)
-    }
-    window.addEventListener('resize', onResize)
+      resizeTimer = setTimeout(buildWorld, 200)
+    })
+    if (container) ro.observe(container)
 
     return () => {
-      window.removeEventListener('resize', onResize)
+      ro.disconnect()
       clearTimeout(resizeTimer)
       cancelAnimationFrame(rafRef.current)
       if (runnerRef.current) Runner.stop(runnerRef.current)
       if (engineRef.current) Engine.clear(engineRef.current)
     }
   }, [buildWorld])
+
+  /* ── Auto-demo: animated cursor clicks tech names on first scroll ── */
+  useEffect(() => {
+    if (reducedMotion || !containerRef.current || !cursorRef.current || !rippleRef.current) return
+
+    const section = sectionRef.current
+    const cursor = cursorRef.current
+    const ripple = rippleRef.current
+    if (!section) return
+
+    const ctx = gsap.context(() => {
+      ScrollTrigger.create({
+        trigger: containerRef.current,
+        start: 'top 80%',
+        once: true,
+        onEnter: () => {
+          const sequence: MainTechGroup[] = ['gsap', 'next', 'react', 'gsap']
+          const tl = gsap.timeline({ delay: 0.3 })
+
+          /* Fade cursor in at center of section */
+          const parentEl = section.querySelector('.relative') as HTMLElement | null
+          const parentRect = (parentEl ?? section).getBoundingClientRect()
+          gsap.set(cursor, {
+            x: parentRect.width / 2,
+            y: parentRect.height / 2,
+          })
+          tl.to(cursor, { opacity: 1, duration: 0.3 })
+
+          sequence.forEach((group) => {
+            /* Move cursor to the target tech name */
+            tl.add(() => {
+              const target = section.querySelector(`[data-tech-group="${group}"]`)
+              if (!target) return
+              const targetRect = target.getBoundingClientRect()
+              const sRect = (parentEl ?? section).getBoundingClientRect()
+              const x = targetRect.left - sRect.left + targetRect.width / 2
+              const y = targetRect.top - sRect.top + targetRect.height / 2
+              gsap.to(cursor, { x, y, duration: 0.5, ease: 'power2.inOut' })
+            })
+            /* Wait for cursor to arrive */
+            tl.add(() => {}, '+=0.55')
+            /* Click ripple + trigger toggle */
+            tl.add(() => {
+              const target = section.querySelector(`[data-tech-group="${group}"]`)
+              if (!target) return
+              const targetRect = target.getBoundingClientRect()
+              const sRect = (parentEl ?? section).getBoundingClientRect()
+              const rx = targetRect.left - sRect.left + targetRect.width / 2 - 10
+              const ry = targetRect.top - sRect.top + targetRect.height / 2 - 10
+
+              gsap.set(ripple, { x: rx, y: ry, scale: 0.5, opacity: 0.6 })
+              gsap.to(ripple, { scale: 2, opacity: 0, duration: 0.4, ease: 'power2.out' })
+              gsap.to(cursor, { scale: 0.85, duration: 0.1, yoyo: true, repeat: 1 })
+
+              toggleGroupRef.current(group)
+            })
+            /* Pause between clicks for pills to settle */
+            tl.add(() => {}, '+=0.6')
+          })
+
+          /* Fade cursor out after demo */
+          tl.to(cursor, { opacity: 0, duration: 0.3 })
+        },
+      })
+    }, sectionRef)
+
+    return () => ctx.revert()
+  }, [reducedMotion])
 
   /* ── GSAP word-by-word entrance for text list ── */
   useEffect(() => {
@@ -474,48 +620,6 @@ export default function TechStackSection() {
     return () => ctx.revert()
   }, [reducedMotion])
 
-  /* ── Keep ref in sync so the RAF loop can read hover state ── */
-  useEffect(() => {
-    hoveredGroupRef.current = hoveredGroup
-  }, [hoveredGroup])
-
-  /* ── Hover highlight on physics items ── */
-  useEffect(() => {
-    itemRefs.current.forEach((el, i) => {
-      if (!el) return
-      const item = PHYSICS_ITEMS[i]
-
-      if (hoveredGroup === null) {
-        el.style.opacity = '1'
-        el.style.filter = 'none'
-        el.style.boxShadow = 'none'
-      } else if (item.group === hoveredGroup) {
-        const color = GROUP_COLORS[item.group]
-        el.style.opacity = '1'
-        el.style.filter = 'none'
-        el.style.boxShadow = `0 0 12px ${color}60`
-      } else {
-        el.style.opacity = '0.2'
-        el.style.filter = 'grayscale(1)'
-        el.style.boxShadow = 'none'
-      }
-    })
-  }, [hoveredGroup])
-
-  /* ── Click: shake non-matching pills + pulse matching ones upward ── */
-  const shakeNonMatching = useCallback((group: MainTechGroup) => {
-    bodiesRef.current.forEach((body, i) => {
-      if (PHYSICS_ITEMS[i].group === group) {
-        Body.setVelocity(body, { x: (Math.random() - 0.5) * 2, y: -12 })
-      } else {
-        Body.setVelocity(body, {
-          x: (Math.random() - 0.5) * 16,
-          y: (Math.random() - 0.5) * 12,
-        })
-      }
-    })
-  }, [])
-
   /* ── Render ── */
   return (
     <section
@@ -523,7 +627,7 @@ export default function TechStackSection() {
       className="sticky top-0 min-h-screen projects-theme-bg"
     >
       <div
-        className="flex min-h-screen flex-col px-6 py-12"
+        className="relative flex min-h-screen flex-col px-6 py-12"
         style={{ maxWidth: 'var(--max-width)', margin: '0 auto' }}
       >
       {/* Eyebrow */}
@@ -531,43 +635,44 @@ export default function TechStackSection() {
         Toolbox
       </p>
 
-      {/* ── Tech text list (3 rows, word-by-word animation) ── */}
+      {/* ── Tech text list (3 rows, click to toggle) ── */}
       <div ref={textListRef} className="mb-8 space-y-2">
         {TECH_ROWS.map((row, rowIdx) => (
           <div
             key={rowIdx}
             className="flex flex-wrap justify-center items-baseline gap-x-4 gap-y-2"
           >
-            {row.map((tech) => (
-              <span
-                key={tech.group}
-                data-tech-word
-                className="cursor-default font-heading font-bold select-none"
-                style={{
-                  fontSize: ROW_FONT_SIZES[rowIdx],
-                  opacity: hoveredGroup === null
-                    ? ROW_DEFAULT_OPACITIES[rowIdx]
-                    : hoveredGroup === tech.group
-                      ? 1
-                      : 0.15,
-                  color: hoveredGroup === tech.group
-                    ? 'var(--color-text)'
-                    : 'var(--color-text-muted)',
-                  transform: hoveredGroup === tech.group ? 'scale(1.05)' : 'scale(1)',
-                  transition: 'opacity 0.3s ease-out, color 0.3s ease-out, transform 0.3s ease-out',
-                }}
-                onMouseEnter={() => setHoveredGroup(tech.group)}
-                onMouseLeave={() => setHoveredGroup(null)}
-                onClick={() => shakeNonMatching(tech.group)}
-              >
-                {tech.name}
-              </span>
-            ))}
+            {row.map((tech) => {
+              const isSelected = selectedGroups.has(tech.group)
+              return (
+                <span
+                  key={tech.group}
+                  data-tech-word
+                  data-tech-group={tech.group}
+                  className="cursor-pointer font-heading font-bold select-none"
+                  style={{
+                    fontSize: ROW_FONT_SIZES[rowIdx],
+                    opacity: selectedGroups.size === 0
+                      ? ROW_DEFAULT_OPACITIES[rowIdx]
+                      : isSelected
+                        ? 1
+                        : 0.3,
+                    color: isSelected
+                      ? GROUP_COLORS[tech.group]
+                      : 'var(--color-text-muted)',
+                    transition: 'opacity 0.3s ease-out, color 0.3s ease-out',
+                  }}
+                  onClick={() => toggleGroup(tech.group)}
+                >
+                  {tech.name}
+                </span>
+              )
+            })}
           </div>
         ))}
       </div>
 
-      {/* ── Physics playground (takes remaining space) ── */}
+      {/* ── Physics playground (starts empty) ── */}
       {reducedMotion ? (
         <div className="flex flex-1 flex-wrap content-start gap-3 justify-center rounded-2xl border border-border bg-bg-alt p-6">
           {PHYSICS_ITEMS.map((item) => {
@@ -604,8 +709,8 @@ export default function TechStackSection() {
       ) : (
         <div
           ref={containerRef}
-          className="relative flex-1 w-full overflow-hidden rounded-2xl border border-border bg-bg-alt"
-          style={{ minHeight: 300, touchAction: 'none' }}
+          className="relative flex-1 w-full min-h-[50vh] overflow-hidden rounded-2xl border border-border bg-bg-alt"
+          style={{ touchAction: isTouchDevice ? 'auto' : 'none' }}
         >
           {PHYSICS_ITEMS.map((item, i) => {
             const color = GROUP_COLORS[item.group]
@@ -621,7 +726,11 @@ export default function TechStackSection() {
                 )}
                 style={{
                   opacity: 0,
-                  transition: 'opacity 0.3s, filter 0.3s, box-shadow 0.3s',
+                  /* Icon containers get a minimum size so they have real
+                     dimensions even before the image has downloaded.
+                     Without this, getBoundingClientRect returns ~16×52
+                     on slow connections, producing tiny physics bodies. */
+                  ...(item.type === 'icon' ? { minWidth: 56, minHeight: 40 } : {}),
                   backgroundColor: color,
                   color: getContrastText(color),
                 }}
@@ -653,6 +762,43 @@ export default function TechStackSection() {
             style={{ cursor: 'grab' }}
           />
         </div>
+      )}
+
+      {/* Demo cursor — animated on first scroll into view */}
+      {!reducedMotion && (
+        <>
+          <svg
+            ref={cursorRef}
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            className="pointer-events-none absolute left-0 top-0"
+            style={{ opacity: 0 }}
+          >
+            {isTouchDevice ? (
+              /* Hand with index finger — tap gesture */
+              <g fill="white" stroke="#1a1a1a" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M10 5.5a2 2 0 1 1 4 0V12" />
+                <path d="M14 12v-1.5a2 2 0 1 1 4 0V17a6 6 0 0 1-6 6h-1a6 6 0 0 1-6-6v-3.5a2 2 0 1 1 4 0V12" />
+                <path d="M10 12V5.5" />
+              </g>
+            ) : (
+              /* Mouse pointer arrow */
+              <path
+                d="M5 3l14 8-6 2-2 6z"
+                fill="white"
+                stroke="#1a1a1a"
+                strokeWidth="1.5"
+                strokeLinejoin="round"
+              />
+            )}
+          </svg>
+          <span
+            ref={rippleRef}
+            className="pointer-events-none absolute left-0 top-0 rounded-full"
+            style={{ width: 20, height: 20, opacity: 0, backgroundColor: 'var(--color-accent)' }}
+          />
+        </>
       )}
       </div>
     </section>

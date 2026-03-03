@@ -273,7 +273,7 @@ export default function JourneyAccordionSection() {
     <section className="sticky top-0 min-h-screen pb-[var(--section-gap)] projects-theme-bg">
       <div
         ref={containerRef}
-        className="relative w-full h-[90vh] min-h-[500px] overflow-hidden"
+        className="relative w-full h-screen min-h-[500px] overflow-hidden"
         role="tablist"
         aria-label="Journey timeline"
         onKeyDown={handleKeyDown}
