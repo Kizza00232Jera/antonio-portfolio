@@ -119,9 +119,9 @@ export default function HeroSection() {
   return (
     <section
       ref={containerRef}
+      data-theme="light"
       className="sticky top-0 relative flex min-h-screen flex-col justify-center px-6"
       style={{
-        backgroundColor: '#e8e2da',
         backgroundImage: [
           "url('https://wa63s80c7y.ufs.sh/f/xvkaIoB9LXPW4oPrLhFuDBzPlk6wKJgc9N4mGELOVpvRIro8')",
           "url('https://wa63s80c7y.ufs.sh/f/xvkaIoB9LXPWEuBM22ZsCl3YyLdkMHmvaW5ZXURTjtq2VFfu')",

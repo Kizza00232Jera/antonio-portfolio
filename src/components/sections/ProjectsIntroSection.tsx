@@ -40,7 +40,7 @@ export default function ProjectsIntroSection() {
   }, [])
 
   return (
-    <section ref={sectionRef} className="sticky top-0 min-h-screen px-6 py-24 md:py-32 projects-theme-bg">
+    <section ref={sectionRef} data-theme="dark" className="sticky top-0 min-h-screen px-6 py-24 md:py-32">
       <h2
         className="text-center font-heading font-bold leading-[1.1] text-text"
         style={{ fontSize: 'clamp(2.5rem, 8vw, 7rem)' }}

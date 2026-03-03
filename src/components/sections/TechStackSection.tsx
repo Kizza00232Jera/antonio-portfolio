@@ -624,7 +624,8 @@ export default function TechStackSection() {
   return (
     <section
       ref={sectionRef}
-      className="sticky top-0 min-h-screen projects-theme-bg"
+      data-theme="dark"
+      className="sticky top-0 min-h-screen"
     >
       <div
         className="relative flex min-h-screen flex-col px-6 py-12"

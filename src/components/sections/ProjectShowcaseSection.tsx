@@ -419,7 +419,8 @@ export default function ProjectShowcaseSection({
 
   return (
     <section
-      className="sticky top-0 relative overflow-hidden projects-theme-bg"
+      data-theme="light"
+      className="sticky top-0 relative overflow-hidden"
       style={{ height: '100vh' }}
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}

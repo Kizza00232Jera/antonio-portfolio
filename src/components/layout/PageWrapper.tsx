@@ -26,11 +26,9 @@ export function PageWrapper({ children }: { children: React.ReactNode }) {
 
         gsap.set(wrapper, {
           clipPath: `inset(${clipTop}px 0 ${clipBottom}px 0 round 12px)`,
-          x: isMobile ? '100%' : '55%',
-          y: isMobile ? '12vh' : '20vh',
-          rotateY: !isMobile ? -3 : 0,
-          transformPerspective: 1200,
-          transformOrigin: 'center center',
+          x: isMobile ? '100%' : '40%',
+          rotation: isMobile ? 0 : -12,
+          transformOrigin: `100% ${scrollY}px`,
         })
       } else {
         gsap.set(wrapper, { clearProps: 'transform,clipPath' })
@@ -39,7 +37,6 @@ export function PageWrapper({ children }: { children: React.ReactNode }) {
     }
 
     if (isOpen) {
-      /* Clip to viewport so the shrunk page looks like a card, not a tall strip */
       const scrollY = window.scrollY
       const wrapperH = wrapper.scrollHeight
       const vh = window.innerHeight
@@ -51,21 +48,18 @@ export function PageWrapper({ children }: { children: React.ReactNode }) {
       })
 
       gsap.to(wrapper, {
-        x: isMobile ? '100%' : '55%',
-        y: isMobile ? '12vh' : '20vh',
-        rotateY: isMobile ? 0 : -3,
-        transformPerspective: 1200,
-        transformOrigin: 'center center',
-        duration: 0.6,
+        x: isMobile ? '100%' : '40%',
+        rotation: isMobile ? 0 : -12,
+        transformOrigin: `100% ${scrollY}px`,
+        duration: 1,
         ease: 'power3.inOut',
       })
     } else {
       gsap.to(wrapper, {
         x: '0%',
-        y: '0%',
-        rotateY: 0,
-        duration: 0.5,
-        ease: 'power3.out',
+        rotation: 0,
+        duration: 1,
+        ease: 'power3.inOut',
         onComplete: () => {
           gsap.set(wrapper, { clearProps: 'transform,clipPath' })
         },
@@ -96,7 +90,6 @@ export function PageWrapper({ children }: { children: React.ReactNode }) {
       ref={wrapperRef}
       id="page-wrapper"
       className="relative min-h-screen"
-      style={{ transformStyle: 'preserve-3d' }}
     >
       {children}
     </div>
