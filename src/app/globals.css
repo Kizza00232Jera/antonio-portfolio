@@ -172,3 +172,15 @@ header[data-header-theme="light"] {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+/* ── Shiki syntax-highlighted code blocks ────────────── */
+.portable-text .shiki {
+  margin: 0;
+  padding: 1rem;
+  overflow-x: auto;
+}
+.portable-text .shiki code {
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+  font-size: 0.875rem;
+  line-height: 1.625;
+}

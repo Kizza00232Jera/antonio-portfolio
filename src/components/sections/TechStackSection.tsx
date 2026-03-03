@@ -624,7 +624,7 @@ export default function TechStackSection() {
   return (
     <section
       ref={sectionRef}
-      data-theme="dark"
+      data-theme="light"
       className="sticky top-0 min-h-screen"
     >
       <div

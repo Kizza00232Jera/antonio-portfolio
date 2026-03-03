@@ -69,6 +69,10 @@ function getSlotProps(offset: number, arc: ArcConfig) {
   }
 }
 
+/* ── Intro text letters ──────────────────────────────────── */
+
+const INTRO_LETTERS = "Things I've built.".split('')
+
 /* ── Word-morph helpers ──────────────────────────────────── */
 
 function populateWordSpans(container: HTMLDivElement, text: string) {
@@ -181,7 +185,11 @@ export default function ProjectShowcaseSection({
   const paraFromRef = useRef<HTMLDivElement>(null)
   const paraToRef = useRef<HTMLDivElement>(null)
 
-  const activeProject = projects[activeIndex]
+  const sectionRef = useRef<HTMLElement>(null)
+  const introLettersRef = useRef<(HTMLSpanElement | null)[]>([])
+  const bottomPanelRef = useRef<HTMLDivElement>(null)
+  const hasPlayedEntranceRef = useRef(false)
+
   const arc = isDesktop ? ARC_DESKTOP : ARC_MOBILE
 
   /* ── Track screen size ── */
@@ -193,8 +201,152 @@ export default function ProjectShowcaseSection({
     return () => mq.removeEventListener('change', onChange)
   }, [])
 
+  /* ── Populate word-morph containers after entrance ── */
+  const populateInitialWordMorphs = useCallback(() => {
+    const newTags = projects[0]?.tags?.map((t) => t.name).join(' / ') || ''
+    const newTitle = projects[0]?.title || ''
+    const newTagline = projects[0]?.tagline || ''
+
+    if (tagsFromRef.current) populateWordSpans(tagsFromRef.current, newTags)
+    if (tagsToRef.current) gsap.set(tagsToRef.current, { autoAlpha: 0 })
+    if (titleFromRef.current) populateWordSpans(titleFromRef.current, newTitle)
+    if (titleToRef.current) gsap.set(titleToRef.current, { autoAlpha: 0 })
+    if (paraFromRef.current) populateWordSpans(paraFromRef.current, newTagline)
+    if (paraToRef.current) gsap.set(paraToRef.current, { autoAlpha: 0 })
+
+    prevTagsRef.current = newTags
+    prevTitleRef.current = newTitle
+    prevTaglineRef.current = newTagline
+  }, [projects])
+
+  /* ── Entrance animation ── */
+  useEffect(() => {
+    if (hasPlayedEntranceRef.current || projects.length === 0) return
+    const section = sectionRef.current
+    if (!section) return
+
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const isMobile = window.matchMedia('(max-width: 768px)').matches
+    const currentArc = isMobile ? ARC_MOBILE : ARC_DESKTOP
+
+    /* Set initial hidden state */
+    const hiddenProps = getSlotProps(-5, currentArc)
+    cardRefs.current.forEach((card) => {
+      if (!card) return
+      gsap.set(card, {
+        x: hiddenProps.x,
+        y: hiddenProps.y,
+        rotation: hiddenProps.rotation,
+        scale: hiddenProps.scale,
+        opacity: 0,
+      })
+    })
+    if (bottomPanelRef.current) gsap.set(bottomPanelRef.current, { opacity: 0, y: 40 })
+    const letters = introLettersRef.current.filter(Boolean) as HTMLSpanElement[]
+    gsap.set(letters, { opacity: 0, y: 20 })
+
+    if (prefersReduced) {
+      const total = projects.length
+      cardRefs.current.forEach((card, i) => {
+        if (!card) return
+        let offset = i
+        if (offset > total / 2) offset -= total
+        if (offset < -total / 2) offset += total
+        const props = getSlotProps(offset, currentArc)
+        gsap.set(card, { x: props.x, y: props.y, rotation: props.rotation, scale: props.scale, opacity: props.opacity })
+        card.style.pointerEvents = offset === 0 ? 'auto' : 'none'
+      })
+      if (bottomPanelRef.current) gsap.set(bottomPanelRef.current, { opacity: 1, y: 0 })
+      hasPlayedEntranceRef.current = true
+      populateInitialWordMorphs()
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting || hasPlayedEntranceRef.current) return
+        hasPlayedEntranceRef.current = true
+        observer.disconnect()
+        animatingRef.current = true
+
+        const total = projects.length
+        const tl = gsap.timeline({
+          onComplete: () => {
+            animatingRef.current = false
+            populateInitialWordMorphs()
+          },
+        })
+
+        /* 1. Letter-by-letter reveal */
+        tl.to(letters, {
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+          stagger: 0.03,
+          ease: 'power2.out',
+        })
+
+        /* 2. Pause, then fade out */
+        tl.to(letters, {
+          opacity: 0,
+          y: -30,
+          duration: 0.4,
+          ease: 'power2.inOut',
+        }, '+=0.3')
+
+        /* Cards start while text is fading */
+        tl.addLabel('cards', '-=0.2')
+
+        /* 3. Cards fan in from left — sorted left-to-right for stagger */
+        const cardData: { card: HTMLDivElement; offset: number }[] = []
+        cardRefs.current.forEach((card, i) => {
+          if (!card) return
+          let offset = i
+          if (offset > total / 2) offset -= total
+          if (offset < -total / 2) offset += total
+          cardData.push({ card, offset })
+        })
+        cardData.sort((a, b) => a.offset - b.offset)
+
+        cardData.forEach(({ card, offset }, sortIndex) => {
+          const props = getSlotProps(offset, currentArc)
+          const isCenter = offset === 0
+          tl.to(card, {
+            x: props.x,
+            y: props.y,
+            rotation: props.rotation,
+            scale: props.scale,
+            opacity: props.opacity,
+            duration: ANIM_DURATION,
+            ease: 'power3.inOut',
+            onComplete: () => {
+              card.style.pointerEvents = isCenter ? 'auto' : 'none'
+            },
+          }, `cards+=${sortIndex * 0.08}`)
+        })
+
+        /* 4. Bottom panel slides up */
+        tl.to(bottomPanelRef.current, {
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+          ease: 'power2.out',
+        }, '-=0.3')
+      },
+      { threshold: 0.3 },
+    )
+    observer.observe(section)
+    return () => observer.disconnect()
+  }, [projects, populateInitialWordMorphs])
+
   /* ── Position all cards based on activeIndex ── */
   useEffect(() => {
+    /* Skip until entrance has played */
+    if (!hasPlayedEntranceRef.current) {
+      initialRenderRef.current = false
+      return
+    }
+
     const animate = !initialRenderRef.current
     initialRenderRef.current = false
 
@@ -419,13 +571,31 @@ export default function ProjectShowcaseSection({
 
   return (
     <section
-      data-theme="light"
+      ref={sectionRef}
+      data-theme="dark"
       className="sticky top-0 relative overflow-hidden"
       style={{ height: '100vh' }}
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
     >
+      {/* ── Intro text — "Things I've built." ── */}
+      <h2
+        className="absolute inset-0 flex items-center justify-center text-center font-heading font-bold leading-[1.1] text-text pointer-events-none"
+        style={{ fontSize: 'clamp(2.5rem, 8vw, 7rem)' }}
+      >
+        {INTRO_LETTERS.map((char, i) => (
+          <span
+            key={i}
+            ref={(el) => { introLettersRef.current[i] = el }}
+            className="inline-block will-change-transform"
+            style={char === ' ' ? { width: '0.3em' } : undefined}
+          >
+            {char === ' ' ? '\u00A0' : char}
+          </span>
+        ))}
+      </h2>
+
       {/* ── Cards — absolute in section, no wrapper ───────── */}
       {projects.map((project, i) => {
         const thumbnailUrl = getThumbnailUrl(project)
@@ -469,13 +639,9 @@ export default function ProjectShowcaseSection({
         )
       })}
 
-      {/* ── Bottom: project info + navigation ─────────────── *
-       * Pinned to bottom of section. Uses percentage height
-       * so there's plenty of room for the paragraph.
-       * Title stays at a fixed position; paragraph grows
-       * downward; arrows stay at the very bottom.
-       * ───────────────────────────────────────────────────────── */}
+      {/* ── Bottom: project info + navigation ─────────────── */}
       <div
+        ref={bottomPanelRef}
         className="absolute inset-x-0 bottom-0 flex flex-col text-center px-6"
         style={{ height: isDesktop ? '30%' : '40%' }}
       >
@@ -492,7 +658,7 @@ export default function ProjectShowcaseSection({
         </div>
 
         {/* Title — word morph */}
-        <h2 className="relative">
+        <h3 className="relative">
           <div
             ref={titleFromRef}
             className="font-heading font-bold leading-tight text-text text-[length:var(--text-display)]"
@@ -501,7 +667,7 @@ export default function ProjectShowcaseSection({
             ref={titleToRef}
             className="absolute inset-0 font-heading font-bold leading-tight text-text text-[length:var(--text-display)]"
           />
-        </h2>
+        </h3>
 
         {/* Paragraph — word morph between projects */}
         <div className="mt-3 flex-1 max-w-lg mx-auto relative">
