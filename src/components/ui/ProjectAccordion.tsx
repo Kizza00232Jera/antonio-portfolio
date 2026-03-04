@@ -4,7 +4,7 @@ import { useRef, useState, useCallback, useEffect } from 'react'
 import { gsap } from 'gsap'
 import Image from 'next/image'
 import { urlFor } from '@/lib/sanity/image'
-import PortableTextRenderer from '@/components/sanity/PortableTextRenderer'
+import { PortableTextRendererClient } from '@/components/sanity/PortableTextRendererClient'
 import type { ProjectSection, SanityImage } from '@/lib/sanity/types'
 import { cn } from '@/utils/cn'
 
@@ -16,8 +16,10 @@ interface ProjectAccordionProps {
 /* ── Auto-scrolling image gallery (pauses on hover) ── */
 function MarqueeGallery({ images }: { images: SanityImage[] }) {
   const trackRef = useRef<HTMLDivElement>(null)
+  // Filter out images without a valid asset reference
+  const validImages = images.filter((img) => img?.asset)
   // Duplicate images for seamless infinite loop
-  const doubled = [...images, ...images]
+  const doubled = [...validImages, ...validImages]
 
   const pause = useCallback(() => {
     if (trackRef.current) trackRef.current.style.animationPlayState = 'paused'
@@ -37,18 +39,18 @@ function MarqueeGallery({ images }: { images: SanityImage[] }) {
         ref={trackRef}
         className="flex gap-4"
         style={{
-          animation: `marquee-scroll ${images.length * 5}s linear infinite`,
+          animation: `marquee-scroll ${validImages.length * 5}s linear infinite`,
           width: 'max-content',
         }}
       >
         {doubled.map((img, idx) => (
-          <div key={idx} className="relative h-[180px] w-[260px] shrink-0 overflow-hidden md:h-[200px] md:w-[300px]">
+          <div key={idx} className="relative h-[280px] w-[420px] shrink-0 overflow-hidden md:h-[350px] md:w-[520px]">
             <Image
-              src={urlFor(img).width(640).quality(80).url()}
+              src={urlFor(img).width(1200).quality(90).url()}
               alt=""
               fill
               className="object-cover"
-              sizes="300px"
+              sizes="520px"
             />
           </div>
         ))}
@@ -152,7 +154,7 @@ export function ProjectAccordion({
                   {/* Left column: text content + links */}
                   {hasContent && (
                     <div className={cn(hasImages ? 'lg:w-[45%]' : 'w-full')}>
-                      <PortableTextRenderer value={section.content!} />
+                      <PortableTextRendererClient value={section.content!} />
 
                       {section.links && section.links.length > 0 && (
                         <div className="mt-6 flex flex-wrap gap-4">

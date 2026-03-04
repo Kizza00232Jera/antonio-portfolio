@@ -4,13 +4,16 @@ import { visionTool } from '@sanity/vision'
 import { presentationTool, defineLocations } from 'sanity/presentation'
 import { schemaTypes } from './schemas'
 
+const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'b7ue5jlq'
+const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production'
+
 export default defineConfig({
   name: 'antonio-portfolio',
   title: 'Antonio Portfolio',
   basePath: '/studio',
 
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
-  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET!,
+  projectId,
+  dataset,
 
   plugins: [
     structureTool(),

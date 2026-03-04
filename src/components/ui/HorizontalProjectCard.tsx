@@ -29,10 +29,10 @@ export function HorizontalProjectCard({
   const imageContainerRef = useRef<HTMLDivElement>(null)
   const { startTransition } = useProjectTransition()
 
-  const thumbnailUrl = project.muxVideoId
-    ? `https://image.mux.com/${project.muxVideoId}/thumbnail.png?width=900&height=1200&fit_mode=smartcrop`
-    : project.coverImage
-      ? urlFor(project.coverImage).width(900).height(1200).quality(80).url()
+  const thumbnailUrl = project.coverImage
+    ? urlFor(project.coverImage).width(900).height(1200).quality(80).url()
+    : project.muxVideoId
+      ? `https://image.mux.com/${project.muxVideoId}/thumbnail.png?width=900&height=1200&fit_mode=smartcrop`
       : null
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {

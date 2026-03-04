@@ -11,11 +11,11 @@ import type { Project } from '@/lib/sanity/types'
 /* ── Helpers ─────────────────────────────────────────────── */
 
 function getThumbnailUrl(project: Project): string | null {
-  if (project.muxVideoId) {
-    return `https://image.mux.com/${project.muxVideoId}/thumbnail.png?width=900&height=1200&fit_mode=smartcrop`
-  }
   if (project.coverImage) {
     return urlFor(project.coverImage).width(900).height(1200).quality(80).url()
+  }
+  if (project.muxVideoId) {
+    return `https://image.mux.com/${project.muxVideoId}/thumbnail.png?width=900&height=1200&fit_mode=smartcrop`
   }
   return null
 }
