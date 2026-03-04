@@ -12,6 +12,48 @@ interface CodeBlockValue {
   code?: string
 }
 
+export interface Heading {
+  id: string
+  text: string
+  level: 2 | 3
+}
+
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .trim()
+}
+
+function toPlainText(block: PortableTextBlock): string {
+  const b = block as unknown as Record<string, unknown>
+  if (!Array.isArray(b.children)) return ''
+  return (b.children as Array<{ text?: string }>)
+    .map((child) => child.text ?? '')
+    .join('')
+}
+
+/** Extract h2/h3 headings from portable text blocks for table of contents. */
+export function extractHeadings(blocks: PortableTextBlock[]): Heading[] {
+  const headings: Heading[] = []
+  for (const block of blocks) {
+    const b = block as unknown as Record<string, unknown>
+    if (b.style === 'h2' || b.style === 'h3') {
+      const text = toPlainText(block)
+      if (text) {
+        headings.push({
+          id: slugify(text),
+          text,
+          level: b.style === 'h2' ? 2 : 3,
+        })
+      }
+    }
+  }
+  return headings
+}
+
 async function highlightAllCodeBlocks(blocks: PortableTextBlock[]) {
   const highlighted = new Map<string, string>()
 
@@ -50,18 +92,28 @@ export default async function PortableTextRenderer({ value }: PortableTextRender
 
   const components: PortableTextComponents = {
     block: {
-      h2: ({ children }) => (
-        <h2
-          className="mt-12 mb-4 font-heading font-bold text-text leading-tight text-[length:var(--text-heading)]"
-        >
-          {children}
-        </h2>
-      ),
-      h3: ({ children }) => (
-        <h3 className="mt-8 mb-3 font-heading font-semibold text-text leading-snug text-lg">
-          {children}
-        </h3>
-      ),
+      h2: ({ children, value }) => {
+        const id = slugify(toPlainText(value as unknown as PortableTextBlock))
+        return (
+          <h2
+            id={id}
+            className="mt-12 mb-4 font-heading font-bold text-text leading-tight text-[length:var(--text-heading)] scroll-mt-24"
+          >
+            {children}
+          </h2>
+        )
+      },
+      h3: ({ children, value }) => {
+        const id = slugify(toPlainText(value as unknown as PortableTextBlock))
+        return (
+          <h3
+            id={id}
+            className="mt-8 mb-3 font-heading font-semibold text-text leading-snug text-lg scroll-mt-24"
+          >
+            {children}
+          </h3>
+        )
+      },
       blockquote: ({ children }) => (
         <blockquote className="my-6 border-l-4 border-accent pl-4 italic text-text-muted leading-relaxed">
           {children}

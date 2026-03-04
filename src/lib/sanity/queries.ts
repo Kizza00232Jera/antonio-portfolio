@@ -8,6 +8,7 @@ import {
   ALL_BLOG_POSTS_QUERY,
   LATEST_BLOG_POSTS_QUERY,
   BLOG_POST_BY_SLUG_QUERY,
+  RELATED_BLOG_POSTS_QUERY,
   SITE_SETTINGS_QUERY,
 } from './queries.defined'
 
@@ -59,6 +60,14 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> 
     params: { slug },
   })
   return data as BlogPost | null
+}
+
+export async function getRelatedBlogPosts(currentSlug: string, count = 4): Promise<BlogPost[]> {
+  const { data } = await sanityFetch({
+    query: RELATED_BLOG_POSTS_QUERY,
+    params: { slug: currentSlug, count },
+  })
+  return data as BlogPost[]
 }
 
 // ─── Site Settings ────────────────────────────────────────────────────────────

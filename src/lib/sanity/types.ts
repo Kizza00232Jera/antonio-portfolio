@@ -75,6 +75,8 @@ export interface BlogPost {
   title: string
   slug: SanitySlug
   publishedAt: string
+  heroImage?: SanityImage
+  author?: { _id: string; name: string; image?: SanityImage }
   excerpt?: string
   body?: PortableTextBlock[]
   muxVideoId?: string

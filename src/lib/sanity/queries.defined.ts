@@ -3,7 +3,7 @@ import { defineQuery } from 'next-sanity'
 // ─── Projects ────────────────────────────────────────────────────────────────
 
 export const ALL_PROJECTS_QUERY = defineQuery(
-  `*[_type == "project"] | order(order asc) {
+  `*[_type == "project"] | order(publishedAt desc) {
     _id, _type, title, slug, tagline, coverImage, muxVideoId,
     techStack,
     techStackRefs[]->{ _id, name, slug, icon },
@@ -13,7 +13,7 @@ export const ALL_PROJECTS_QUERY = defineQuery(
 )
 
 export const FEATURED_PROJECTS_QUERY = defineQuery(
-  `*[_type == "project" && featured == true] | order(order asc) {
+  `*[_type == "project" && featured == true] | order(publishedAt desc) {
     _id, _type, title, slug, tagline, coverImage, muxVideoId,
     techStack,
     techStackRefs[]->{ _id, name, slug, icon },
@@ -45,21 +45,28 @@ export const ALL_TAGS_QUERY = defineQuery(
 
 export const ALL_BLOG_POSTS_QUERY = defineQuery(
   `*[_type == "blogPost"] | order(publishedAt desc) {
-    _id, _type, title, slug, publishedAt, excerpt, tags
+    _id, _type, title, slug, publishedAt, excerpt, tags, heroImage
   }`
 )
 
 export const LATEST_BLOG_POSTS_QUERY = defineQuery(
   `*[_type == "blogPost"] | order(publishedAt desc) [0...$count] {
-    _id, _type, title, slug, publishedAt, excerpt, tags
+    _id, _type, title, slug, publishedAt, excerpt, tags, heroImage
   }`
 )
 
 export const BLOG_POST_BY_SLUG_QUERY = defineQuery(
   `*[_type == "blogPost" && slug.current == $slug][0] {
     _id, _type, title, slug, publishedAt, excerpt,
+    heroImage, author->{ _id, name, image },
     body, muxVideoId, githubUrl, appUrl, tags,
     relatedProject->{ _id, title, slug, tagline }
+  }`
+)
+
+export const RELATED_BLOG_POSTS_QUERY = defineQuery(
+  `*[_type == "blogPost" && slug.current != $slug] | order(publishedAt desc) [0...$count] {
+    _id, _type, title, slug, publishedAt, excerpt, tags, heroImage
   }`
 )
 
