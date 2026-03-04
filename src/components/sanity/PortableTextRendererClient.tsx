@@ -1,8 +1,10 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { PortableText, type PortableTextComponents } from '@portabletext/react'
 import type { PortableTextBlock } from '@portabletext/react'
 import Image from 'next/image'
+import { codeToHtml } from 'shiki'
 import { urlFor } from '@/lib/sanity/image'
 import type { SanityImage } from '@/lib/sanity/types'
 
@@ -15,6 +17,44 @@ interface CodeBlockValue {
 
 interface PortableTextRendererClientProps {
   value: PortableTextBlock[]
+}
+
+function ClientCodeBlock({ value }: { value: CodeBlockValue }) {
+  const [html, setHtml] = useState<string | null>(null)
+  const lang = (value.language || 'text').toLowerCase()
+
+  useEffect(() => {
+    if (!value.code) return
+    codeToHtml(value.code, {
+      lang,
+      theme: 'catppuccin-mocha',
+    })
+      .then(setHtml)
+      .catch(() => {
+        codeToHtml(value.code!, { lang: 'text', theme: 'catppuccin-mocha' })
+          .then(setHtml)
+          .catch(() => {})
+      })
+  }, [value.code, value.language])
+
+  return (
+    <div className="my-6 rounded-lg bg-[#1e1e2e] overflow-hidden">
+      {value.language && (
+        <div className="px-4 py-2 text-xs font-mono text-text-muted border-b border-white/10">
+          {value.language}
+        </div>
+      )}
+      {html ? (
+        <div dangerouslySetInnerHTML={{ __html: html }} />
+      ) : (
+        <pre className="overflow-x-auto p-4">
+          <code className="font-mono text-sm text-[#cdd6f4] leading-relaxed">
+            {value.code}
+          </code>
+        </pre>
+      )}
+    </div>
+  )
 }
 
 const components: PortableTextComponents = {
@@ -83,18 +123,7 @@ const components: PortableTextComponents = {
       )
     },
     codeBlock: ({ value: blockValue }: { value: CodeBlockValue }) => (
-      <div className="my-6 rounded-lg bg-[#1e1e2e] overflow-hidden">
-        {blockValue.language && (
-          <div className="px-4 py-2 text-xs font-mono text-text-muted border-b border-white/10">
-            {blockValue.language}
-          </div>
-        )}
-        <pre className="overflow-x-auto p-4">
-          <code className="font-mono text-sm text-[#cdd6f4] leading-relaxed">
-            {blockValue.code}
-          </code>
-        </pre>
-      </div>
+      <ClientCodeBlock value={blockValue} />
     ),
   },
 }
