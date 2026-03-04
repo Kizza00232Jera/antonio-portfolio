@@ -8,7 +8,7 @@ interface LatestPostsSectionProps {
 
 export default function LatestPostsSection({ posts }: LatestPostsSectionProps) {
   return (
-    <section data-theme="dark" className="sticky top-0 min-h-screen">
+    <section data-theme="light" className="sticky top-0 min-h-screen">
       <div className="mx-auto max-w-[var(--max-width)] px-6 py-[var(--section-gap)]">
       <div className="flex items-end justify-between gap-4 mb-2">
         <div>
