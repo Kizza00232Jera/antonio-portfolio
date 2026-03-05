@@ -23,7 +23,7 @@ export function MuxVideoPlayer({
       streamType="on-demand"
       title={title}
       className={cn('aspect-video w-full rounded-xl', className)}
-      accentColor="#F97316"
+      accentColor="#3b82f6"
       style={{ '--media-object-fit': 'cover' } as Record<string, string>}
     />
   )

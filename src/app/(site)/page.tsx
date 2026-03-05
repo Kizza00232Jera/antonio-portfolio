@@ -21,11 +21,6 @@ export default async function HomePage() {
       <SectionReveal />
       <ScrollSnap />
       <HeroSection />
-      {/* Scroll spacers between sticky sections create "dwell time" —
-          the pinned section covers the spacer while it scrolls behind,
-          so nothing visual changes, but the user gets extra scroll
-          distance before the next section slides up. */}
-      <div aria-hidden className="h-[40vh]" />
       <JourneyIntroSection />
       <div aria-hidden className="h-[40vh]" />
       <JourneyAccordionSection />

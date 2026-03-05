@@ -285,7 +285,7 @@ export function TransitionOverlay() {
       <div
         ref={fadeRef}
         className="absolute inset-0"
-        style={{ backgroundColor: '#e8e2da', opacity: 0 }}
+        style={{ backgroundColor: '#f2ede8', opacity: 0 }}
       />
 
       {/* Image clone — animates from card to fullscreen then slides down */}

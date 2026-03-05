@@ -91,7 +91,7 @@ export function NavOverlay() {
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 bg-[#151515]"
+      className="fixed inset-0 bg-[#080c18]"
       style={{ visibility: 'hidden' }}
       aria-hidden={!isOpen}
     >

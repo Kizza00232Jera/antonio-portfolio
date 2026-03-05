@@ -2,20 +2,21 @@
 
 /* ── Design tokens (color utilities: bg-*, text-*, border-*) ── */
 @theme {
-  --color-bg:         #151515;
-  --color-bg-alt:     #1e1e1e;
-  --color-text:       #B4AC97;
-  --color-text-muted: #7d7868;
-  --color-accent:     #F97316;
-  --color-border:     #2a2a2a;
+  --color-bg:         #080c18;
+  --color-bg-alt:     #0f1629;
+  --color-text:       #eef0f6;
+  --color-text-muted: #5a6178;
+  --color-accent:     #3b82f6;
+  --color-border:     #1a2035;
 }
 
 /* ── Font utilities (resolved from next/font vars on <html>) ── */
 @theme inline {
-  --font-heading: var(--font-zen-old-mincho);
-  --font-body:    var(--font-zen-old-mincho);
-  --font-mono:    var(--font-jetbrains-mono);
-  --font-ui:      var(--font-marcellus);
+  --font-heading:     var(--font-syne);
+  --font-body:        var(--font-dm-sans);
+  --font-mono:        var(--font-jetbrains-mono);
+  --font-ui:          var(--font-dm-sans);
+  --font-display-alt: var(--font-bebas);
 }
 
 /* ── Typography scale ──────────────────────────────────────── */
@@ -45,12 +46,9 @@
   }
 
   body {
-    background-color: #151515;
-    background-image: url('https://wa63s80c7y.ufs.sh/f/xvkaIoB9LXPWfAkRh8QDQ8nTq69kpFd5GzEliCytbf0vBVLW');
-    background-repeat: repeat;
-    background-size: auto;
+    background-color: #080c18;
     color: var(--color-text);
-    font-family: var(--font-body), ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+    font-family: var(--font-body), ui-sans-serif, system-ui, -apple-system, sans-serif;
     font-size: 1rem;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
@@ -58,7 +56,7 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-heading), ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+    font-family: var(--font-heading), ui-sans-serif, system-ui, -apple-system, sans-serif;
     font-weight: 700;
     line-height: 1.1;
   }
@@ -80,41 +78,34 @@
 
 /* ── Section-scoped dark theme ─────────────────────────── */
 [data-theme="dark"] {
-  --color-bg:         #151515;
-  --color-bg-alt:     #1e1e1e;
-  --color-text:       #F9F9F6;
-  --color-text-muted: #808080;
-  --color-accent:     #F97316;
-  --color-border:     #2a2a2a;
-  background-color: #151515;
-  background-image: url('https://wa63s80c7y.ufs.sh/f/xvkaIoB9LXPWfAkRh8QDQ8nTq69kpFd5GzEliCytbf0vBVLW');
-  background-repeat: repeat;
-  background-size: auto;
-  background-blend-mode: multiply;
+  --color-bg:         #080c18;
+  --color-bg-alt:     #0f1629;
+  --color-text:       #eef0f6;
+  --color-text-muted: #5a6178;
+  --color-accent:     #3b82f6;
+  --color-border:     #1a2035;
+  background-color: #080c18;
 }
 
 /* ── Section-scoped light theme ────────────────────────── */
 [data-theme="light"] {
-  --color-bg:         #e8e2da;
-  --color-bg-alt:     #f2ede7;
-  --color-text:       #1a1a1a;
-  --color-text-muted: #808080;
-  --color-accent:     #F97316;
-  --color-border:     #d5cfc8;
-  background-color: #e8e2da;
-  background-image: url('https://wa63s80c7y.ufs.sh/f/xvkaIoB9LXPW4oPrLhFuDBzPlk6wKJgc9N4mGELOVpvRIro8');
-  background-repeat: repeat;
-  background-size: auto;
+  --color-bg:         #f2ede8;
+  --color-bg-alt:     #e8e2da;
+  --color-text:       #080c18;
+  --color-text-muted: #5a6178;
+  --color-accent:     #3b82f6;
+  --color-border:     #d1cdc7;
+  background-color: #f2ede8;
 }
 
 /* ── Projects theme scope (warm beige) — used on /projects, /blog ── */
 .projects-theme {
-  --color-bg:         #e8e2da;
-  --color-bg-alt:     #f2ede7;
-  --color-text:       #1a1a1a;
-  --color-text-muted: #8a8580;
-  --color-accent:     #F97316;
-  --color-border:     #d5cfc8;
+  --color-bg:         #f2ede8;
+  --color-bg-alt:     #e8e2da;
+  --color-text:       #080c18;
+  --color-text-muted: #5a6178;
+  --color-accent:     #3b82f6;
+  --color-border:     #d1cdc7;
 
   /* Layout heights for calc-based sizing */
   --header-h: 4rem;
@@ -125,7 +116,7 @@
 
 /* Body text on light theme — headings stay dark via text-text class */
 html.projects-theme body {
-  color: #808080;
+  color: #5a6178;
 }
 
 /* ── Header adapts to current section theme ─────────────── */
@@ -134,18 +125,78 @@ header {
   transition: color 0.4s ease;
 }
 header[data-header-theme="dark"] {
-  color: #F9F9F6;
+  color: #eef0f6;
 }
 header[data-header-theme="light"] {
-  color: #1a1a1a;
+  color: #080c18;
 }
 
-/* ── Light background (beige) with gray texture ─────────── */
+/* ── Light background (beige) ─────────── */
 .projects-theme-bg {
-  background-color: #e8e2da;
-  background-image: url('https://wa63s80c7y.ufs.sh/f/xvkaIoB9LXPW4oPrLhFuDBzPlk6wKJgc9N4mGELOVpvRIro8');
-  background-repeat: repeat;
-  background-size: auto;
+  background-color: #f2ede8;
+}
+
+/* ── Hero wavy background float ──────────────────────────── */
+@keyframes wave-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(15px); }
+}
+
+/* ── Organic blob morph animations (border-only, 5 stops) ── */
+@keyframes blob-morph-0 {
+  0% { border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; transform: translate(0, 0) rotate(0deg); }
+  20% { border-radius: 70% 30% 30% 70% / 60% 40% 70% 30%; transform: translate(2%, 3%) rotate(4deg); }
+  40% { border-radius: 30% 70% 60% 40% / 30% 70% 40% 60%; transform: translate(-1%, -2%) rotate(-3deg); }
+  60% { border-radius: 60% 40% 40% 60% / 70% 30% 50% 50%; transform: translate(3%, -1%) rotate(5deg); }
+  80% { border-radius: 50% 50% 70% 30% / 40% 60% 30% 70%; transform: translate(-2%, 2%) rotate(-2deg); }
+  100% { border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; transform: translate(0, 0) rotate(0deg); }
+}
+
+@keyframes blob-morph-1 {
+  0% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: translate(0, 0) rotate(0deg); }
+  20% { border-radius: 30% 70% 60% 40% / 40% 60% 30% 70%; transform: translate(-3%, 2%) rotate(-5deg); }
+  40% { border-radius: 70% 30% 40% 60% / 70% 40% 60% 30%; transform: translate(2%, -3%) rotate(3deg); }
+  60% { border-radius: 40% 60% 70% 30% / 30% 70% 40% 60%; transform: translate(-1%, 1%) rotate(-4deg); }
+  80% { border-radius: 65% 35% 35% 65% / 55% 45% 55% 45%; transform: translate(1%, -2%) rotate(2deg); }
+  100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: translate(0, 0) rotate(0deg); }
+}
+
+@keyframes blob-morph-2 {
+  0% { border-radius: 50% 50% 40% 60% / 50% 40% 60% 50%; transform: translate(0, 0) rotate(0deg); }
+  20% { border-radius: 35% 65% 65% 35% / 65% 35% 35% 65%; transform: translate(1%, -3%) rotate(6deg); }
+  40% { border-radius: 65% 35% 35% 65% / 35% 65% 65% 35%; transform: translate(-2%, 2%) rotate(-4deg); }
+  60% { border-radius: 45% 55% 60% 40% / 55% 45% 40% 60%; transform: translate(3%, 1%) rotate(3deg); }
+  80% { border-radius: 70% 30% 45% 55% / 40% 60% 55% 45%; transform: translate(-1%, -1%) rotate(-5deg); }
+  100% { border-radius: 50% 50% 40% 60% / 50% 40% 60% 50%; transform: translate(0, 0) rotate(0deg); }
+}
+
+@keyframes blob-morph-3 {
+  0% { border-radius: 70% 30% 60% 40% / 40% 70% 30% 60%; transform: translate(0, 0) rotate(0deg); }
+  20% { border-radius: 40% 60% 30% 70% / 60% 40% 70% 30%; transform: translate(-2%, -2%) rotate(-6deg); }
+  40% { border-radius: 55% 45% 70% 30% / 30% 55% 45% 70%; transform: translate(3%, 1%) rotate(4deg); }
+  60% { border-radius: 30% 70% 45% 55% / 70% 30% 55% 45%; transform: translate(-1%, 3%) rotate(-3deg); }
+  80% { border-radius: 60% 40% 35% 65% / 45% 55% 65% 35%; transform: translate(2%, -1%) rotate(5deg); }
+  100% { border-radius: 70% 30% 60% 40% / 40% 70% 30% 60%; transform: translate(0, 0) rotate(0deg); }
+}
+
+@keyframes blob-morph-4 {
+  0% { border-radius: 30% 70% 40% 60% / 70% 30% 60% 40%; transform: translate(0, 0) rotate(0deg); }
+  20% { border-radius: 60% 40% 70% 30% / 40% 60% 30% 70%; transform: translate(2%, -2%) rotate(5deg); }
+  40% { border-radius: 35% 65% 45% 55% / 55% 35% 65% 45%; transform: translate(-3%, 1%) rotate(-6deg); }
+  60% { border-radius: 70% 30% 30% 70% / 35% 65% 45% 55%; transform: translate(1%, 3%) rotate(3deg); }
+  80% { border-radius: 45% 55% 60% 40% / 65% 45% 35% 55%; transform: translate(-1%, -2%) rotate(-4deg); }
+  100% { border-radius: 30% 70% 40% 60% / 70% 30% 60% 40%; transform: translate(0, 0) rotate(0deg); }
+}
+
+/* ── Hero name marquee animations ────────────────────────── */
+@keyframes marquee-left {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes marquee-right {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
 }
 
 /* ── Tech stack marquee animation ─────────────────────────── */

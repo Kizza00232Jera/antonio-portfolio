@@ -10,7 +10,8 @@ export function MenuButton() {
       onClick={toggle}
       aria-label={isOpen ? 'Close navigation menu' : 'Open navigation menu'}
       aria-expanded={isOpen}
-      className="flex cursor-pointer items-center gap-2 font-body text-sm font-medium transition-colors duration-200 hover:opacity-70"
+      className="flex cursor-pointer items-center gap-2 text-base font-medium uppercase tracking-wide transition-colors duration-200 hover:opacity-70"
+      style={{ fontFamily: 'var(--font-dm-sans), sans-serif' }}
     >
       {isOpen ? (
         <span className="text-base leading-none">&times;</span>

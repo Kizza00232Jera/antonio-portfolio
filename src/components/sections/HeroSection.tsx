@@ -1,31 +1,29 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { useGSAP } from '@gsap/react'
 import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import Image from 'next/image'
+import { IsometricBackground } from '@/components/ui/IsometricBackground'
+import { SignatureSVG } from '@/components/ui/SignatureSVG'
+import type { SignatureSVGRef } from '@/components/ui/SignatureSVG'
 
-// Cycling phrases for the typewriter — matches Edwin's format
-const PHRASES = ['Designer.', 'Developer.', 'tech enthusiast.']
-
-const TYPE_SPEED = 80    // ms per char when typing
-const DELETE_SPEED = 50  // ms per char when deleting
-const PAUSE_AFTER = 1800 // ms to hold after fully typed
-const PAUSE_BETWEEN = 300 // ms pause between phrases
-
-const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms))
+gsap.registerPlugin(ScrollTrigger)
 
 export default function HeroSection() {
-  const containerRef = useRef<HTMLElement>(null)
+  const wrapperRef = useRef<HTMLDivElement>(null)
+  const sectionRef = useRef<HTMLElement>(null)
+  const cardWrapRef = useRef<HTMLDivElement>(null)
+  const imageCardRef = useRef<HTMLDivElement>(null)
+  const imageInnerRef = useRef<HTMLDivElement>(null)
+  const signatureWrapRef = useRef<HTMLDivElement>(null)
+  const signatureRef = useRef<SignatureSVGRef>(null)
+  const marqueeRow1Ref = useRef<HTMLDivElement>(null)
+  const marqueeRow2Ref = useRef<HTMLDivElement>(null)
 
-  // True once the preloader has exited (or on repeat visits)
   const [ready, setReady] = useState(false)
 
-  // Typewriter state
-  const [typeText, setTypeText] = useState('')
-  const [cursorOn, setCursorOn] = useState(true)
-
-  // If preloader already ran (e.g. navigating back to home), show immediately.
-  // Otherwise wait for the preloader:done event (first homepage load).
+  // Wait for preloader to finish before enabling ScrollTrigger
   useEffect(() => {
     if (window.__preloaderDone) {
       setReady(true)
@@ -36,153 +34,256 @@ export default function HeroSection() {
     return () => window.removeEventListener('preloader:done', handle)
   }, [])
 
-  // GSAP entry animation — fires once when ready
-  useGSAP(
-    () => {
-      if (!ready) return
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-
-      const line1 = containerRef.current?.querySelector<HTMLElement>('[data-line1]')
-      const line2 = containerRef.current?.querySelector<HTMLElement>('[data-line2]')
-      const para = containerRef.current?.querySelector<HTMLElement>('[data-para]')
-      const cue = containerRef.current?.querySelector<HTMLElement>('[data-cue]')
-
-      // All three content elements animate in simultaneously at t=0
-      const tl = gsap.timeline({ defaults: { ease: 'power3.out', duration: 0.85 } })
-
-      // Line 1: same fade + slide as the others
-      if (line1) tl.fromTo(line1, { opacity: 0, y: 20 }, { opacity: 1, y: 0 }, 0)
-      // Line 2: fade + slide — starts at same time as line 1
-      if (line2) tl.fromTo(line2, { opacity: 0, y: 14 }, { opacity: 1, y: 0 }, 0)
-      // Paragraph: fade + slight slide — same time
-      if (para) tl.fromTo(para, { opacity: 0, y: 10 }, { opacity: 1, y: 0 }, 0)
-      // Scroll cue fades after content is visible
-      if (cue) tl.fromTo(cue, { opacity: 0 }, { opacity: 1, duration: 0.5 }, 0.6)
-    },
-    { scope: containerRef, dependencies: [ready] },
-  )
-
-  // Typewriter cycling — starts when ready
+  // GSAP ScrollTrigger timeline
   useEffect(() => {
     if (!ready) return
+    if (!sectionRef.current) return
 
-    // Reduced motion: just show first phrase statically
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      setTypeText(PHRASES[0])
-      return
-    }
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (prefersReduced) return
 
-    let phraseIdx = 0
-    let cancelled = false
+    const raf = requestAnimationFrame(() => {
+      ScrollTrigger.refresh()
 
-    const blinkInterval = setInterval(() => setCursorOn((v) => !v), 530)
+      const ctx = gsap.context(() => {
+        const mm = gsap.matchMedia()
 
-    async function cycle() {
-      // All lines animate in together at 0.85s — wait just past that before typing
-      await wait(950)
-      if (cancelled) return
+        mm.add(
+          {
+            isDesktop: '(min-width: 768px)',
+            isMobile: '(max-width: 767px)',
+          },
+          (context) => {
+            const { isDesktop } = context.conditions as { isDesktop: boolean; isMobile: boolean }
 
-      while (!cancelled) {
-        const phrase = PHRASES[phraseIdx % PHRASES.length]
+            if (imageCardRef.current) {
+              imageCardRef.current.style.transformOrigin = 'center center'
+            }
 
-        // Type out
-        for (let i = 1; i <= phrase.length; i++) {
-          if (cancelled) return
-          setTypeText(phrase.slice(0, i))
-          await wait(TYPE_SPEED)
-        }
+            const tl = gsap.timeline({
+              scrollTrigger: {
+                trigger: wrapperRef.current,
+                start: 'top top',
+                end: 'bottom bottom',
+                scrub: 1,
+              },
+            })
 
-        // Hold
-        await wait(PAUSE_AFTER)
-        if (cancelled) return
+            // 0–1: Image card shrinks
+            if (isDesktop) {
+              // Desktop: scale transform on the card
+              if (imageCardRef.current) {
+                tl.fromTo(
+                  imageCardRef.current,
+                  { scale: 1 },
+                  { scale: 0.35, duration: 1, ease: 'none' },
+                  0,
+                )
+              }
+              // Desktop: counter-zoom — image zooms IN as card shrinks OUT
+              if (imageInnerRef.current) {
+                tl.fromTo(
+                  imageInnerRef.current,
+                  { scale: 1 },
+                  { scale: 1.5, duration: 1, ease: 'none' },
+                  0,
+                )
+              }
+            } else {
+              // Mobile: animate wrapper inset to change card size & aspect ratio
+              // No transform on image — object-cover naturally re-crops, face stays undistorted
+              if (cardWrapRef.current) {
+                tl.fromTo(
+                  cardWrapRef.current,
+                  { top: '0%', right: '0%', bottom: '0%', left: '0%' },
+                  { top: '36%', right: '13%', bottom: '29%', left: '13%', duration: 1, ease: 'none' },
+                  0,
+                )
+              }
+            }
 
-        // Delete
-        for (let i = phrase.length - 1; i >= 0; i--) {
-          if (cancelled) return
-          setTypeText(phrase.slice(0, i))
-          await wait(DELETE_SPEED)
-        }
+            // 0.2–0.8: Marquee rows fade in
+            if (marqueeRow1Ref.current) {
+              tl.fromTo(
+                marqueeRow1Ref.current,
+                { opacity: 0 },
+                { opacity: 1, duration: 0.6, ease: 'none' },
+                0.2,
+              )
+            }
+            if (marqueeRow2Ref.current) {
+              tl.fromTo(
+                marqueeRow2Ref.current,
+                { opacity: 0 },
+                { opacity: 1, duration: 0.6, ease: 'none' },
+                0.25,
+              )
+            }
 
-        await wait(PAUSE_BETWEEN)
-        phraseIdx++
-      }
-    }
+            // 0.5–0.9: Image desaturates and darkens
+            if (imageInnerRef.current) {
+              tl.fromTo(
+                imageInnerRef.current,
+                { filter: 'grayscale(0) brightness(1)' },
+                { filter: 'grayscale(1) brightness(0.45)', duration: 0.4, ease: 'none' },
+                0.5,
+              )
+            }
 
-    cycle()
+            // 0.5–0.9: Card background transitions from cream to dark blue
+            if (imageCardRef.current) {
+              tl.fromTo(
+                imageCardRef.current,
+                { backgroundColor: '#f2ede8' },
+                { backgroundColor: '#1a2e4a', duration: 0.4, ease: 'none' },
+                0.5,
+              )
+            }
 
-    return () => {
-      cancelled = true
-      clearInterval(blinkInterval)
-    }
+            // 0–1: Signature wrapper scales with card
+            if (signatureWrapRef.current) {
+              if (isDesktop) {
+                tl.fromTo(
+                  signatureWrapRef.current,
+                  { scale: 1 },
+                  { scale: 0.35, duration: 1, ease: 'none' },
+                  0,
+                )
+              } else {
+                // Match card inset but slightly larger (signature overflows card)
+                tl.fromTo(
+                  signatureWrapRef.current,
+                  { top: '0%', right: '0%', bottom: '0%', left: '0%' },
+                  { top: '29%', right: '10%', bottom: '22%', left: '10%', duration: 1, ease: 'none' },
+                  0,
+                )
+              }
+            }
+
+            // 0.55–1: Signature draws in
+            if (signatureRef.current?.pathElement) {
+              const len = signatureRef.current.totalLength
+              tl.fromTo(
+                signatureRef.current.pathElement,
+                { strokeDashoffset: len },
+                { strokeDashoffset: 0, duration: 0.45, ease: 'power2.out' },
+                0.55,
+              )
+            }
+
+            return () => {
+              tl.kill()
+            }
+          },
+        )
+      }, sectionRef)
+
+      return () => ctx.revert()
+    })
+
+    return () => cancelAnimationFrame(raf)
   }, [ready])
 
+  // Marquee text content (repeated for seamless loop)
+  const row1Text = Array(15).fill('ANTONIO').join('\u2003\u2003')
+  const row2Text = Array(15).fill('JERKOVIC').join('\u2003\u2003')
+
   return (
+    <div ref={wrapperRef} className="relative" style={{ height: '350vh' }}>
     <section
-      ref={containerRef}
-      data-theme="light"
-      className="sticky top-0 relative flex min-h-screen flex-col justify-center px-6"
-      style={{
-        backgroundImage: [
-          "url('https://wa63s80c7y.ufs.sh/f/xvkaIoB9LXPW4oPrLhFuDBzPlk6wKJgc9N4mGELOVpvRIro8')",
-          "url('https://wa63s80c7y.ufs.sh/f/xvkaIoB9LXPWEuBM22ZsCl3YyLdkMHmvaW5ZXURTjtq2VFfu')",
-        ].join(', '),
-        backgroundSize: 'auto, cover',
-        backgroundRepeat: 'repeat, no-repeat',
-        backgroundPosition: '0 0, center',
-      }}
+      ref={sectionRef}
+      data-theme="dark"
+      className="sticky top-0 h-screen w-full overflow-hidden"
+      style={{ backgroundColor: '#102747' }}
     >
-      <div className="mx-auto w-full max-w-[var(--max-width)]">
+      {/* Layer 1: Dark background with morphing blob outlines */}
+      <IsometricBackground variant="dark" />
 
-        {/* Line 1 — "Sup, I'm Antonio." */}
-        <h1
-          data-line1
-          className="font-heading font-bold text-text opacity-0 text-[length:var(--text-hero)] leading-[1.05]"
+      {/* Layer 2: Marquee text bands — BELOW center on mobile, centered on desktop */}
+      <div className="absolute inset-x-0 bottom-[5%] md:top-0 md:right-0 md:bottom-0 md:left-0 flex flex-col items-center justify-end md:justify-center gap-0">
+        <div
+          ref={marqueeRow1Ref}
+          className="w-full overflow-hidden whitespace-nowrap opacity-0"
         >
-          Sup, I&apos;m Antonio.
-        </h1>
+          <div
+            className="inline-block uppercase italic"
+            style={{
+              fontFamily: 'var(--font-serif-display), serif',
+              fontSize: 'clamp(3rem, 9vw, 8rem)',
+              letterSpacing: '0.02em',
+              color: '#60a5fa',
+              textShadow: '0 0 10px rgba(59, 130, 246, 0.6), 0 0 30px rgba(59, 130, 246, 0.3)',
+              animation: 'marquee-left 150s linear infinite',
+            }}
+          >
+            {row1Text}
+            {'\u2003\u2003'}
+            {row1Text}
+          </div>
+        </div>
 
-        {/* Line 2 — flex-wrap keeps "I'm a Designer." on one line on desktop,
-            wraps the typewriter to its own line on mobile when it doesn't fit */}
-        <p
-          data-line2
-          className="flex flex-wrap items-baseline font-heading font-bold text-text opacity-0 text-[length:var(--text-hero)] leading-[1.05]"
+        <div
+          ref={marqueeRow2Ref}
+          className="w-full overflow-hidden whitespace-nowrap opacity-0"
         >
-          <span>I&apos;m a&nbsp;</span>
-          <span className="whitespace-nowrap text-accent">
-            {typeText}
-            {/* Blinking cursor */}
-            <span
-              className="relative inline-block bg-accent align-middle"
-              style={{
-                width: '2px',
-                height: '0.82em',
-                marginLeft: '3px',
-                top: '-0.05em',
-                opacity: cursorOn ? 1 : 0,
-                transition: 'opacity 0.08s',
-              }}
-            />
-          </span>
-        </p>
-
-        {/* Body paragraph */}
-        <p
-          data-para
-          className="mt-8 max-w-md font-body text-text-muted opacity-0 text-[length:var(--text-body)] leading-[1.7]"
-        >
-          Passionately building web experiences rooted in design, grounded in code — from Croatia to the world.
-        </p>
+          <div
+            className="inline-block uppercase italic"
+            style={{
+              fontFamily: 'var(--font-serif-display), serif',
+              fontSize: 'clamp(3rem, 9vw, 8rem)',
+              letterSpacing: '0.02em',
+              color: '#ffffff',
+              animation: 'marquee-right 150s linear infinite',
+            }}
+          >
+            {row2Text}
+            {'\u2003\u2003'}
+            {row2Text}
+          </div>
+        </div>
       </div>
 
-      {/* Scroll cue */}
+      {/* Layer 3: Image card — cream bg rectangle with portrait, scales down on scroll */}
+      <div ref={cardWrapRef} className="absolute inset-0">
+        <div
+          ref={imageCardRef}
+          className="relative h-full w-full overflow-hidden"
+          style={{
+            backgroundColor: '#f2ede8',
+          }}
+        >
+          {/* Morphing blob shapes on cream background */}
+          <IsometricBackground />
+
+          {/* Portrait image — wrapped for counter-zoom + desaturation */}
+          <div
+            ref={imageInnerRef}
+            className="absolute inset-0"
+            style={{ transformOrigin: 'center 45%' }}
+          >
+            <Image
+              src="/images/diffuse.webp"
+              alt="Antonio Jerkovic"
+              fill
+              priority
+              className="object-cover object-[center_35%] md:object-contain md:object-bottom"
+              sizes="100vw"
+            />
+          </div>
+
+        </div>
+      </div>
+
+      {/* Layer 4: Signature — outside the card so it can overflow, scales with card */}
       <div
-        data-cue
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-0"
-        aria-hidden="true"
+        ref={signatureWrapRef}
+        className="absolute inset-0 flex items-center justify-center pointer-events-none"
       >
-        <span className="font-ui text-[0.625rem] text-text-muted/50 uppercase tracking-widest">Scroll</span>
-        <div className="h-10 w-px bg-gradient-to-b from-text-muted/30 to-transparent" />
+        <div className="relative w-[105%] h-[105%]">
+          <SignatureSVG ref={signatureRef} className="h-full w-full" />
+        </div>
       </div>
     </section>
+    </div>
   )
 }

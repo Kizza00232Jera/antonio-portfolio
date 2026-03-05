@@ -1,15 +1,27 @@
 import type { Metadata } from 'next'
-import { Zen_Old_Mincho, JetBrains_Mono, Marcellus } from 'next/font/google'
+import { Syne, Bebas_Neue, DM_Sans, JetBrains_Mono, DM_Serif_Display } from 'next/font/google'
 import { draftMode } from 'next/headers'
 import { VisualEditing } from 'next-sanity/visual-editing'
 import { SanityLive } from '@/lib/sanity/live'
 import { DisableDraftMode } from '@/components/sanity/DisableDraftMode'
 import './globals.css'
 
-const zenOldMincho = Zen_Old_Mincho({
-  variable: '--font-zen-old-mincho',
+const syne = Syne({
+  variable: '--font-syne',
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
+  weight: ['400', '500', '600', '700', '800'],
+})
+
+const bebasNeue = Bebas_Neue({
+  variable: '--font-bebas',
+  subsets: ['latin'],
+  weight: ['400'],
+})
+
+const dmSans = DM_Sans({
+  variable: '--font-dm-sans',
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
 })
 
 const jetbrainsMono = JetBrains_Mono({
@@ -18,8 +30,8 @@ const jetbrainsMono = JetBrains_Mono({
   weight: ['400'],
 })
 
-const marcellus = Marcellus({
-  variable: '--font-marcellus',
+const dmSerifDisplay = DM_Serif_Display({
+  variable: '--font-serif-display',
   subsets: ['latin'],
   weight: ['400'],
 })
@@ -39,7 +51,7 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${zenOldMincho.variable} ${jetbrainsMono.variable} ${marcellus.variable}`}
+      className={`${syne.variable} ${bebasNeue.variable} ${dmSans.variable} ${jetbrainsMono.variable} ${dmSerifDisplay.variable}`}
     >
       <body className="antialiased">
         {children}

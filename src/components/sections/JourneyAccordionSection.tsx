@@ -85,11 +85,11 @@ const items: PanelItem[] = [
 ]
 
 const themes: PanelTheme[] = [
-  { bg: '#F5EDE0', textColor: 'dark', numberColor: '#5D3136', locationColor: 'text-[#F97316]', flag: '/images/flags/denmark.svg' },
-  { bg: '#020617', textColor: 'light', numberColor: 'rgba(255,255,255,0.35)', locationColor: 'text-[#F97316]', flag: '/images/flags/croatia.svg' },
-  { bg: '#FFFFFF', textColor: 'dark', numberColor: '#5D3136', locationColor: 'text-[#F97316]', flag: '/images/flags/denmark.svg' },
-  { bg: '#F97316', textColor: 'dark', numberColor: 'rgba(0,0,0,0.2)', locationColor: 'text-white', flag: '/images/flags/croatia.svg' },
-  { bg: '#172554', textColor: 'light', numberColor: 'rgba(255,255,255,0.25)', locationColor: 'text-[#F97316]', flag: '/images/flags/sweden.svg' },
+  { bg: '#F5EDE0', textColor: 'dark', numberColor: '#5D3136', locationColor: 'text-[#3b82f6]', flag: '/images/flags/denmark.svg' },
+  { bg: '#020617', textColor: 'light', numberColor: 'rgba(255,255,255,0.35)', locationColor: 'text-[#3b82f6]', flag: '/images/flags/croatia.svg' },
+  { bg: '#FFFFFF', textColor: 'dark', numberColor: '#5D3136', locationColor: 'text-[#3b82f6]', flag: '/images/flags/denmark.svg' },
+  { bg: '#3b82f6', textColor: 'dark', numberColor: 'rgba(0,0,0,0.2)', locationColor: 'text-white', flag: '/images/flags/croatia.svg' },
+  { bg: '#172554', textColor: 'light', numberColor: 'rgba(255,255,255,0.25)', locationColor: 'text-[#3b82f6]', flag: '/images/flags/sweden.svg' },
 ]
 
 function textClasses(theme: PanelTheme) {

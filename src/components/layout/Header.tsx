@@ -9,10 +9,12 @@ export default function Header() {
 
         <Link
           href="/"
-          className="font-heading text-sm font-bold tracking-tight"
-          aria-label="Antonio — home"
+          className="flex flex-col leading-none tracking-tight uppercase"
+          aria-label="Antonio Jerkovic — home"
+          style={{ fontFamily: 'var(--font-dm-sans), sans-serif', fontSize: '1rem' }}
         >
-          A.J.
+          <span className="font-light">Antonio</span>
+          <span className="font-semibold">Jerkovic</span>
         </Link>
       </div>
     </header>

@@ -117,11 +117,11 @@ export default function Preloader() {
     >
       {/* 5 full-height vertical columns — the curtain */}
       <div className="absolute inset-0 flex">
-        <div ref={c1Ref} className="flex-1 bg-[#151515]" />
-        <div ref={c2Ref} className="flex-1 bg-[#151515]" />
-        <div ref={c3Ref} className="flex-1 bg-[#151515]" />
-        <div ref={c4Ref} className="flex-1 bg-[#151515]" />
-        <div ref={c5Ref} className="flex-1 bg-[#151515]" />
+        <div ref={c1Ref} className="flex-1 bg-[#080c18]" />
+        <div ref={c2Ref} className="flex-1 bg-[#080c18]" />
+        <div ref={c3Ref} className="flex-1 bg-[#080c18]" />
+        <div ref={c4Ref} className="flex-1 bg-[#080c18]" />
+        <div ref={c5Ref} className="flex-1 bg-[#080c18]" />
       </div>
 
       {/* Typing text — centered on top of columns */}
