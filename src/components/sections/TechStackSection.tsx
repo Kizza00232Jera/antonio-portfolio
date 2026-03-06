@@ -12,7 +12,7 @@ gsap.registerPlugin(ScrollTrigger)
 type MainTechGroup =
   | 'react' | 'next' | 'ts' | 'css' | 'tailwind' | 'gsap'
   | 'node' | 'sanity' | 'sentry' | 'posthog' | 'mux'
-  | 'vercel' | 'github' | 'vscode' | 'figma' | 'supabase'
+  | 'vercel' | 'github' | 'figma' | 'supabase'
   | 'clerk' | 'uploadthing' | 'upstash'
 
 type ColorGroup = MainTechGroup
@@ -33,7 +33,6 @@ const GROUP_COLORS: Record<ColorGroup, string> = {
   mux: '#FA50B5',
   vercel: '#ffffff',
   github: '#ffffff',
-  vscode: '#007ACC',
   figma: '#F24E1E',
   supabase: '#3ECF8E',
   clerk: '#6C47FF',
@@ -53,19 +52,18 @@ const ALL_TECHS: MainTech[] = [
   { name: 'React',        group: 'react',       icon: '/tech/react.svg' },
   { name: 'Next.js',      group: 'next',        icon: '/tech/nextjs.svg' },
   { name: 'TypeScript',   group: 'ts',          icon: '/tech/typescript.svg' },
-  { name: 'Tailwind CSS', group: 'tailwind',    icon: '/tech/tailwind.png' },
+  { name: 'Tailwind CSS', group: 'tailwind',    icon: '/tech/tailwind.svg' },
   { name: 'GSAP',         group: 'gsap',        icon: '/tech/gsap.svg' },
   { name: 'Node.js',      group: 'node',        icon: '/tech/nodejs.svg' },
-  { name: 'CSS',          group: 'css',         icon: '/tech/css3.svg' },
+  { name: 'CSS',          group: 'css',         icon: '/tech/css.svg' },
   { name: 'Sanity',       group: 'sanity',      icon: '/tech/sanity.svg' },
   { name: 'Supabase',     group: 'supabase',    icon: '/tech/supabase.svg' },
   { name: 'Vercel',       group: 'vercel',      icon: '/tech/vercel.svg' },
   { name: 'GitHub',       group: 'github',      icon: '/tech/github.svg' },
-  { name: 'Figma',        group: 'figma',       icon: '/tech/figma.webp' },
+  { name: 'Figma',        group: 'figma',       icon: '/tech/figma.svg' },
   { name: 'Sentry',       group: 'sentry',      icon: '/tech/sentry.svg' },
   { name: 'PostHog',      group: 'posthog',     icon: '/tech/posthog.svg' },
   { name: 'Mux',          group: 'mux',         icon: '/tech/mux.svg' },
-  { name: 'VS Code',      group: 'vscode',      icon: '/tech/vscode.svg' },
   { name: 'Clerk',        group: 'clerk',       icon: '/tech/clerk.svg' },
   { name: 'Uploadthing',  group: 'uploadthing', icon: '/tech/uploadthing.svg' },
   { name: 'Upstash',      group: 'upstash',     icon: '/tech/upstash.svg' },
@@ -83,8 +81,8 @@ const SUB_CONCEPTS: { text: string; group: ColorGroup }[] = [
   /* React */
   { text: 'Hooks',              group: 'react' },
   { text: 'Context API',        group: 'react' },
-  { text: 'Server Components',  group: 'react' },
-  { text: 'Client Components',  group: 'react' },
+  { text: 'Server Comps',       group: 'react' },
+  { text: 'Client Comps',       group: 'react' },
   { text: 'JSX',                group: 'react' },
   { text: 'Suspense',           group: 'react' },
   /* Next.js */
@@ -120,7 +118,7 @@ const SUB_CONCEPTS: { text: string; group: ColorGroup }[] = [
   /* CSS */
   { text: 'Flexbox',            group: 'css' },
   { text: 'Grid',               group: 'css' },
-  { text: 'Custom Properties',  group: 'css' },
+  { text: 'Custom Props',       group: 'css' },
   { text: 'Keyframes',          group: 'css' },
   { text: 'Media Queries',      group: 'css' },
   /* Sanity */
@@ -157,10 +155,6 @@ const SUB_CONCEPTS: { text: string; group: ColorGroup }[] = [
   { text: 'HLS Streaming',      group: 'mux' },
   { text: 'Playback IDs',       group: 'mux' },
   { text: 'Poster Images',      group: 'mux' },
-  /* VS Code */
-  { text: 'Extensions',         group: 'vscode' },
-  { text: 'Snippets',           group: 'vscode' },
-  { text: 'Debugging',          group: 'vscode' },
   /* Clerk */
   { text: 'User Profiles',      group: 'clerk' },
   { text: 'Sign-in Flows',      group: 'clerk' },
@@ -218,6 +212,8 @@ export default function TechStackSection() {
     const thumbnail = thumbnailRef.current
     if (!wrapper || !leftCol || !rightCol || !thumbnail) return
 
+    const isMobile = window.innerWidth < 768
+
     const ctx = gsap.context(() => {
       const leftTexts = gsap.utils.toArray<HTMLElement>(
         leftCol.querySelectorAll('.wave-text'),
@@ -228,11 +224,11 @@ export default function TechStackSection() {
 
       if (leftTexts.length === 0 || rightTexts.length === 0) return
 
-      /* quickTo setters for smooth 60fps position updates */
-      const leftSetters = leftTexts.map((el) =>
+      /* quickTo setters for smooth 60fps position updates (desktop only) */
+      const leftSetters = isMobile ? [] : leftTexts.map((el) =>
         gsap.quickTo(el, 'x', { duration: 0.6, ease: 'power4.out' }),
       )
-      const rightSetters = rightTexts.map((el) =>
+      const rightSetters = isMobile ? [] : rightTexts.map((el) =>
         gsap.quickTo(el, 'x', { duration: 0.6, ease: 'power4.out' }),
       )
 
@@ -249,9 +245,11 @@ export default function TechStackSection() {
         rightRange = { minX: 0, maxX: Math.max(rightColW * 0.3, rightColW - maxRightW) }
       }
 
-      calculateRanges()
+      if (!isMobile) {
+        calculateRanges()
+      }
 
-      /* Set initial wave positions */
+      /* Set initial wave positions (desktop only) */
       function setInitialPositions(
         texts: HTMLElement[],
         range: { minX: number; maxX: number },
@@ -266,8 +264,10 @@ export default function TechStackSection() {
         })
       }
 
-      setInitialPositions(leftTexts, leftRange, 1)
-      setInitialPositions(rightTexts, rightRange, -1)
+      if (!isMobile) {
+        setInitialPositions(leftTexts, leftRange, 1)
+        setInitialPositions(rightTexts, rightRange, -1)
+      }
 
       /* Sine wave position calculator */
       function calculateWavePosition(
@@ -286,10 +286,10 @@ export default function TechStackSection() {
       }
 
       /* Find which left text is closest to viewport center.
-         Returns -1 if no item is close enough (all offscreen). */
+         Returns -1 if no item is close enough. */
       function findClosestToViewportCenter() {
         const viewportCenter = window.innerHeight / 2
-        const threshold = window.innerHeight * 0.15
+        const threshold = window.innerHeight * 0.2
         let closestIndex = -1
         let minDistance = Infinity
 
@@ -318,18 +318,16 @@ export default function TechStackSection() {
         const rangeSize = range.maxX - range.minX
 
         texts.forEach((text, index) => {
-          const finalX = calculateWavePosition(index, progress, range.minX, rangeSize) * multiplier
-          setters[index](finalX)
+          /* Wave X movement only on desktop */
+          if (!isMobile) {
+            const finalX = calculateWavePosition(index, progress, range.minX, rangeSize) * multiplier
+            setters[index](finalX)
+          }
 
           if (index === focusedIndex) {
             text.classList.add('focused')
-            const group = text.dataset.group as ColorGroup | undefined
-            if (group && GROUP_COLORS[group]) {
-              text.style.color = GROUP_COLORS[group]
-            }
           } else {
             text.classList.remove('focused')
-            text.style.color = ''
           }
         })
       }
@@ -387,8 +385,8 @@ export default function TechStackSection() {
         },
       })
 
-      /* Recalculate on resize */
-      const onResize = () => calculateRanges()
+      /* Recalculate on resize (desktop only) */
+      const onResize = () => { if (!isMobile) calculateRanges() }
       window.addEventListener('resize', onResize)
 
       return () => {
@@ -460,7 +458,7 @@ export default function TechStackSection() {
       <div
         ref={wrapperRef}
         className="dual-wave-wrapper"
-        style={{ paddingTop: '50vh', paddingBottom: '50vh' }}
+        style={{ paddingTop: '35vh', paddingBottom: '35vh' }}
       >
         {/* Left column: sub-concept names */}
         <div ref={leftColRef} className="wave-column wave-column-left">

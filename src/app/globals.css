@@ -831,6 +831,9 @@ header[data-header-theme="light"] {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  font-size: clamp(2rem, 10vw, 3rem);
+  font-weight: 400;
+  line-height: 0.7;
   position: relative;
 }
 
@@ -845,13 +848,14 @@ header[data-header-theme="light"] {
 .wave-text {
   width: max-content;
   font-family: var(--font-heading);
-  font-size: clamp(1.5rem, 5vw, 3rem);
-  font-weight: 700;
-  line-height: 0.85;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.12);
+  color: #4d4d4d;
   transition: color 300ms ease-out;
   will-change: transform;
+}
+
+.wave-text.focused {
+  color: #fff;
 }
 
 .wave-image-wrapper {
@@ -875,33 +879,20 @@ header[data-header-theme="light"] {
 
 @media (max-width: 1023px) {
   .dual-wave-wrapper {
-    gap: 15vw;
-  }
-
-  .wave-text {
-    font-size: clamp(1rem, 4vw, 2rem);
-  }
-
-  .wave-image-wrapper {
-    width: 25vw;
-  }
-}
-
-@media (max-width: 767px) {
-  .dual-wave-wrapper {
     gap: 10vw;
   }
 
   .wave-column {
-    gap: 2rem;
+    gap: 2.5rem;
+    font-size: 5vw;
   }
 
-  .wave-text {
-    font-size: clamp(0.9rem, 5vw, 1.5rem);
+  .wave-column-right .wave-text {
+    margin-left: auto;
   }
 
   .wave-image-wrapper {
-    width: 40vw;
+    width: 50vw;
   }
 }
 
