@@ -92,11 +92,38 @@ const stops: JourneyStop[] = [
 
 const N = stops.length
 
+/* ── Timeline ruler data ─────────────────────────────── */
+
+const START_YEAR = 2020
+const END_YEAR = 2026
+const YEAR_SPAN = END_YEAR - START_YEAR
+const RULER_PAD = 10 // % padding top/bottom
+const RULER_RANGE = 80 // % usable range (100 - 2*PAD)
+
+const years = Array.from({ length: YEAR_SPAN + 1 }, (_, i) => START_YEAR + i)
+
+// Position a year on the ruler as a percentage
+const yearPos = (year: number) =>
+  RULER_PAD + ((year - START_YEAR) / YEAR_SPAN) * RULER_RANGE
+
+// Generate tick marks: 4 ticks between each year pair
+const ticks: number[] = []
+for (let y = START_YEAR; y < END_YEAR; y++) {
+  for (let t = 1; t <= 3; t++) {
+    ticks.push(yearPos(y + t / 4))
+  }
+}
+
+// Dot travels from START_YEAR to END_YEAR across the full scroll
+const DOT_START = yearPos(START_YEAR)
+const DOT_END = yearPos(END_YEAR)
+
 /* ── Component ────────────────────────────────────────── */
 
 export default function JourneyScrollSection() {
   const sectionRef = useRef<HTMLElement>(null)
   const rightRef = useRef<HTMLDivElement>(null)
+  const rulerRef = useRef<HTMLDivElement>(null)
   const [reducedMotion, setReducedMotion] = useState(false)
 
   useEffect(() => {
@@ -110,7 +137,8 @@ export default function JourneyScrollSection() {
 
     const section = sectionRef.current
     const right = rightRef.current
-    if (!section || !right) return
+    const ruler = rulerRef.current
+    if (!section || !right || !ruler) return
 
     const ctx = gsap.context(() => {
       const mm = gsap.matchMedia()
@@ -180,6 +208,46 @@ export default function JourneyScrollSection() {
 
           mainTl.add(tl)
         })
+
+        // Pin the ruler alongside the images
+        ScrollTrigger.create({
+          trigger: '.j-arch',
+          start: 'top top',
+          end: 'bottom bottom',
+          pin: ruler,
+          pinSpacing: false,
+        })
+
+        // Animate progress dot from 2020 to 2026
+        const dotStart = DOT_START
+        const dotEnd = DOT_END
+        const dot = ruler.querySelector<HTMLElement>('.j-ruler-dot')
+        const yearEls = ruler.querySelectorAll<HTMLElement>('.j-ruler-year')
+
+        if (dot) {
+          gsap.set(dot, { top: `${dotStart}%` })
+
+          gsap.to(dot, {
+            top: `${dotEnd}%`,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: '.j-arch',
+              start: 'top top',
+              end: 'bottom bottom',
+              scrub: true,
+              onUpdate: (self) => {
+                // Calculate which year the dot is closest to
+                const currentPos = dotStart + (dotEnd - dotStart) * self.progress
+                yearEls.forEach((el) => {
+                  const y = parseInt(el.dataset.year ?? '0', 10)
+                  const pos = yearPos(y)
+                  const isActive = Math.abs(currentPos - pos) < (RULER_RANGE / YEAR_SPAN) * 0.6
+                  el.classList.toggle('is-active', isActive)
+                })
+              },
+            },
+          })
+        }
       })
 
       /* ── Mobile ──────────────────────────────────── */
@@ -298,6 +366,29 @@ export default function JourneyScrollSection() {
       className="j-section"
       style={{ backgroundColor: stops[0].accent }}
     >
+      {/* ── Timeline ruler (pinned, desktop only) ── */}
+      <div ref={rulerRef} className="j-ruler">
+        <div className="j-ruler-line" />
+        <div className="j-ruler-dot" />
+        {ticks.map((pos, i) => (
+          <div
+            key={`tick-${i}`}
+            className="j-ruler-tick"
+            style={{ top: `${pos}%` }}
+          />
+        ))}
+        {years.map((year) => (
+          <span
+            key={year}
+            className="j-ruler-year"
+            data-year={year}
+            style={{ top: `${yearPos(year)}%` }}
+          >
+            {year}
+          </span>
+        ))}
+      </div>
+
       <div className="j-arch">
         {/* ── LEFT: text blocks, each 100vh, scroll naturally ── */}
         <div className="j-arch-left">

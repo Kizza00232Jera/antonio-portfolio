@@ -414,12 +414,67 @@ header[data-header-theme="light"] {
   will-change: clip-path, object-position;
 }
 
+/* Timeline ruler */
+.j-ruler {
+  position: absolute;
+  left: clamp(1rem, 3vw, 3rem);
+  top: 0;
+  height: 100vh;
+  width: 60px;
+  pointer-events: none;
+}
+
+.j-ruler-line {
+  position: absolute;
+  left: 0;
+  top: 10%;
+  bottom: 10%;
+  width: 1.5px;
+  background: rgba(2, 6, 23, 0.15);
+}
+
+.j-ruler-dot {
+  position: absolute;
+  left: 0;
+  top: 10%;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #020617;
+  transform: translate(-50%, -50%);
+}
+
+.j-ruler-tick {
+  position: absolute;
+  left: 0;
+  width: 6px;
+  height: 1px;
+  background: rgba(2, 6, 23, 0.12);
+}
+
+.j-ruler-year {
+  position: absolute;
+  left: 10px;
+  transform: translateY(-50%);
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+  font-size: 0.625rem;
+  color: rgba(2, 6, 23, 0.25);
+  transition: color 0.3s;
+}
+
+.j-ruler-year.is-active {
+  color: rgba(2, 6, 23, 0.7);
+}
+
 /* ── Journey responsive ── */
 @media (max-width: 900px) and (min-width: 769px) {
   .j-arch { gap: 30px; }
+  .j-ruler { left: 1rem; }
 }
 
 @media (max-width: 768px) {
+  .j-ruler { display: none; }
+
   .j-arch {
     flex-direction: column;
     gap: 20px;
