@@ -466,6 +466,15 @@ header[data-header-theme="light"] {
   color: rgba(2, 6, 23, 0.7);
 }
 
+/* Mobile journey cards — hidden on desktop */
+.j-step-badge {
+  display: none;
+}
+
+.j-card-img-mobile {
+  display: none;
+}
+
 /* ── Journey responsive ── */
 @media (max-width: 900px) and (min-width: 769px) {
   .j-arch { gap: 30px; }
@@ -477,8 +486,28 @@ header[data-header-theme="light"] {
 
   .j-arch {
     flex-direction: column;
-    gap: 20px;
-    padding-inline: 1rem;
+    gap: 0;
+    padding-inline: 0;
+    padding-left: 38px;
+    padding-right: 16px;
+    position: relative;
+  }
+
+  /* Connecting vertical timeline line */
+  .j-arch::before {
+    content: '';
+    position: absolute;
+    left: 16px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(2, 6, 23, 0.15) 5%,
+      rgba(2, 6, 23, 0.15) 95%,
+      transparent 100%
+    );
   }
 
   .j-arch-left,
@@ -486,31 +515,88 @@ header[data-header-theme="light"] {
     display: contents;
   }
 
+  /* Hide the separate image wrappers */
   .j-img-wrap {
-    position: relative;
-    transform: none;
-    height: 360px;
-    width: 100%;
-    margin-bottom: 20px;
-    top: auto;
-    left: auto;
+    display: none;
   }
 
+  /* Card styling */
   .j-arch-info {
     height: auto;
-    padding: 20px 0;
+    padding: 0;
+    margin-bottom: 24px;
+    position: relative;
+  }
+
+  .j-content {
+    background: rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(2, 6, 23, 0.06);
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* Number badge on timeline */
+  .j-step-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    left: -30px;
+    top: 22px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #020617;
+    color: #fff;
+    font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+    font-size: 0.5rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  /* Inline flag image */
+  .j-card-img-mobile {
+    display: block;
+    width: 100%;
+    height: 200px;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 4px;
+  }
+
+  .j-card-img-mobile img {
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
   }
 }
 
 @media (max-width: 560px) {
   .j-arch {
-    gap: 12px;
-    padding-inline: 10px;
+    padding-left: 34px;
+    padding-right: 12px;
   }
 
-  .j-img-wrap {
+  .j-step-badge {
+    left: -26px;
+    width: 18px;
+    height: 18px;
+    font-size: 0.4375rem;
+  }
+
+  .j-card-img-mobile {
+    height: 160px;
     border-radius: 10px;
-    height: 280px;
+  }
+
+  .j-content {
+    padding: 16px;
+    border-radius: 12px;
   }
 }
 

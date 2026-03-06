@@ -252,67 +252,57 @@ export default function JourneyScrollSection() {
 
       /* ── Mobile ──────────────────────────────────── */
       mm.add('(max-width: 768px)', () => {
-        // Set interleave order
-        const textBlocks = gsap.utils.toArray<HTMLElement>(
-          '.j-arch .j-arch-info',
-        )
-        const imgWraps = gsap.utils.toArray<HTMLElement>(
-          '.j-arch .j-img-wrap',
-        )
-
-        // Text blocks are in normal order (stop1 first)
+        // Order text blocks correctly (images hidden via CSS)
+        const textBlocks = gsap.utils.toArray<HTMLElement>('.j-arch .j-arch-info')
         textBlocks.forEach((el, i) => {
-          el.style.order = String(i * 2)
+          el.style.order = String(i)
         })
 
-        // Image wrappers are in reverse DOM order (stop5 first, stop1 last)
-        // Map each to the correct visual position
-        imgWraps.forEach((el, i) => {
-          const stopIndex = N - 1 - i
-          el.style.order = String(stopIndex * 2 + 1)
-        })
+        // Initial state: cards hidden, shifted down
+        gsap.set(textBlocks, { opacity: 0, y: 40 })
 
-        // Parallax on images
-        const mobileImgs = gsap.utils.toArray<HTMLElement>(
-          '.j-arch .j-img-wrap img',
-        )
-
-        gsap.set(mobileImgs, { objectPosition: '0px 60%' })
-
-        mobileImgs.forEach((image, i) => {
-          const stopIndex = N - 1 - i
-          const nextAccent = stops[Math.min(stopIndex + 1, N - 1)].accent
-
-          const tl = gsap.timeline({
+        // Staggered reveal as each card enters viewport
+        textBlocks.forEach((card, i) => {
+          gsap.to(card, {
+            opacity: 1,
+            y: 0,
+            duration: 0.7,
+            ease: 'power2.out',
             scrollTrigger: {
-              trigger: image,
-              start: 'top-=70% top+=50%',
-              end: 'bottom+=200% bottom',
-              scrub: true,
+              trigger: card,
+              start: 'top 88%',
+              toggleActions: 'play none none none',
             },
           })
 
-          tl.to(
-            image,
-            { objectPosition: '0px 30%', duration: 5, ease: 'none' },
-            0,
-          ).to(
-            section,
-            {
-              backgroundColor: nextAccent,
-              duration: 1.5,
-              ease: 'power2.inOut',
-            },
-            0,
-          )
+          // Background color transition per card
+          if (i < N - 1) {
+            ScrollTrigger.create({
+              trigger: card,
+              start: 'bottom 60%',
+              onEnter: () => {
+                gsap.to(section, {
+                  backgroundColor: stops[i + 1].accent,
+                  duration: 0.5,
+                  ease: 'power2.inOut',
+                  overwrite: true,
+                })
+              },
+              onLeaveBack: () => {
+                gsap.to(section, {
+                  backgroundColor: stops[i].accent,
+                  duration: 0.5,
+                  ease: 'power2.inOut',
+                  overwrite: true,
+                })
+              },
+            })
+          }
         })
 
-        // Cleanup order on revert
+        // Cleanup
         return () => {
           textBlocks.forEach((el) => {
-            el.style.order = ''
-          })
-          imgWraps.forEach((el) => {
             el.style.order = ''
           })
         }
@@ -394,7 +384,16 @@ export default function JourneyScrollSection() {
         <div className="j-arch-left">
           {stops.map((stop) => (
             <div key={stop.id} className="j-arch-info">
+              <span className="j-step-badge">{stop.number}</span>
               <div className="j-content">
+                <div className="j-card-img-mobile">
+                  <Image
+                    src={stop.flag}
+                    alt=""
+                    fill
+                    sizes="(max-width: 768px) 90vw, 1px"
+                  />
+                </div>
                 <p className="j-label">
                   {stop.number} &mdash; {stop.label}
                 </p>
