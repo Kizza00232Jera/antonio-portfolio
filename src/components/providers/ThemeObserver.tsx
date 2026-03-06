@@ -28,7 +28,10 @@ export default function ThemeObserver() {
     )
 
     sections.forEach((s) => observer.observe(s))
-    return () => observer.disconnect()
+    return () => {
+      observer.disconnect()
+      if (header) delete header.dataset.headerTheme
+    }
   }, [])
 
   return null

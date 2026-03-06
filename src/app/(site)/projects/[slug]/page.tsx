@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import Header from '@/components/layout/Header'
 import { getProjectBySlug } from '@/lib/sanity/queries'
 import { urlFor } from '@/lib/sanity/image'
 import { ProjectDetailPage } from '@/components/project/ProjectDetailPage'
@@ -36,5 +37,10 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     ? urlFor(project.coverImage).width(1920).quality(80).url()
     : undefined
 
-  return <ProjectDetailPage project={project} posterUrl={posterUrl} />
+  return (
+    <div className="relative">
+      <ProjectDetailPage project={project} posterUrl={posterUrl} />
+      <Header />
+    </div>
+  )
 }

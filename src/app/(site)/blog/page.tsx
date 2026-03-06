@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Header from '@/components/layout/Header'
 import { BlogListClient } from '@/components/ui/BlogListClient'
 import { getAllBlogPosts } from '@/lib/sanity/queries'
 
@@ -11,15 +12,13 @@ export default async function BlogPage() {
   const posts = await getAllBlogPosts()
 
   return (
-    <section className="mx-auto max-w-[var(--max-width)] px-6 py-[var(--section-gap)]">
-      <div className="mb-10">
-        <p className="mb-3 font-ui text-sm text-text-muted uppercase tracking-widest">
-          Writing
-        </p>
-        <h1
-          className="font-heading font-bold text-text leading-tight text-[length:var(--text-display)]"
-        >
-          All posts
+    <section className="relative mx-auto max-w-[var(--max-width)] px-6 py-[var(--section-gap)]">
+      <div className="mb-6">
+        <h1 className="font-heading font-bold text-text leading-none text-[length:var(--text-display)]">
+          Blogs{' '}
+          <span className="text-text-muted align-super" style={{ fontSize: '0.4em' }}>
+            ({posts.length})
+          </span>
         </h1>
       </div>
 
@@ -30,6 +29,7 @@ export default async function BlogPage() {
       ) : (
         <BlogListClient posts={posts} />
       )}
+      <Header />
     </section>
   )
 }

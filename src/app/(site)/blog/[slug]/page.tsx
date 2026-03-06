@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import Header from '@/components/layout/Header'
 import PortableTextRenderer from '@/components/sanity/PortableTextRenderer'
 import { getBlogPostBySlug } from '@/lib/sanity/queries'
 
@@ -39,7 +40,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   }
 
   return (
-    <article className="mx-auto max-w-[var(--max-width)] px-6 py-[var(--section-gap)]">
+    <article className="relative mx-auto max-w-[var(--max-width)] px-6 py-[var(--section-gap)]">
       {/* Back link */}
       <Link
         href="/blog"
@@ -150,6 +151,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           ← All posts
         </Link>
       </footer>
+      <Header />
     </article>
   )
 }

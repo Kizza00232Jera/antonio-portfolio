@@ -1,17 +1,18 @@
 'use client'
 
-import { useEffect, useRef, useCallback } from 'react'
+import { useEffect, useRef, useCallback, useState, useMemo } from 'react'
 import { gsap } from 'gsap'
-import { ScrambleTextPlugin } from 'gsap/ScrambleTextPlugin'
 import Image from 'next/image'
 import Link from 'next/link'
 import { urlFor } from '@/lib/sanity/image'
 import type { BlogPost } from '@/lib/sanity/types'
+import { BlogFilterBar } from './BlogFilterBar'
 
-gsap.registerPlugin(ScrambleTextPlugin)
+const CHARS = 'abcdefghijklmnopqrstuvwxyz!@#$%^&*-_+=;:<>,'.split('')
 
 interface BlogListClientProps {
   posts: BlogPost[]
+  showFilter?: boolean
 }
 
 function formatDate(dateString: string): string {
@@ -22,286 +23,289 @@ function formatDate(dateString: string): string {
   })
 }
 
-export function BlogListClient({ posts }: BlogListClientProps) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const rowRefs = useRef<(HTMLAnchorElement | null)[]>([])
+// ── V4 char-level text splitting & animation ──────────
 
+interface CellData {
+  chars: HTMLSpanElement[]
+  originals: string[]
+}
 
-  const bgImageRefs = useRef<(HTMLDivElement | null)[]>([])
-  const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const idleTlRef = useRef<gsap.core.Timeline | null>(null)
-  const activeIndexRef = useRef<number>(-1)
-
-  const stopIdleAnimation = useCallback(() => {
-    if (idleTlRef.current) {
-      idleTlRef.current.kill()
-      idleTlRef.current = null
-      // Restore all data cells and counters to full opacity
-      const container = containerRef.current
-      if (container) {
-        gsap.set(container.querySelectorAll('[data-cell]'), { opacity: 1 })
-        gsap.set(container.querySelectorAll('[data-counter]'), { opacity: 0.6 })
-      }
+function splitIntoChars(el: HTMLElement): CellData {
+  const text = el.textContent || ''
+  el.innerHTML = ''
+  const chars: HTMLSpanElement[] = []
+  const words = text.split(/(\s+)/)
+  for (const word of words) {
+    if (/^\s+$/.test(word)) {
+      el.appendChild(document.createTextNode(word))
+      continue
     }
-  }, [])
+    const wordEl = document.createElement('span')
+    wordEl.className = 'word'
+    wordEl.style.display = 'inline-block'
+    for (const ch of word) {
+      const charEl = document.createElement('span')
+      charEl.className = 'char'
+      charEl.textContent = ch
+      wordEl.appendChild(charEl)
+      chars.push(charEl)
+    }
+    el.appendChild(wordEl)
+  }
+  return { chars, originals: chars.map((c) => c.textContent || '') }
+}
 
-  const startIdleAnimation = useCallback(() => {
-    const container = containerRef.current
-    if (!container || activeIndexRef.current !== -1) return
-
-    const tl = gsap.timeline({ repeat: -1, repeatDelay: 2 })
-    idleTlRef.current = tl
-
-    const rows = container.querySelectorAll('[data-row]')
-    const totalRows = rows.length
-    if (totalRows === 0) return
-
-    const rowDelay = 0.05
-    const hideShowGap = totalRows * rowDelay * 0.5
-
-    // Counter column wave
-    rows.forEach((row, i) => {
-      const counter = row.querySelector('[data-counter]')
-      if (!counter) return
-      tl.to(counter, { opacity: 0.05, duration: 0.1, ease: 'power2.inOut' }, i * rowDelay)
-      tl.to(counter, { opacity: 0.6, duration: 0.1, ease: 'power2.inOut' }, hideShowGap + i * rowDelay)
+function scrambleChars(data: CellData) {
+  data.chars.forEach((char, pos) => {
+    const orig = data.originals[pos]
+    const rnd = () => CHARS[Math.floor(Math.random() * CHARS.length)]
+    gsap.fromTo(char, { opacity: 0 }, {
+      duration: 0.03,
+      opacity: 1,
+      repeat: 2,
+      repeatDelay: 0.05,
+      delay: (pos + 1) * 0.06,
+      onStart: () => { char.textContent = rnd() },
+      onRepeat: () => { char.textContent = rnd() },
+      onComplete: () => { gsap.delayedCall(0.1, () => { char.textContent = orig }) },
     })
+  })
+}
 
-    // Data columns wave (date, title, tags, author)
-    const columnSelectors = ['[data-date]', '[data-title]', '[data-category]', '[data-author]']
-    columnSelectors.forEach((sel, colIdx) => {
-      const colStart = (colIdx + 1) * 0.25
-      rows.forEach((row, i) => {
-        const el = row.querySelector(sel)
-        if (!el) return
-        tl.to(el, { opacity: 0.05, duration: 0.1, ease: 'power2.inOut' }, colStart + i * rowDelay)
-        tl.to(el, { opacity: 1, duration: 0.1, ease: 'power2.inOut' }, colStart + hideShowGap + i * rowDelay)
+function resetCellChars(data: CellData) {
+  data.chars.forEach((char, i) => {
+    gsap.killTweensOf(char)
+    char.textContent = data.originals[i]
+    gsap.set(char, { opacity: 1 })
+  })
+}
+
+// ── Component ─────────────────────────────────────────
+
+export function BlogListClient({ posts, showFilter = true }: BlogListClientProps) {
+  const listRef = useRef<HTMLDivElement>(null)
+  const rowRefs = useRef<(HTMLAnchorElement | null)[]>([])
+  const imageRefs = useRef<(HTMLDivElement | null)[]>([])
+  const activeRef = useRef(-1)
+  const cellMapRef = useRef(new Map<Element, CellData>())
+  const splitKeyRef = useRef('')
+
+  const [activeTag, setActiveTag] = useState<string | null>(null)
+
+  const allTags = useMemo(
+    () => Array.from(new Set(posts.flatMap((p) => p.tags ?? []))).sort(),
+    [posts],
+  )
+
+  const filtered = useMemo(
+    () => (activeTag ? posts.filter((p) => p.tags?.includes(activeTag)) : posts),
+    [posts, activeTag],
+  )
+
+  const filterKey = filtered.map((p) => p._id).join(',')
+
+  // Split text into chars after DOM paints
+  useEffect(() => {
+    if (splitKeyRef.current === filterKey) return
+    splitKeyRef.current = filterKey
+    cellMapRef.current.clear()
+    activeRef.current = -1
+
+    const raf = requestAnimationFrame(() => {
+      const container = listRef.current
+      if (!container) return
+      if (window.matchMedia('(max-width: 767px)').matches) return
+
+      container.querySelectorAll<HTMLElement>('.blog-cell').forEach((cell) => {
+        cellMapRef.current.set(cell, splitIntoChars(cell))
       })
     })
-  }, [])
-
-  const startIdleTimer = useCallback(() => {
-    if (idleTimerRef.current) clearTimeout(idleTimerRef.current)
-    idleTimerRef.current = setTimeout(() => {
-      if (activeIndexRef.current === -1) {
-        startIdleAnimation()
-      }
-    }, 3000)
-  }, [startIdleAnimation])
+    return () => cancelAnimationFrame(raf)
+  }, [filterKey])
 
   const handleEnter = useCallback((index: number) => {
-    if (activeIndexRef.current === index) return
-    activeIndexRef.current = index
+    if (activeRef.current === index) return
+    activeRef.current = index
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-    stopIdleAnimation()
-    if (idleTimerRef.current) clearTimeout(idleTimerRef.current)
-
-    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
-    // Reset ALL cells first (clear previous hover)
+    // Reset all cells
     rowRefs.current.forEach((row) => {
       if (!row) return
-      const cells = row.querySelectorAll('[data-cell]')
-      cells.forEach((cell) => {
+      row.querySelectorAll<HTMLElement>('.blog-cell').forEach((cell) => {
+        const d = cellMapRef.current.get(cell)
+        if (d) resetCellChars(d)
         gsap.killTweensOf(cell)
-        const orig = cell.getAttribute('data-text')
-        if (orig) cell.textContent = orig
+        gsap.set(cell, { '--anim': 0 })
       })
-      gsap.set(cells, { backgroundColor: 'transparent', color: '' })
     })
 
-    // Dim all rows, highlight active
+    // Dim all rows
     rowRefs.current.forEach((row, i) => {
       if (!row) return
-      if (prefersReduced) {
+      if (reduced) {
         row.style.opacity = i === index ? '1' : '0.3'
       } else {
         gsap.to(row, { opacity: i === index ? 1 : 0.3, duration: 0.3, overwrite: true })
       }
     })
 
-    // Highlight active row — use gsap.set so there's no tween to conflict with scramble
+    // Animate active
     const activeRow = rowRefs.current[index]
     if (activeRow) {
-      const cells = activeRow.querySelectorAll('[data-cell]')
-      gsap.set(cells, { backgroundColor: '#3b82f6', color: '#080c18' })
-
-      // Scramble ALL cells
-      if (!prefersReduced) {
-        cells.forEach((cell) => {
-          const originalText = cell.getAttribute('data-text') || ''
-          if (!originalText) return
-          gsap.to(cell, {
-            duration: 0.8,
-            scrambleText: {
-              text: originalText,
-              chars: 'abcdefghijklmnopqrstuvwxyz0123456789!@#',
-              revealDelay: 0.3,
-              speed: 0.4,
-            },
-          })
-        })
-      }
-    }
-
-    // Show background image
-    const bgImg = bgImageRefs.current[index]
-    if (bgImg) {
-      // Hide all other images first
-      bgImageRefs.current.forEach((img, i) => {
-        if (img && i !== index) gsap.set(img, { opacity: 0 })
+      activeRow.querySelectorAll<HTMLElement>('.blog-cell').forEach((cell) => {
+        if (reduced) {
+          gsap.set(cell, { '--anim': 1 })
+        } else {
+          gsap.fromTo(cell, { '--anim': 0 }, { '--anim': 1, duration: 1, ease: 'expo.out' })
+        }
+        if (!reduced) {
+          const d = cellMapRef.current.get(cell)
+          if (d) scrambleChars(d)
+        }
       })
-      if (prefersReduced) {
-        bgImg.style.opacity = '0.4'
-        bgImg.style.transform = 'scale(1)'
-      } else {
-        gsap.set(bgImg, { scale: 1.2 })
-        gsap.to(bgImg, { opacity: 0.4, scale: 1, duration: 0.6, ease: 'power2.out', overwrite: true })
-      }
     }
-  }, [stopIdleAnimation])
+
+    // Show hover image
+    imageRefs.current.forEach((im, i) => {
+      if (!im) return
+      if (i === index) {
+        if (reduced) { im.style.opacity = '1' } else {
+          gsap.set(im, { scale: 1.05 })
+          gsap.to(im, { opacity: 1, scale: 1, duration: 0.5, ease: 'power2.out', overwrite: true })
+        }
+      } else {
+        gsap.set(im, { opacity: 0 })
+      }
+    })
+  }, [])
 
   const handleLeave = useCallback(() => {
-    activeIndexRef.current = -1
+    activeRef.current = -1
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
-    // Restore all rows
     rowRefs.current.forEach((row) => {
       if (!row) return
-      if (prefersReduced) {
-        row.style.opacity = '1'
-      } else {
+      if (reduced) { row.style.opacity = '1' } else {
         gsap.to(row, { opacity: 1, duration: 0.3, overwrite: true })
       }
-      // Restore text color and background
-      const cells = row.querySelectorAll('[data-cell]')
-      cells.forEach((cell) => {
+      row.querySelectorAll<HTMLElement>('.blog-cell').forEach((cell) => {
+        const d = cellMapRef.current.get(cell)
+        if (d) resetCellChars(d)
         gsap.killTweensOf(cell)
-        gsap.to(cell, { backgroundColor: 'transparent', color: '', duration: 0.3, overwrite: true })
-        const originalText = cell.getAttribute('data-text')
-        if (originalText) cell.textContent = originalText
+        if (reduced) { gsap.set(cell, { '--anim': 0 }) } else {
+          gsap.to(cell, { '--anim': 0, duration: 0.6, ease: 'power4.out' })
+        }
       })
     })
 
-    // Hide all background images
-    bgImageRefs.current.forEach((img) => {
-      if (!img) return
-      if (prefersReduced) {
-        img.style.opacity = '0'
-      } else {
-        gsap.to(img, { opacity: 0, duration: 0.4, overwrite: true })
+    imageRefs.current.forEach((im) => {
+      if (!im) return
+      if (reduced) { im.style.opacity = '0' } else {
+        gsap.to(im, { opacity: 0, duration: 0.4, overwrite: true })
       }
     })
-
-    startIdleTimer()
-  }, [startIdleTimer])
-
-  // Start idle timer on mount, clean up on unmount
-  useEffect(() => {
-    startIdleTimer()
-    return () => {
-      if (idleTimerRef.current) clearTimeout(idleTimerRef.current)
-      stopIdleAnimation()
-    }
-  }, [startIdleTimer, stopIdleAnimation])
+  }, [])
 
   return (
-    <div
-      ref={containerRef}
-      className="relative"
-      onMouseLeave={handleLeave}
-    >
-      {/* Background images — rendered FIRST so list paints on top (DOM order stacking) */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
-        {posts.map((post, i) =>
-          post.heroImage ? (
-            <div
-              key={`bg-${post._id}`}
-              ref={(el) => { bgImageRefs.current[i] = el }}
-              className="absolute opacity-0"
-              style={{ width: 800, height: 600 }}
-            >
-              <Image
-                src={urlFor(post.heroImage).width(800).height(600).quality(80).url()}
-                alt=""
-                width={800}
-                height={600}
-                className="object-cover"
-                sizes="800px"
-                loading={i < 3 ? 'eager' : 'lazy'}
-              />
-            </div>
-          ) : null,
-        )}
+    <div>
+      {showFilter && (
+        <BlogFilterBar
+          tags={allTags}
+          activeTag={activeTag}
+          onTagChange={setActiveTag}
+          totalCount={filtered.length}
+        />
+      )}
+
+      {/* ── Desktop list ── */}
+      <div ref={listRef} className="relative hidden md:block" onMouseLeave={handleLeave}>
+        {/* Column headers */}
+        <div className="blog-list-header">
+          <span />
+          <span>Title</span>
+          <span />
+          <span>Tags</span>
+          <span>Date</span>
+        </div>
+
+        <ol className="blog-list list-none m-0 p-0">
+          {filtered.map((post, i) => (
+            <li key={post._id}>
+              <Link
+                ref={(el) => { rowRefs.current[i] = el }}
+                href={`/blog/${post.slug.current}`}
+                data-row
+                className="blog-row"
+                onMouseEnter={() => handleEnter(i)}
+              >
+                <span className="blog-cell">{post.title}</span>
+                <span />{/* center gap column */}
+                <span className="blog-cell">{post.tags?.join(', ') ?? ''}</span>
+                <span className="blog-cell blog-cell--end">{formatDate(post.publishedAt)}</span>
+              </Link>
+            </li>
+          ))}
+        </ol>
+
+        {/* Hover images — float in the center gap */}
+        <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+          {filtered.map((post, i) =>
+            post.heroImage ? (
+              <div
+                key={`img-${post._id}`}
+                ref={(el) => { imageRefs.current[i] = el }}
+                className="absolute opacity-0"
+              >
+                <Image
+                  src={urlFor(post.heroImage).width(400).height(260).quality(80).url()}
+                  alt=""
+                  width={400}
+                  height={260}
+                  className="object-cover rounded"
+                  sizes="280px"
+                  loading={i < 3 ? 'eager' : 'lazy'}
+                />
+              </div>
+            ) : null,
+          )}
+        </div>
       </div>
 
-      {/* List rows — rendered SECOND, stacks above images */}
-      <ol className="relative list-none m-0 p-0">
-        {posts.map((post, i) => (
-          <li key={post._id}>
-            <Link
-              ref={(el) => { rowRefs.current[i] = el }}
-              href={`/blog/${post.slug.current}`}
-              data-row
-              className="relative grid overflow-hidden items-center py-3 px-2 no-underline transition-opacity grid-cols-[2rem_5rem_1fr] md:grid-cols-[2.5rem_5.5rem_1fr_9rem_9rem] gap-x-4 md:gap-x-8 border-b"
-              style={{ borderColor: 'rgba(255,255,255,0.1)' }}
-              onMouseEnter={() => handleEnter(i)}
-            >
-              {/* Counter */}
-              <span
-                data-counter
-                data-cell
-                data-text={String(posts.length - i).padStart(2, '0')}
-                className="relative font-mono text-xs opacity-60 leading-none px-1"
-              >
-                {String(posts.length - i).padStart(2, '0')}
-              </span>
-
-              {/* Date */}
-              <span
-                data-date
-                data-cell
-                data-text={formatDate(post.publishedAt)}
-                className="relative text-xs opacity-60 leading-none px-1"
-              >
-                {formatDate(post.publishedAt)}
-              </span>
-
-              {/* Title */}
-              <span
-                data-title
-                data-cell
-                data-text={post.title}
-                className="relative font-heading font-semibold truncate leading-none px-1"
-                style={{ fontSize: 'clamp(0.75rem, 1vw, 0.875rem)' }}
-              >
+      {/* ── Mobile cards ── */}
+      <div className="md:hidden grid gap-4 pt-4">
+        {filtered.map((post) => (
+          <Link
+            key={`m-${post._id}`}
+            href={`/blog/${post.slug.current}`}
+            className="group block overflow-hidden rounded-lg border border-border no-underline"
+          >
+            {post.heroImage && (
+              <div className="relative aspect-video overflow-hidden">
+                <Image
+                  src={urlFor(post.heroImage).width(600).height(340).quality(80).url()}
+                  alt={post.title}
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  sizes="(max-width: 768px) 100vw, 600px"
+                />
+              </div>
+            )}
+            <div className="flex flex-col gap-2 p-4">
+              <h3 className="font-heading font-semibold text-text text-sm leading-snug uppercase">
                 {post.title}
-              </span>
-
-              {/* Tags — hidden on mobile */}
-              <span
-                data-category
-                data-cell
-                data-text={post.tags?.filter((t): t is string => typeof t === 'string').join(', ') ?? ''}
-                className="relative hidden md:block text-xs uppercase tracking-wider opacity-60 truncate leading-none px-1"
-              >
-                {post.tags?.filter((t): t is string => typeof t === 'string').join(', ') ?? ''}
-              </span>
-
-              {/* Author — hidden on mobile */}
-              <span
-                data-author
-                data-cell
-                data-text={post.author ?? 'Antonio Jerkovic'}
-                className="relative hidden md:block text-xs opacity-60 truncate leading-none px-1"
-              >
-                {post.author ?? 'Antonio Jerkovic'}
-              </span>
-            </Link>
-          </li>
+              </h3>
+              {post.tags && post.tags.length > 0 && (
+                <p className="text-xs text-text-muted uppercase tracking-wider truncate">
+                  {post.tags.join(' · ')}
+                </p>
+              )}
+              <p className="font-mono text-xs text-text-muted">
+                {formatDate(post.publishedAt)}
+              </p>
+            </div>
+          </Link>
         ))}
-      </ol>
+      </div>
     </div>
   )
 }

@@ -76,7 +76,7 @@ export default function HeroSection() {
                 scrub: 1,
                 onUpdate: (self) => {
                   // Toggle image trail cursor activation (~90% of signature drawn)
-                  const shouldBeActive = self.progress >= 0.558
+                  const shouldBeActive = self.progress >= 0.67
                   if (trailActiveRef.current !== shouldBeActive) {
                     trailActiveRef.current = shouldBeActive
                     window.dispatchEvent(
@@ -87,17 +87,17 @@ export default function HeroSection() {
               },
             })
 
-            // ── All positions scaled ×0.583 (animations finish at 58.3% = 350vh of 600vh) ──
-            // 58.3%–83.3% = blank scroll (150vh) with trail cursor + progress bar
-            // 83.3%–100% = overlap zone where section 2 slides over sticky hero
+            // ── All positions scaled ×0.7 (animations finish at 70% = 350vh of 500vh) ──
+            // 70%–90% = blank scroll (50vh) with trail cursor + progress bar
+            // 90%–100% = overlap zone where section 2 slides over sticky hero
 
-            // 0–0.583: Image card shrinks
+            // 0–0.7: Image card shrinks
             if (isDesktop) {
               if (imageCardRef.current) {
                 tl.fromTo(
                   imageCardRef.current,
                   { scale: 1 },
-                  { scale: 0.35, duration: 0.583, ease: 'none' },
+                  { scale: 0.35, duration: 0.7, ease: 'none' },
                   0,
                 )
               }
@@ -105,7 +105,7 @@ export default function HeroSection() {
                 tl.fromTo(
                   imageInnerRef.current,
                   { scale: 1 },
-                  { scale: 1.5, duration: 0.583, ease: 'none' },
+                  { scale: 1.5, duration: 0.7, ease: 'none' },
                   0,
                 )
               }
@@ -114,87 +114,87 @@ export default function HeroSection() {
                 tl.fromTo(
                   cardWrapRef.current,
                   { top: '0%', right: '0%', bottom: '0%', left: '0%' },
-                  { top: '36%', right: '13%', bottom: '29%', left: '13%', duration: 0.583, ease: 'none' },
+                  { top: '36%', right: '13%', bottom: '29%', left: '13%', duration: 0.7, ease: 'none' },
                   0,
                 )
               }
             }
 
-            // 0.117–0.467: Marquee rows fade in
+            // 0.14–0.56: Marquee rows fade in
             if (marqueeRow1Ref.current) {
               tl.fromTo(
                 marqueeRow1Ref.current,
                 { opacity: 0 },
-                { opacity: 1, duration: 0.35, ease: 'none' },
-                0.117,
+                { opacity: 1, duration: 0.42, ease: 'none' },
+                0.14,
               )
             }
             if (marqueeRow2Ref.current) {
               tl.fromTo(
                 marqueeRow2Ref.current,
                 { opacity: 0 },
-                { opacity: 1, duration: 0.35, ease: 'none' },
-                0.146,
+                { opacity: 1, duration: 0.42, ease: 'none' },
+                0.175,
               )
             }
 
-            // 0.25–0.542: Section background transitions from black to white
+            // 0.0–0.35: Section background transitions from black to white
             if (sectionRef.current) {
               tl.fromTo(
                 sectionRef.current,
                 { backgroundColor: '#000000' },
-                { backgroundColor: '#ffffff', duration: 0.292, ease: 'none' },
-                0.25,
+                { backgroundColor: '#ffffff', duration: 0.35, ease: 'none' },
+                0,
               )
             }
 
-            // 0.292–0.525: Image desaturates and darkens
+            // 0.35–0.63: Image desaturates and darkens
             if (imageInnerRef.current) {
               tl.fromTo(
                 imageInnerRef.current,
                 { filter: 'grayscale(0) brightness(1)' },
-                { filter: 'grayscale(1) brightness(0.45)', duration: 0.233, ease: 'none' },
-                0.292,
+                { filter: 'grayscale(1) brightness(0.45)', duration: 0.28, ease: 'none' },
+                0.35,
               )
             }
 
-            // 0.292–0.525: Card background transitions from cream to black
+            // 0.35–0.63: Card background transitions from cream to black
             if (imageCardRef.current) {
               tl.fromTo(
                 imageCardRef.current,
                 { backgroundColor: '#f2ede8' },
-                { backgroundColor: '#000000', duration: 0.233, ease: 'none' },
-                0.292,
+                { backgroundColor: '#000000', duration: 0.28, ease: 'none' },
+                0.35,
               )
             }
 
-            // 0–0.583: Signature wrapper scales with card
+            // 0–0.7: Signature wrapper scales with card
             if (signatureWrapRef.current) {
               if (isDesktop) {
                 tl.fromTo(
                   signatureWrapRef.current,
                   { scale: 1 },
-                  { scale: 0.35, duration: 0.583, ease: 'none' },
+                  { scale: 0.35, duration: 0.7, ease: 'none' },
                   0,
                 )
               } else {
                 tl.fromTo(
                   signatureWrapRef.current,
                   { top: '0%', right: '0%', bottom: '0%', left: '0%' },
-                  { top: '29%', right: '10%', bottom: '22%', left: '10%', duration: 0.583, ease: 'none' },
+                  { top: '29%', right: '10%', bottom: '22%', left: '10%', duration: 0.7, ease: 'none' },
                   0,
                 )
               }
             }
 
-            // 0.321–0.583: Signature draws in
+            // 0.385–0.7: Signature draws in
             if (signatureRef.current?.pathElement) {
               const len = signatureRef.current.totalLength
               tl.fromTo(
                 signatureRef.current.pathElement,
                 { strokeDashoffset: len },
-                { strokeDashoffset: 0, duration: 0.263, ease: 'power2.out' },
-                0.321,
+                { strokeDashoffset: 0, duration: 0.315, ease: 'power2.out' },
+                0.385,
               )
             }
 
@@ -224,9 +224,9 @@ export default function HeroSection() {
               )
             }
 
-            // 0–0.15: Header fades out early in the scroll
+            // 0–0.18: Header fades out early in the scroll
             if (headerRef.current) {
-              tl.to(headerRef.current, { opacity: 0, duration: 0.15, ease: 'none' }, 0)
+              tl.to(headerRef.current, { opacity: 0, duration: 0.18, ease: 'none' }, 0)
             }
 
             return () => {
@@ -367,10 +367,10 @@ export default function HeroSection() {
 
       {/* Layer 6: Header — fades out on scroll */}
       <div ref={headerRef}>
-        <Header />
+        <Header heroVariant />
       </div>
     </section>
-    <div ref={wrapperRef} style={{ height: '600vh' }} />
+    <div ref={wrapperRef} style={{ height: '500vh' }} />
     </>
   )
 }

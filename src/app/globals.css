@@ -276,6 +276,106 @@ header[data-header-theme="light"] {
   display: none;
 }
 
+/* ── Blog list (V4-style hover, portfolio sizing) ──── */
+.blog-list {
+  counter-reset: blogitem 0;
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+  font-weight: 300;
+  text-transform: uppercase;
+}
+
+/* Column headers — matches blog-row grid */
+.blog-list-header {
+  display: grid;
+  grid-template-columns: 100%;
+  grid-column-gap: 2rem;
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  padding: 0 0 0.5rem;
+}
+
+/* Row — grid with CSS counter */
+.blog-row {
+  display: grid;
+  grid-template-columns: 100%;
+  grid-column-gap: 2rem;
+  align-items: start;
+  justify-items: start;
+  position: relative;
+  cursor: pointer;
+  color: var(--color-text);
+  padding: 0.85rem 0;
+  font-size: clamp(0.875rem, 1.5vw, 1.125rem);
+  text-decoration: none;
+}
+.blog-row::before {
+  color: var(--color-text-muted);
+  content: counter(blogitem, decimal-leading-zero);
+  counter-increment: blogitem;
+  font-weight: 500;
+  font-size: 0.75rem;
+  padding: 3px 3px 0;
+  line-height: 0.8;
+}
+
+/* Cells — per-cell hover sweep */
+.blog-cell {
+  --anim: 0;
+  position: relative;
+  font-kerning: none;
+  white-space: nowrap;
+  padding: 3px 3px 0;
+  line-height: 0.8;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.blog-cell::after {
+  content: '';
+  position: absolute;
+  left: -8px;
+  right: -8px;
+  top: -8px;
+  bottom: -8px;
+  border-radius: 2px;
+  background-color: rgb(229 222 204 / 10%);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  transform-origin: 50% 100%;
+  transform: scaleY(var(--anim));
+  pointer-events: none;
+}
+.blog-cell--end {
+  justify-self: end;
+}
+
+.blog-cell .word {
+  white-space: nowrap;
+}
+.blog-cell .char {
+  position: relative;
+}
+
+/* Responsive grid — 5 cols: counter | title | image-gap | tags | date */
+@media screen and (min-width: 768px) {
+  .blog-list-header,
+  .blog-row {
+    grid-template-columns: 60px 1fr minmax(180px, 250px) 1fr auto;
+  }
+  .blog-cell--end {
+    justify-self: end;
+  }
+}
+@media screen and (min-width: 1024px) {
+  .blog-list-header,
+  .blog-row {
+    grid-template-columns: 80px 1fr minmax(220px, 300px) 1fr auto;
+  }
+}
+
 /* ── Shiki syntax-highlighted code blocks ────────────── */
 .portable-text .shiki {
   margin: 0;
