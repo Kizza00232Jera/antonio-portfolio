@@ -69,10 +69,6 @@ function getSlotProps(offset: number, arc: ArcConfig) {
   }
 }
 
-/* ── Intro text letters ──────────────────────────────────── */
-
-const INTRO_LETTERS = "Things I've built.".split('')
-
 /* ── Word-morph helpers ──────────────────────────────────── */
 
 function populateWordSpans(container: HTMLDivElement, text: string) {
@@ -186,7 +182,6 @@ export default function ProjectShowcaseSection({
   const paraToRef = useRef<HTMLDivElement>(null)
 
   const sectionRef = useRef<HTMLElement>(null)
-  const introLettersRef = useRef<(HTMLSpanElement | null)[]>([])
   const bottomPanelRef = useRef<HTMLDivElement>(null)
   const hasPlayedEntranceRef = useRef(false)
 
@@ -242,8 +237,6 @@ export default function ProjectShowcaseSection({
       })
     })
     if (bottomPanelRef.current) gsap.set(bottomPanelRef.current, { opacity: 0, y: 40 })
-    const letters = introLettersRef.current.filter(Boolean) as HTMLSpanElement[]
-    gsap.set(letters, { opacity: 0, y: 20 })
 
     if (prefersReduced) {
       const total = projects.length
@@ -277,27 +270,7 @@ export default function ProjectShowcaseSection({
           },
         })
 
-        /* 1. Letter-by-letter reveal */
-        tl.to(letters, {
-          opacity: 1,
-          y: 0,
-          duration: 0.5,
-          stagger: 0.03,
-          ease: 'power2.out',
-        })
-
-        /* 2. Pause, then fade out */
-        tl.to(letters, {
-          opacity: 0,
-          y: -30,
-          duration: 0.4,
-          ease: 'power2.inOut',
-        }, '+=0.3')
-
-        /* Cards start while text is fading */
-        tl.addLabel('cards', '-=0.2')
-
-        /* 3. Cards fan in from left — sorted left-to-right for stagger */
+        /* Cards fan in from left — sorted left-to-right for stagger */
         const cardData: { card: HTMLDivElement; offset: number }[] = []
         cardRefs.current.forEach((card, i) => {
           if (!card) return
@@ -322,10 +295,10 @@ export default function ProjectShowcaseSection({
             onComplete: () => {
               card.style.pointerEvents = isCenter ? 'auto' : 'none'
             },
-          }, `cards+=${sortIndex * 0.08}`)
+          }, sortIndex * 0.08)
         })
 
-        /* 4. Bottom panel slides up */
+        /* Bottom panel slides up */
         tl.to(bottomPanelRef.current, {
           opacity: 1,
           y: 0,
@@ -579,23 +552,6 @@ export default function ProjectShowcaseSection({
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
     >
-      {/* ── Intro text — "Things I've built." ── */}
-      <h2
-        className="absolute inset-0 flex items-center justify-center text-center font-heading font-bold leading-[1.1] text-text pointer-events-none"
-        style={{ fontSize: 'clamp(2.5rem, 8vw, 7rem)' }}
-      >
-        {INTRO_LETTERS.map((char, i) => (
-          <span
-            key={i}
-            ref={(el) => { introLettersRef.current[i] = el }}
-            className="inline-block will-change-transform"
-            style={char === ' ' ? { width: '0.3em' } : undefined}
-          >
-            {char === ' ' ? '\u00A0' : char}
-          </span>
-        ))}
-      </h2>
-
       {/* ── Cards — absolute in section, no wrapper ───────── */}
       {projects.map((project, i) => {
         const thumbnailUrl = getThumbnailUrl(project)
