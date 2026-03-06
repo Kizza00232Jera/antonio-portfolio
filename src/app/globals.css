@@ -817,6 +817,94 @@ header[data-header-theme="light"] {
   opacity: 0;
 }
 
+/* ── Dual Wave Tech Stack ─────────────────────────────── */
+
+.dual-wave-wrapper {
+  display: flex;
+  width: 100%;
+  position: relative;
+  gap: 25vw;
+}
+
+.wave-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  position: relative;
+}
+
+.wave-column-left {
+  align-items: flex-start;
+}
+
+.wave-column-right {
+  align-items: flex-end;
+}
+
+.wave-text {
+  width: max-content;
+  font-family: var(--font-heading);
+  font-size: clamp(1.5rem, 5vw, 3rem);
+  font-weight: 700;
+  line-height: 0.85;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.12);
+  transition: color 300ms ease-out;
+  will-change: transform;
+}
+
+.wave-image-wrapper {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 15vw;
+  pointer-events: none;
+  display: grid;
+  place-items: center;
+}
+
+.wave-image-thumbnail {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 30vh;
+  will-change: transform;
+}
+
+@media (max-width: 1023px) {
+  .dual-wave-wrapper {
+    gap: 15vw;
+  }
+
+  .wave-text {
+    font-size: clamp(1rem, 4vw, 2rem);
+  }
+
+  .wave-image-wrapper {
+    width: 25vw;
+  }
+}
+
+@media (max-width: 767px) {
+  .dual-wave-wrapper {
+    gap: 10vw;
+  }
+
+  .wave-column {
+    gap: 2rem;
+  }
+
+  .wave-text {
+    font-size: clamp(0.9rem, 5vw, 1.5rem);
+  }
+
+  .wave-image-wrapper {
+    width: 40vw;
+  }
+}
+
 /* ── Shiki syntax-highlighted code blocks ────────────── */
 .portable-text .shiki {
   margin: 0;
