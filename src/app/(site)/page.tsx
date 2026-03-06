@@ -1,7 +1,7 @@
 import { getFeaturedProjects, getLatestBlogPosts } from '@/lib/sanity/queries'
 import HeroSection from '@/components/sections/HeroSection'
 import JourneyIntroSection from '@/components/sections/JourneyIntroSection'
-import JourneyAccordionSection from '@/components/sections/JourneyAccordionSection'
+import JourneyScrollSection from '@/components/sections/JourneyScrollSection'
 import ProjectShowcaseSection from '@/components/sections/ProjectShowcaseSection'
 import TechStackSection from '@/components/sections/TechStackSection'
 import LatestPostsSection from '@/components/sections/LatestPostsSection'
@@ -23,7 +23,7 @@ export default async function HomePage() {
       <HeroSection />
       <JourneyIntroSection />
       <div aria-hidden className="h-[40vh]" />
-      <JourneyAccordionSection />
+      <JourneyScrollSection />
       <div aria-hidden className="h-[40vh]" />
       <ProjectShowcaseSection projects={projects} />
       <div aria-hidden className="h-[40vh]" />
