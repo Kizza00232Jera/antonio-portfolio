@@ -10,9 +10,48 @@ import { BlogFilterBar } from './BlogFilterBar'
 
 const CHARS = 'abcdefghijklmnopqrstuvwxyz!@#$%^&*-_+=;:<>,'.split('')
 
+/* ── Tag rotator — auto-cycles tags with char-reveal slide ── */
+
+function TagRotator({ tags }: { tags: string[] }) {
+  const [activeIndex, setActiveIndex] = useState(0)
+  const containerRef = useRef<HTMLSpanElement>(null)
+
+  useEffect(() => {
+    if (tags.length <= 1) return
+    const interval = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % tags.length)
+    }, 2500)
+    return () => clearInterval(interval)
+  }, [tags.length])
+
+  if (tags.length === 0) return null
+
+  return (
+    <span ref={containerRef} className="tag-rotator">
+      {tags.map((tag, i) => (
+        <span
+          key={tag}
+          className={`tag-rotator-item${i === activeIndex ? ' is-active' : ''}`}
+        >
+          {Array.from(tag).map((char, ci) => (
+            <span
+              key={ci}
+              className="tag-rotator-char"
+              style={{ '--index': ci } as React.CSSProperties}
+            >
+              {char === ' ' ? '\u00A0' : char}
+            </span>
+          ))}
+        </span>
+      ))}
+    </span>
+  )
+}
+
 interface BlogListClientProps {
   posts: BlogPost[]
   showFilter?: boolean
+  mobileLimit?: number
 }
 
 function formatDate(dateString: string): string {
@@ -82,7 +121,7 @@ function resetCellChars(data: CellData) {
 
 // ── Component ─────────────────────────────────────────
 
-export function BlogListClient({ posts, showFilter = true }: BlogListClientProps) {
+export function BlogListClient({ posts, showFilter = true, mobileLimit }: BlogListClientProps) {
   const listRef = useRef<HTMLDivElement>(null)
   const rowRefs = useRef<(HTMLAnchorElement | null)[]>([])
   const imageRefs = useRef<(HTMLDivElement | null)[]>([])
@@ -272,36 +311,33 @@ export function BlogListClient({ posts, showFilter = true }: BlogListClientProps
       </div>
 
       {/* ── Mobile cards ── */}
-      <div className="md:hidden grid gap-4 pt-4">
-        {filtered.map((post) => (
+      <div className="blog-mobile-list">
+        {(mobileLimit ? filtered.slice(0, mobileLimit) : filtered).map((post, i) => (
           <Link
             key={`m-${post._id}`}
             href={`/blog/${post.slug.current}`}
-            className="group block overflow-hidden rounded-lg border border-border no-underline"
+            className="blog-mobile-row"
           >
             {post.heroImage && (
-              <div className="relative aspect-video overflow-hidden">
+              <div className="blog-mobile-img">
                 <Image
-                  src={urlFor(post.heroImage).width(600).height(340).quality(80).url()}
+                  src={urlFor(post.heroImage).width(200).height(200).quality(80).url()}
                   alt={post.title}
                   fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
-                  sizes="(max-width: 768px) 100vw, 600px"
+                  className="object-cover"
+                  sizes="80px"
+                  loading={i < 2 ? 'eager' : 'lazy'}
                 />
               </div>
             )}
-            <div className="flex flex-col gap-2 p-4">
-              <h3 className="font-heading font-semibold text-text text-sm leading-snug uppercase">
-                {post.title}
-              </h3>
-              {post.tags && post.tags.length > 0 && (
-                <p className="text-xs text-text-muted uppercase tracking-wider truncate">
-                  {post.tags.join(' · ')}
-                </p>
-              )}
-              <p className="font-mono text-xs text-text-muted">
-                {formatDate(post.publishedAt)}
-              </p>
+            <div className="blog-mobile-info">
+              <h3 className="blog-mobile-title">{post.title}</h3>
+              <div className="blog-mobile-meta">
+                {post.tags && post.tags.length > 0 && (
+                  <TagRotator tags={post.tags} />
+                )}
+                <span className="blog-mobile-date">{formatDate(post.publishedAt)}</span>
+              </div>
             </div>
           </Link>
         ))}

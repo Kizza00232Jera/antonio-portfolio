@@ -28,7 +28,7 @@ export function BlogFilterBar({
   return (
     <div className="relative shrink-0">
       {/* ── Mobile: collapsible ── */}
-      <div className="md:hidden">
+      <div className="relative md:hidden">
         {isOpen && (
           <div
             className="fixed inset-0 bg-black/40"
@@ -36,10 +36,31 @@ export function BlogFilterBar({
           />
         )}
 
+        <div className="relative border-b border-border">
+          <div className="flex items-center justify-between px-6 py-3">
+            <button
+              type="button"
+              onClick={() => setIsOpen((prev) => !prev)}
+              className="flex shrink-0 items-center gap-1.5 font-ui text-xs uppercase tracking-widest text-text-muted transition-colors hover:text-text"
+            >
+              Filters
+              <span
+                className={cn(
+                  'text-[0.625rem] transition-transform duration-200',
+                  isOpen && 'rotate-180',
+                )}
+              >
+                &#9662;
+              </span>
+            </button>
+            <span className="font-mono text-xs text-text-muted">{totalCount}</span>
+          </div>
+        </div>
+
         <div
           className={cn(
-            'absolute bottom-full left-0 right-0 overflow-hidden border-t border-border bg-bg transition-all duration-300 ease-out',
-            isOpen ? 'max-h-[60vh] opacity-100' : 'max-h-0 opacity-0',
+            'absolute left-0 right-0 overflow-hidden border-b border-border bg-bg transition-all duration-300 ease-out',
+            isOpen ? 'max-h-[60vh] opacity-100' : 'max-h-0 opacity-0 pointer-events-none',
           )}
         >
           <div className="flex flex-col gap-1 px-6 py-4">
@@ -72,27 +93,6 @@ export function BlogFilterBar({
                 {tag}
               </button>
             ))}
-          </div>
-        </div>
-
-        <div className="relative border-b border-border">
-          <div className="flex items-center justify-between px-6 py-3">
-            <button
-              type="button"
-              onClick={() => setIsOpen((prev) => !prev)}
-              className="flex shrink-0 items-center gap-1.5 font-ui text-xs uppercase tracking-widest text-text-muted transition-colors hover:text-text"
-            >
-              Filters
-              <span
-                className={cn(
-                  'text-[0.625rem] transition-transform duration-200',
-                  isOpen && 'rotate-180',
-                )}
-              >
-                &#9662;
-              </span>
-            </button>
-            <span className="font-mono text-xs text-text-muted">{totalCount}</span>
           </div>
         </div>
       </div>
