@@ -355,7 +355,7 @@ export default function ProjectShowcaseSection({
   return (
     <section
       ref={sectionRef}
-      data-theme="dark"
+      data-theme="light"
       className="sticky top-0 relative overflow-hidden"
       style={{ height: '100vh' }}
       onTouchStart={onTouchStart}

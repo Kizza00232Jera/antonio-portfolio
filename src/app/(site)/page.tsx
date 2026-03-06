@@ -21,8 +21,8 @@ export default async function HomePage() {
       <HeroSection />
       <JourneyIntroSection />
       <JourneyScrollSection />
-      <ProjectShowcaseSection projects={projects} />
       <TechStackSection />
+      <ProjectShowcaseSection projects={projects} />
       <LatestPostsSection posts={posts} />
     </div>
   )
