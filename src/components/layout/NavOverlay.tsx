@@ -1,12 +1,11 @@
 'use client'
 
 import { useRef, useEffect, useCallback } from 'react'
-import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { gsap } from 'gsap'
 import { useMenu } from '@/contexts/MenuContext'
-import { cn } from '@/utils/cn'
+import { CharRevealLink } from '@/components/ui/CharReveal'
 
 const navLinks = [
   { href: '/', label: 'Home' },
@@ -107,17 +106,13 @@ export function NavOverlay() {
               const isActive = href === '/' ? pathname === '/' : pathname.startsWith(href)
               return (
                 <li key={href} className="opacity-0">
-                  <Link
+                  <CharRevealLink
                     href={href}
+                    label={label}
+                    isActive={isActive}
                     tabIndex={isOpen ? 0 : -1}
-                    className={cn(
-                      'block font-heading font-semibold transition-colors duration-200',
-                      'text-2xl md:text-3xl',
-                      isActive ? 'text-accent' : 'text-white hover:text-accent',
-                    )}
-                  >
-                    {label}
-                  </Link>
+                    className="text-2xl md:text-3xl font-heading"
+                  />
                 </li>
               )
             })}

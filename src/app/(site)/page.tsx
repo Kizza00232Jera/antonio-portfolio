@@ -12,7 +12,7 @@ import ThemeObserver from '@/components/providers/ThemeObserver'
 export default async function HomePage() {
   const [projects, posts] = await Promise.all([
     getFeaturedProjects(),
-    getLatestBlogPosts(3),
+    getLatestBlogPosts(30),
   ])
 
   return (

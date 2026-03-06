@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import BlogPostCard from '@/components/ui/BlogPostCard'
+import { BlogListClient } from '@/components/ui/BlogListClient'
 import type { BlogPost } from '@/lib/sanity/types'
 
 interface LatestPostsSectionProps {
@@ -8,7 +8,7 @@ interface LatestPostsSectionProps {
 
 export default function LatestPostsSection({ posts }: LatestPostsSectionProps) {
   return (
-    <section data-theme="dark" className="sticky top-0 min-h-screen">
+    <section data-theme="dark" className="sticky top-0 min-h-screen max-h-screen overflow-hidden">
       <div className="mx-auto max-w-[var(--max-width)] px-6 py-[var(--section-gap)]">
       <div className="flex items-end justify-between gap-4 mb-2">
         <div>
@@ -33,13 +33,7 @@ export default function LatestPostsSection({ posts }: LatestPostsSectionProps) {
       {posts.length === 0 ? (
         <p className="text-sm text-text-muted pt-6 border-t border-border">Posts coming soon.</p>
       ) : (
-        <ul className="list-none m-0 p-0">
-          {posts.map((post) => (
-            <li key={post._id}>
-              <BlogPostCard post={post} />
-            </li>
-          ))}
-        </ul>
+        <BlogListClient posts={posts} />
       )}
       </div>
     </section>

@@ -215,6 +215,58 @@ header[data-header-theme="light"] {
   }
 }
 
+/* ── Staggered character reveal hover animation ──────── */
+.char-reveal {
+  --cr-size: inherit;
+  --cr-color: #eef0f6;
+  --cr-hover: #3b82f6;
+  --cr-delay: 25ms;
+
+  display: inline-block;
+  text-decoration: none;
+  font-size: var(--cr-size);
+  overflow: hidden;
+  line-height: 1.2;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+.char-reveal [data-char] {
+  position: relative;
+  display: inline-block;
+  color: transparent;
+}
+.char-reveal [data-char]::before,
+.char-reveal [data-char]::after {
+  position: absolute;
+  left: 0;
+  content: attr(data-char);
+  color: var(--cr-color);
+  transition: all ease-in-out calc(var(--cr-delay) * 10);
+  transition-delay: calc(var(--index) * var(--cr-delay));
+}
+.char-reveal [data-char]::before {
+  transform: translateY(0);
+}
+.char-reveal [data-char]::after {
+  transform: translateY(100%);
+}
+.char-reveal:hover [data-char]::before,
+.group:hover .char-reveal [data-char]::before {
+  transform: translateY(-100%);
+  opacity: 0;
+}
+.char-reveal:hover [data-char]::after,
+.group:hover .char-reveal [data-char]::after {
+  transform: translateY(0);
+  opacity: 1;
+  color: var(--cr-hover);
+}
+.char-reveal--active [data-char]::before,
+.char-reveal--active [data-char]::after {
+  color: var(--cr-hover);
+}
+
 /* ── Utility: hide scrollbar ──────────────────────────── */
 .scrollbar-hide {
   -ms-overflow-style: none;

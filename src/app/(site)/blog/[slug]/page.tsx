@@ -118,27 +118,28 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           )}
         </div>
 
-        {post.relatedProject && (
+        {post.relatedPosts && post.relatedPosts.length > 0 && (
           <div className="mt-6">
             <p className="text-xs font-ui text-text-muted uppercase tracking-widest mb-2">
-              Related project
+              Related posts
             </p>
-            <Link
-              href={`/projects/${post.relatedProject.slug.current}`}
-              className="group inline-flex items-center gap-2 text-text hover:text-accent transition-colors"
-            >
-              <span className="font-heading font-semibold">
-                {post.relatedProject.title}
-              </span>
-              {post.relatedProject.tagline && (
-                <span className="text-sm text-text-muted">
-                  — {post.relatedProject.tagline}
-                </span>
-              )}
-              <span className="text-text-muted transition-transform group-hover:translate-x-1 group-hover:-translate-y-1">
-                ↗
-              </span>
-            </Link>
+            <ul className="list-none m-0 p-0 flex flex-col gap-2">
+              {post.relatedPosts.map((related) => (
+                <li key={related._id}>
+                  <Link
+                    href={`/blog/${related.slug.current}`}
+                    className="group inline-flex items-center gap-2 text-text hover:text-accent transition-colors"
+                  >
+                    <span className="font-heading font-semibold">
+                      {related.title}
+                    </span>
+                    <span className="text-text-muted transition-transform group-hover:translate-x-1 group-hover:-translate-y-1">
+                      ↗
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
         )}
 

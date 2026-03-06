@@ -45,21 +45,21 @@ export const ALL_TAGS_QUERY = defineQuery(
 
 export const ALL_BLOG_POSTS_QUERY = defineQuery(
   `*[_type == "blogPost"] | order(publishedAt desc) {
-    _id, _type, title, slug, publishedAt, excerpt, tags
+    _id, _type, title, slug, publishedAt, excerpt, tags, heroImage, author
   }`
 )
 
 export const LATEST_BLOG_POSTS_QUERY = defineQuery(
   `*[_type == "blogPost"] | order(publishedAt desc) [0...$count] {
-    _id, _type, title, slug, publishedAt, excerpt, tags
+    _id, _type, title, slug, publishedAt, excerpt, tags, heroImage, author
   }`
 )
 
 export const BLOG_POST_BY_SLUG_QUERY = defineQuery(
   `*[_type == "blogPost" && slug.current == $slug][0] {
     _id, _type, title, slug, publishedAt, excerpt,
-    body, muxVideoId, githubUrl, appUrl, tags,
-    relatedProject->{ _id, title, slug, tagline }
+    body, muxVideoId, githubUrl, appUrl, tags, heroImage, author,
+    relatedPosts[]->{ _id, title, slug }
   }`
 )
 

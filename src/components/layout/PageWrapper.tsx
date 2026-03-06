@@ -8,7 +8,7 @@ export function PageWrapper({ children }: { children: React.ReactNode }) {
   const wrapperRef = useRef<HTMLDivElement>(null)
   const { isOpen } = useMenu()
 
-  // Translate the page when menu opens — no scaling, just shift right + down
+  // Shrink/restore page when menu opens/closes
   useEffect(() => {
     const wrapper = wrapperRef.current
     if (!wrapper) return
@@ -18,39 +18,25 @@ export function PageWrapper({ children }: { children: React.ReactNode }) {
 
     if (prefersReduced) {
       if (isOpen) {
-        const scrollY = window.scrollY
-        const wrapperH = wrapper.scrollHeight
-        const vh = window.innerHeight
-        const clipTop = scrollY
-        const clipBottom = Math.max(0, wrapperH - scrollY - vh)
-
         gsap.set(wrapper, {
-          clipPath: `inset(${clipTop}px 0 ${clipBottom}px 0 round 12px)`,
+          overflow: 'hidden',
+          borderRadius: '12px',
           x: isMobile ? '100%' : '40%',
           rotation: isMobile ? 0 : -12,
-          transformOrigin: `100% ${scrollY}px`,
+          transformOrigin: '100% 50%',
         })
       } else {
-        gsap.set(wrapper, { clearProps: 'transform,clipPath' })
+        gsap.set(wrapper, { clearProps: 'overflow,borderRadius,transform' })
       }
       return
     }
 
     if (isOpen) {
-      const scrollY = window.scrollY
-      const wrapperH = wrapper.scrollHeight
-      const vh = window.innerHeight
-      const clipTop = scrollY
-      const clipBottom = Math.max(0, wrapperH - scrollY - vh)
-
-      gsap.set(wrapper, {
-        clipPath: `inset(${clipTop}px 0 ${clipBottom}px 0 round 12px)`,
-      })
-
+      gsap.set(wrapper, { overflow: 'hidden', borderRadius: '12px' })
       gsap.to(wrapper, {
         x: isMobile ? '100%' : '40%',
         rotation: isMobile ? 0 : -12,
-        transformOrigin: `100% ${scrollY}px`,
+        transformOrigin: '100% 50%',
         duration: 1,
         ease: 'power3.inOut',
       })
@@ -61,7 +47,7 @@ export function PageWrapper({ children }: { children: React.ReactNode }) {
         duration: 1,
         ease: 'power3.inOut',
         onComplete: () => {
-          gsap.set(wrapper, { clearProps: 'transform,clipPath' })
+          gsap.set(wrapper, { clearProps: 'overflow,borderRadius,transform' })
         },
       })
     }

@@ -80,8 +80,10 @@ export interface BlogPost {
   muxVideoId?: string
   githubUrl?: string
   appUrl?: string
+  heroImage?: SanityImage
+  author?: string
   tags?: string[]
-  relatedProject?: Project
+  relatedPosts?: Pick<BlogPost, '_id' | 'title' | 'slug'>[]
 }
 
 export interface Author {

@@ -1,9 +1,9 @@
 import { Suspense } from 'react'
-import Header from '@/components/layout/Header'
 import Preloader from '@/components/layout/Preloader'
 import { NavOverlay } from '@/components/layout/NavOverlay'
 import { PageWrapper } from '@/components/layout/PageWrapper'
 import { CustomCursor } from '@/components/ui/CustomCursor'
+import { ImageTrailCursor } from '@/components/ui/ImageTrailCursor'
 import { MenuProvider } from '@/contexts/MenuContext'
 import { ProjectTransitionProvider } from '@/contexts/ProjectTransitionContext'
 import { TransitionOverlay } from '@/components/project/TransitionOverlay'
@@ -32,8 +32,8 @@ export default function SiteLayout({
                 {children}
               </main>
             </PageWrapper>
+            <ImageTrailCursor />
             <div id="transition-portal" />
-            <Header />
           </MenuProvider>
           <TransitionOverlay />
         </ProjectTransitionProvider>

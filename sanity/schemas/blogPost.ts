@@ -32,6 +32,20 @@ export const blogPost = defineType({
       description: 'Short summary shown on cards and used for SEO.',
     }),
     defineField({
+      name: 'heroImage',
+      title: 'Hero Image',
+      type: 'image',
+      options: { hotspot: true },
+      description: 'Background image shown on hover in the blog list.',
+    }),
+    defineField({
+      name: 'author',
+      title: 'Author',
+      type: 'string',
+      description: 'Author name displayed in the blog list.',
+      initialValue: 'Antonio Jerkovic',
+    }),
+    defineField({
       name: 'body',
       title: 'Body',
       type: 'blockContent',
@@ -60,10 +74,11 @@ export const blogPost = defineType({
       options: { layout: 'tags' },
     }),
     defineField({
-      name: 'relatedProject',
-      title: 'Related Project',
-      type: 'reference',
-      to: [{ type: 'project' }],
+      name: 'relatedPosts',
+      title: 'Related Blog Posts',
+      type: 'array',
+      of: [{ type: 'reference', to: [{ type: 'blogPost' }] }],
+      description: 'Other blog posts to suggest at the bottom of this post.',
     }),
   ],
   orderings: [
@@ -77,6 +92,7 @@ export const blogPost = defineType({
     select: {
       title: 'title',
       subtitle: 'publishedAt',
+      media: 'heroImage',
     },
   },
 })

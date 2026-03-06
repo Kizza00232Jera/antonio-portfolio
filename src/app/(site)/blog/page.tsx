@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import BlogPostCard from '@/components/ui/BlogPostCard'
+import { BlogListClient } from '@/components/ui/BlogListClient'
 import { getAllBlogPosts } from '@/lib/sanity/queries'
 
 export const metadata: Metadata = {
@@ -28,13 +28,7 @@ export default async function BlogPage() {
           Posts coming soon.
         </p>
       ) : (
-        <ul className="list-none m-0 p-0">
-          {posts.map((post) => (
-            <li key={post._id}>
-              <BlogPostCard post={post} />
-            </li>
-          ))}
-        </ul>
+        <BlogListClient posts={posts} />
       )}
     </section>
   )

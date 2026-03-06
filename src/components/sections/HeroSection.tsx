@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import Image from 'next/image'
+import Header from '@/components/layout/Header'
 import { IsometricBackground } from '@/components/ui/IsometricBackground'
 import { SignatureSVG } from '@/components/ui/SignatureSVG'
 import type { SignatureSVGRef } from '@/components/ui/SignatureSVG'
@@ -20,6 +21,10 @@ export default function HeroSection() {
   const signatureRef = useRef<SignatureSVGRef>(null)
   const marqueeRow1Ref = useRef<HTMLDivElement>(null)
   const marqueeRow2Ref = useRef<HTMLDivElement>(null)
+  const progressBarWrapRef = useRef<HTMLDivElement>(null)
+  const progressBarRef = useRef<HTMLDivElement>(null)
+  const progressNumberRef = useRef<HTMLSpanElement>(null)
+  const headerRef = useRef<HTMLDivElement>(null)
 
   const [ready, setReady] = useState(false)
 
@@ -33,6 +38,9 @@ export default function HeroSection() {
     window.addEventListener('preloader:done', handle)
     return () => window.removeEventListener('preloader:done', handle)
   }, [])
+
+  // Track trail activation to avoid dispatching on every scroll tick
+  const trailActiveRef = useRef(false)
 
   // GSAP ScrollTrigger timeline
   useEffect(() => {
@@ -66,109 +74,159 @@ export default function HeroSection() {
                 start: 'top top',
                 end: 'bottom bottom',
                 scrub: 1,
+                onUpdate: (self) => {
+                  // Toggle image trail cursor activation (~90% of signature drawn)
+                  const shouldBeActive = self.progress >= 0.558
+                  if (trailActiveRef.current !== shouldBeActive) {
+                    trailActiveRef.current = shouldBeActive
+                    window.dispatchEvent(
+                      new CustomEvent('imagetrail:toggle', { detail: shouldBeActive }),
+                    )
+                  }
+                },
               },
             })
 
-            // 0–1: Image card shrinks
+            // ── All positions scaled ×0.583 (animations finish at 58.3% = 350vh of 600vh) ──
+            // 58.3%–83.3% = blank scroll (150vh) with trail cursor + progress bar
+            // 83.3%–100% = overlap zone where section 2 slides over sticky hero
+
+            // 0–0.583: Image card shrinks
             if (isDesktop) {
-              // Desktop: scale transform on the card
               if (imageCardRef.current) {
                 tl.fromTo(
                   imageCardRef.current,
                   { scale: 1 },
-                  { scale: 0.35, duration: 1, ease: 'none' },
+                  { scale: 0.35, duration: 0.583, ease: 'none' },
                   0,
                 )
               }
-              // Desktop: counter-zoom — image zooms IN as card shrinks OUT
               if (imageInnerRef.current) {
                 tl.fromTo(
                   imageInnerRef.current,
                   { scale: 1 },
-                  { scale: 1.5, duration: 1, ease: 'none' },
+                  { scale: 1.5, duration: 0.583, ease: 'none' },
                   0,
                 )
               }
             } else {
-              // Mobile: animate wrapper inset to change card size & aspect ratio
-              // No transform on image — object-cover naturally re-crops, face stays undistorted
               if (cardWrapRef.current) {
                 tl.fromTo(
                   cardWrapRef.current,
                   { top: '0%', right: '0%', bottom: '0%', left: '0%' },
-                  { top: '36%', right: '13%', bottom: '29%', left: '13%', duration: 1, ease: 'none' },
+                  { top: '36%', right: '13%', bottom: '29%', left: '13%', duration: 0.583, ease: 'none' },
                   0,
                 )
               }
             }
 
-            // 0.2–0.8: Marquee rows fade in
+            // 0.117–0.467: Marquee rows fade in
             if (marqueeRow1Ref.current) {
               tl.fromTo(
                 marqueeRow1Ref.current,
                 { opacity: 0 },
-                { opacity: 1, duration: 0.6, ease: 'none' },
-                0.2,
+                { opacity: 1, duration: 0.35, ease: 'none' },
+                0.117,
               )
             }
             if (marqueeRow2Ref.current) {
               tl.fromTo(
                 marqueeRow2Ref.current,
                 { opacity: 0 },
-                { opacity: 1, duration: 0.6, ease: 'none' },
+                { opacity: 1, duration: 0.35, ease: 'none' },
+                0.146,
+              )
+            }
+
+            // 0.25–0.542: Section background transitions from black to white
+            if (sectionRef.current) {
+              tl.fromTo(
+                sectionRef.current,
+                { backgroundColor: '#000000' },
+                { backgroundColor: '#ffffff', duration: 0.292, ease: 'none' },
                 0.25,
               )
             }
 
-            // 0.5–0.9: Image desaturates and darkens
+            // 0.292–0.525: Image desaturates and darkens
             if (imageInnerRef.current) {
               tl.fromTo(
                 imageInnerRef.current,
                 { filter: 'grayscale(0) brightness(1)' },
-                { filter: 'grayscale(1) brightness(0.45)', duration: 0.4, ease: 'none' },
-                0.5,
+                { filter: 'grayscale(1) brightness(0.45)', duration: 0.233, ease: 'none' },
+                0.292,
               )
             }
 
-            // 0.5–0.9: Card background transitions from cream to dark blue
+            // 0.292–0.525: Card background transitions from cream to black
             if (imageCardRef.current) {
               tl.fromTo(
                 imageCardRef.current,
                 { backgroundColor: '#f2ede8' },
-                { backgroundColor: '#1a2e4a', duration: 0.4, ease: 'none' },
-                0.5,
+                { backgroundColor: '#000000', duration: 0.233, ease: 'none' },
+                0.292,
               )
             }
 
-            // 0–1: Signature wrapper scales with card
+            // 0–0.583: Signature wrapper scales with card
             if (signatureWrapRef.current) {
               if (isDesktop) {
                 tl.fromTo(
                   signatureWrapRef.current,
                   { scale: 1 },
-                  { scale: 0.35, duration: 1, ease: 'none' },
+                  { scale: 0.35, duration: 0.583, ease: 'none' },
                   0,
                 )
               } else {
-                // Match card inset but slightly larger (signature overflows card)
                 tl.fromTo(
                   signatureWrapRef.current,
                   { top: '0%', right: '0%', bottom: '0%', left: '0%' },
-                  { top: '29%', right: '10%', bottom: '22%', left: '10%', duration: 1, ease: 'none' },
+                  { top: '29%', right: '10%', bottom: '22%', left: '10%', duration: 0.583, ease: 'none' },
                   0,
                 )
               }
             }
 
-            // 0.55–1: Signature draws in
+            // 0.321–0.583: Signature draws in
             if (signatureRef.current?.pathElement) {
               const len = signatureRef.current.totalLength
               tl.fromTo(
                 signatureRef.current.pathElement,
                 { strokeDashoffset: len },
-                { strokeDashoffset: 0, duration: 0.45, ease: 'power2.out' },
-                0.55,
+                { strokeDashoffset: 0, duration: 0.263, ease: 'power2.out' },
+                0.321,
               )
+            }
+
+            // 0–1.0: Progress bar fills across the entire scroll
+            if (progressBarRef.current) {
+              const proxy = { value: 0 }
+              tl.fromTo(
+                progressBarRef.current,
+                { width: '0%' },
+                { width: '100%', duration: 1, ease: 'none' },
+                0,
+              )
+              tl.fromTo(
+                proxy,
+                { value: 0 },
+                {
+                  value: 100,
+                  duration: 1,
+                  ease: 'none',
+                  onUpdate: () => {
+                    if (progressNumberRef.current) {
+                      progressNumberRef.current.textContent = `${Math.round(proxy.value)}`
+                    }
+                  },
+                },
+                0,
+              )
+            }
+
+            // 0–0.15: Header fades out early in the scroll
+            if (headerRef.current) {
+              tl.to(headerRef.current, { opacity: 0, duration: 0.15, ease: 'none' }, 0)
             }
 
             return () => {
@@ -189,12 +247,13 @@ export default function HeroSection() {
   const row2Text = Array(15).fill('JERKOVIC').join('\u2003\u2003')
 
   return (
-    <div ref={wrapperRef} className="relative" style={{ height: '350vh' }}>
+    <>
     <section
       ref={sectionRef}
       data-theme="dark"
-      className="sticky top-0 h-screen w-full overflow-hidden"
-      style={{ backgroundColor: '#102747' }}
+      data-trail-zone
+      className="fixed top-0 left-0 h-screen w-full overflow-hidden"
+      style={{ backgroundColor: '#000000' }}
     >
       {/* Layer 1: Dark background with morphing blob outlines */}
       <IsometricBackground variant="dark" />
@@ -283,7 +342,35 @@ export default function HeroSection() {
           <SignatureSVG ref={signatureRef} className="h-full w-full" />
         </div>
       </div>
+
+      {/* Layer 5: Scroll progress bar — appears after signature finishes */}
+      <div
+        ref={progressBarWrapRef}
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-3"
+      >
+        <div
+          style={{ width: '120px', height: '2px', backgroundColor: 'rgba(0,0,0,0.8)', borderRadius: '1px' }}
+        >
+          <div
+            ref={progressBarRef}
+            style={{ width: '0%', height: '100%', backgroundColor: 'rgba(255,255,255,0.9)', borderRadius: '1px', transformOrigin: 'left' }}
+          />
+        </div>
+        <span
+          ref={progressNumberRef}
+          className="text-xs tabular-nums"
+          style={{ color: 'rgba(255,255,255,0.9)', minWidth: '2ch', textAlign: 'right' }}
+        >
+          0
+        </span>
+      </div>
+
+      {/* Layer 6: Header — fades out on scroll */}
+      <div ref={headerRef}>
+        <Header />
+      </div>
     </section>
-    </div>
+    <div ref={wrapperRef} style={{ height: '600vh' }} />
+    </>
   )
 }
