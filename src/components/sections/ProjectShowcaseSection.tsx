@@ -27,12 +27,6 @@ function padIndex(i: number): string {
   return String(i + 1).padStart(2, '0')
 }
 
-function splitTitle(title: string): [string, string] {
-  const words = title.split(' ')
-  const mid = Math.ceil(words.length / 2)
-  return [words.slice(0, mid).join(' '), words.slice(mid).join(' ')]
-}
-
 const SCRAMBLE_CHARS = 'abcdefghijklmnopqrstuvwxyz%^&*-_+=;:<>,'
 
 /* ── Component ────────────────────────────────────────────── */
@@ -46,6 +40,7 @@ export default function ProjectShowcaseSection({
 }: ProjectShowcaseSectionProps) {
   const sectionRef = useRef<HTMLElement>(null)
   const stickyRef = useRef<HTMLDivElement>(null)
+  const fgContainerRef = useRef<HTMLDivElement>(null)
   const fgImagesRef = useRef<(HTMLDivElement | null)[]>([])
   const bgImagesRef = useRef<(HTMLDivElement | null)[]>([])
   const numberRef = useRef<HTMLDivElement>(null)
@@ -121,18 +116,6 @@ export default function ProjectShowcaseSection({
     })
   }, [])
 
-  /* ── Scramble title across two lines ── */
-  const scrambleTitle = useCallback((
-    container: HTMLDivElement | null,
-    newTitle: string,
-  ) => {
-    if (!container) return
-    const [line1, line2] = splitTitle(newTitle)
-    const lines = container.querySelectorAll('.title-line')
-    if (lines[0]) scrambleText(lines[0] as HTMLElement, line1)
-    if (lines[1]) scrambleText(lines[1] as HTMLElement, line2)
-  }, [scrambleText])
-
   /* ── Update all text/state when crossing threshold ── */
   const switchToProject = useCallback((newIndex: number) => {
     if (newIndex === activeIndexRef.current) return
@@ -141,11 +124,11 @@ export default function ProjectShowcaseSection({
     activeIndexRef.current = newIndex
     setActiveIndex(newIndex)
 
-    // Scramble big number
-    scrambleText(numberRef.current, padIndex(newIndex))
+    // Update big number (no animation)
+    if (numberRef.current) numberRef.current.textContent = padIndex(newIndex)
 
-    // Scramble title (two-line split)
-    scrambleTitle(titleRef.current, projects[newIndex].title)
+    // Update title (no animation)
+    if (titleRef.current) titleRef.current.textContent = projects[newIndex].title
 
     // Crossfade background
     bgImagesRef.current.forEach((bg, i) => {
@@ -167,7 +150,7 @@ export default function ProjectShowcaseSection({
         item.classList.remove('active')
       }
     })
-  }, [projects, scrambleText, scrambleTitle])
+  }, [projects, scrambleText])
 
   /* ── GSAP ScrollTrigger setup ── */
   useEffect(() => {
@@ -182,13 +165,15 @@ export default function ProjectShowcaseSection({
     const ctx = gsap.context(() => {
       const totalProjects = projects.length
       const fgImages = fgImagesRef.current.filter(Boolean) as HTMLDivElement[]
+      const fgContainer = fgContainerRef.current
+      const containerH = fgContainer ? fgContainer.offsetHeight : window.innerHeight
 
-      // Position all foreground images: first at center, rest below
+      // Position all foreground images: first at center, rest below (container-relative)
       fgImages.forEach((img, i) => {
         if (i === 0) {
-          gsap.set(img, { yPercent: 0 })
+          gsap.set(img, { y: 0 })
         } else {
-          gsap.set(img, { yPercent: 200 })
+          gsap.set(img, { y: containerH })
         }
       })
 
@@ -226,10 +211,10 @@ export default function ProjectShowcaseSection({
             const nextImg = fgImages[i + 1]
 
             if (currentImg) {
-              gsap.set(currentImg, { yPercent: -progress * 200 })
+              gsap.set(currentImg, { y: -progress * containerH })
             }
             if (nextImg) {
-              gsap.set(nextImg, { yPercent: 200 - progress * 200 })
+              gsap.set(nextImg, { y: containerH - progress * containerH })
             }
 
             // At 50% crossover, switch text
@@ -312,7 +297,7 @@ export default function ProjectShowcaseSection({
           })}
 
           {/* Foreground images (scroll-driven) */}
-          <div className="project-fg-container">
+          <div ref={fgContainerRef} className="project-fg-container">
             {projects.map((project, i) => {
               const url = getThumbnailUrl(project)
               return (
@@ -375,8 +360,7 @@ export default function ProjectShowcaseSection({
             </button>
 
             <div className="project-title" ref={titleRef}>
-              <span className="title-line block">{splitTitle(projects[0].title)[0]}</span>
-              <span className="title-line block">{splitTitle(projects[0].title)[1]}</span>
+              {projects[0].title}
             </div>
           </div>
 

@@ -998,13 +998,13 @@ header[data-header-theme="light"] {
   position: absolute;
   top: 2rem;
   right: 3rem;
-  font-size: clamp(5rem, 8vw, 9rem);
+  font-size: clamp(3rem, 5vw, 9rem);
   line-height: 1;
 }
 
 .project-number {
   font-family: var(--font-heading);
-  font-size: clamp(5rem, 8vw, 9rem);
+  font-size: clamp(3rem, 5vw, 9rem);
   font-weight: 800;
   color: #fff;
   line-height: 1;
@@ -1095,11 +1095,15 @@ header[data-header-theme="light"] {
 
 .project-title {
   font-family: var(--font-heading);
-  font-size: clamp(2.5rem, 5.5vw, 7.8rem);
+  font-size: clamp(2rem, 4.5vw, 7.8rem);
   font-weight: 400;
   color: #fff;
   line-height: 1.1;
   text-align: left;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 /* ── Mobile list (hidden on desktop) ── */
