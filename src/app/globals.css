@@ -998,60 +998,99 @@ header[data-header-theme="light"] {
   position: absolute;
   top: 2rem;
   right: 3rem;
-  overflow: hidden;
-  font-size: clamp(8rem, 15vw, 15.2rem);
-  height: 1em;
+  font-size: clamp(5rem, 8vw, 9rem);
   line-height: 1;
 }
 
 .project-number {
   font-family: var(--font-heading);
-  font-size: clamp(8rem, 15vw, 15.2rem);
+  font-size: clamp(5rem, 8vw, 9rem);
   font-weight: 800;
   color: #fff;
   line-height: 1;
-  will-change: transform;
+}
+
+.scramble-char {
+  display: inline-block;
+  position: relative;
+  --opa: 0;
+}
+
+.scramble-char::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1ch;
+  height: 100%;
+  background: currentColor;
+  opacity: var(--opa);
 }
 
 /* ── Bottom Right (title + view more) ── */
 .project-bottom-right {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: 1rem;
-  text-align: right;
+  text-align: left;
 }
 
 .project-view-more {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
   font-family: var(--font-body);
   font-size: clamp(0.75rem, 0.9vw, 1rem);
   font-weight: 400;
-  text-transform: uppercase;
   letter-spacing: 0.05em;
   color: rgba(255, 255, 255, 0.6);
-  text-decoration: none;
-  transition: color 0.3s ease;
   cursor: pointer;
   background: none;
   border: none;
-  padding: 0;
+  padding: 0 0 0.75rem 0;
+  position: relative;
+  transition: color 0.4s ease;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.project-view-more-arrow svg {
+  width: 33px;
+  height: 32px;
+  transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.project-view-more-border {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.project-view-more-border::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0%;
+  height: 100%;
+  background: #fff;
+  transition: width 0.5s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .project-view-more:hover {
   color: #fff;
 }
 
-.project-title-wrapper {
-  overflow: hidden;
+.project-view-more:hover .project-view-more-border::after {
   width: 100%;
 }
 
-.project-title-mask {
-  overflow: hidden;
-  font-size: clamp(2.5rem, 5.5vw, 7.8rem);
-  height: 1.1em;
-  line-height: 1.1;
-  position: relative;
+.project-view-more:hover .project-view-more-arrow svg {
+  transform: translateX(4px);
 }
 
 .project-title {
@@ -1060,8 +1099,7 @@ header[data-header-theme="light"] {
   font-weight: 400;
   color: #fff;
   line-height: 1.1;
-  text-align: right;
-  will-change: transform;
+  text-align: left;
 }
 
 /* ── Mobile list (hidden on desktop) ── */

@@ -27,8 +27,13 @@ function padIndex(i: number): string {
   return String(i + 1).padStart(2, '0')
 }
 
-const EASE = 'power3.out'
-const TRANSITION_DURATION = 0.85
+function splitTitle(title: string): [string, string] {
+  const words = title.split(' ')
+  const mid = Math.ceil(words.length / 2)
+  return [words.slice(0, mid).join(' '), words.slice(mid).join(' ')]
+}
+
+const SCRAMBLE_CHARS = 'abcdefghijklmnopqrstuvwxyz%^&*-_+=;:<>,'
 
 /* ── Component ────────────────────────────────────────────── */
 
@@ -55,38 +60,78 @@ export default function ProjectShowcaseSection({
     setIsMobile(window.innerWidth < 768)
   }, [])
 
-  /* ── Transition text with slide-up mask effect ── */
-  const transitionText = useCallback((
-    container: HTMLDivElement | null,
+  /* ── Character scramble animation ── */
+  const scrambleText = useCallback((
+    container: HTMLElement | null,
     newText: string,
   ) => {
     if (!container) return
 
-    const current = container.querySelector('.text-current') as HTMLElement
-    const next = container.querySelector('.text-next') as HTMLElement
-    if (!current || !next) return
+    // Kill any ongoing tweens on existing char spans
+    const existingChars = container.querySelectorAll('.scramble-char')
+    existingChars.forEach(c => gsap.killTweensOf(c))
 
-    next.textContent = newText
+    // Clear container and create new char spans
+    container.textContent = ''
+    const chars = newText.split('')
+    const animatable: HTMLSpanElement[] = []
 
-    const tl = gsap.timeline()
-    tl.to(current, {
-      y: '-110%',
-      duration: TRANSITION_DURATION,
-      ease: EASE,
-    }, 0)
-    tl.fromTo(next, {
-      y: '110%',
-    }, {
-      y: '0%',
-      duration: TRANSITION_DURATION,
-      ease: EASE,
-    }, 0)
-    tl.add(() => {
-      current.textContent = newText
-      gsap.set(current, { y: '0%' })
-      gsap.set(next, { y: '110%' })
+    chars.forEach((char) => {
+      const span = document.createElement('span')
+      span.className = 'scramble-char'
+      if (char === ' ') {
+        span.innerHTML = '&nbsp;'
+        span.style.minWidth = '0.3em'
+      } else {
+        span.textContent = char
+      }
+      container.appendChild(span)
+      if (char !== ' ') animatable.push(span)
+    })
+
+    // Animate each non-space character
+    animatable.forEach((span, position) => {
+      const finalChar = span.textContent!
+      let repeatCount = 0
+
+      gsap.fromTo(span,
+        { opacity: 0 },
+        {
+          duration: 0.03,
+          opacity: 1,
+          innerHTML: () => SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)],
+          repeat: 3,
+          repeatDelay: 0.04,
+          delay: (position + 1) * 0.06,
+          repeatRefresh: true,
+          onStart: () => {
+            gsap.set(span, { '--opa': 1 })
+          },
+          onRepeat: () => {
+            repeatCount++
+            if (repeatCount === 1) {
+              gsap.set(span, { '--opa': 0 })
+            }
+          },
+          onComplete: () => {
+            gsap.set(span, { innerHTML: finalChar, '--opa': 0, delay: 0.03 })
+          },
+        }
+      )
     })
   }, [])
+
+  /* ── Scramble title across two lines ── */
+  const scrambleTitle = useCallback((
+    container: HTMLDivElement | null,
+    newTitle: string,
+  ) => {
+    if (!container) return
+    const [line1, line2] = splitTitle(newTitle)
+    const lines = container.querySelectorAll('.title-line')
+    if (lines[0]) scrambleText(lines[0] as HTMLElement, line1)
+    if (lines[1]) scrambleText(lines[1] as HTMLElement, line2)
+  }, [scrambleText])
 
   /* ── Update all text/state when crossing threshold ── */
   const switchToProject = useCallback((newIndex: number) => {
@@ -96,11 +141,11 @@ export default function ProjectShowcaseSection({
     activeIndexRef.current = newIndex
     setActiveIndex(newIndex)
 
-    // Transition big number
-    transitionText(numberRef.current, padIndex(newIndex))
+    // Scramble big number
+    scrambleText(numberRef.current, padIndex(newIndex))
 
-    // Transition title
-    transitionText(titleRef.current, projects[newIndex].title)
+    // Scramble title (two-line split)
+    scrambleTitle(titleRef.current, projects[newIndex].title)
 
     // Crossfade background
     bgImagesRef.current.forEach((bg, i) => {
@@ -112,16 +157,17 @@ export default function ProjectShowcaseSection({
       }
     })
 
-    // Update list highlights
+    // Update list highlights + scramble the newly active item
     listItemsRef.current.forEach((item, i) => {
       if (!item) return
       if (i === newIndex) {
         item.classList.add('active')
+        scrambleText(item, `[ N.${padIndex(i)} ]  ${projects[i].title}`)
       } else {
         item.classList.remove('active')
       }
     })
-  }, [projects, transitionText])
+  }, [projects, scrambleText, scrambleTitle])
 
   /* ── GSAP ScrollTrigger setup ── */
   useEffect(() => {
@@ -142,7 +188,7 @@ export default function ProjectShowcaseSection({
         if (i === 0) {
           gsap.set(img, { yPercent: 0 })
         } else {
-          gsap.set(img, { yPercent: 150 })
+          gsap.set(img, { yPercent: 200 })
         }
       })
 
@@ -180,10 +226,10 @@ export default function ProjectShowcaseSection({
             const nextImg = fgImages[i + 1]
 
             if (currentImg) {
-              gsap.set(currentImg, { yPercent: -progress * 150 })
+              gsap.set(currentImg, { yPercent: -progress * 200 })
             }
             if (nextImg) {
-              gsap.set(nextImg, { yPercent: 150 - progress * 150 })
+              gsap.set(nextImg, { yPercent: 200 - progress * 200 })
             }
 
             // At 50% crossover, switch text
@@ -306,14 +352,8 @@ export default function ProjectShowcaseSection({
           </div>
 
           {/* Big number (top-right, absolute) */}
-          <div className="project-number-wrapper" ref={numberRef}>
-            <div className="project-number text-current">
-              {padIndex(0)}
-            </div>
-            <div
-              className="project-number text-next"
-              style={{ position: 'absolute', top: 0, left: 0, width: '100%' }}
-            >
+          <div className="project-number-wrapper">
+            <div className="project-number" ref={numberRef}>
               {padIndex(0)}
             </div>
           </div>
@@ -324,21 +364,19 @@ export default function ProjectShowcaseSection({
               className="project-view-more"
               onClick={handleViewMore}
             >
-              View More
+              <span className="project-view-more-text">View More</span>
+              <span className="project-view-more-arrow">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 33 32" width="33" height="32">
+                  <path d="m28 12 3.9 3.9v.1L28 20" fill="none" stroke="currentColor" strokeWidth="1.5" />
+                  <path d="M1.1 16h30.8" fill="none" stroke="currentColor" strokeWidth="1.5" />
+                </svg>
+              </span>
+              <span className="project-view-more-border" />
             </button>
 
-            <div className="project-title-wrapper" ref={titleRef}>
-              <div className="project-title-mask">
-                <div className="project-title text-current">
-                  {projects[0].title}
-                </div>
-                <div
-                  className="project-title text-next"
-                  style={{ position: 'absolute', bottom: 0, left: 0, width: '100%' }}
-                >
-                  {projects[0].title}
-                </div>
-              </div>
+            <div className="project-title" ref={titleRef}>
+              <span className="title-line block">{splitTitle(projects[0].title)[0]}</span>
+              <span className="title-line block">{splitTitle(projects[0].title)[1]}</span>
             </div>
           </div>
 
