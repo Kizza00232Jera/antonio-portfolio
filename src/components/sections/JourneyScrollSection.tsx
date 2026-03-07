@@ -26,10 +26,10 @@ const stops: JourneyStop[] = [
   {
     id: 'multimedia',
     number: '01',
-    label: 'Bachelor programme',
+    label: 'Academy profession degree',
     title: 'Multimedia Design',
     location: 'Aalborg, Denmark',
-    period: '2020 – 2023',
+    period: '2019 – 2021',
     description:
       'Moved from Croatia to Aalborg to study Medialogy — a bachelor programme at the intersection of design, code, and human experience. Learned to prototype, test, and iterate on digital products.',
     skills: ['Prototyping', 'UX Research', 'Interactive Design'],
@@ -55,7 +55,7 @@ const stops: JourneyStop[] = [
     label: 'Top-up degree',
     title: 'Web Development',
     location: 'Aalborg, Denmark',
-    period: '2023 – 2024',
+    period: '2022 – 2023',
     description:
       'One-year top-up degree deepening the technical side: JavaScript, TypeScript, React, Next.js, databases, and APIs. Bridging design thinking and engineering craft.',
     skills: ['React', 'TypeScript', 'Next.js'],
@@ -94,8 +94,8 @@ const N = stops.length
 
 /* ── Timeline ruler data ─────────────────────────────── */
 
-const START_YEAR = 2020
-const END_YEAR = 2026
+const START_YEAR = 2019
+const END_YEAR = 2026.5
 const YEAR_SPAN = END_YEAR - START_YEAR
 const RULER_PAD = 10 // % padding top/bottom
 const RULER_RANGE = 80 // % usable range (100 - 2*PAD)
