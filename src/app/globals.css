@@ -896,6 +896,312 @@ header[data-header-theme="light"] {
   }
 }
 
+/* ── Project Showcase (Scroll-driven split panel) ───── */
+
+.project-showcase {
+  position: relative;
+  background: #0d0d0d;
+}
+
+.project-showcase-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  overflow: hidden;
+}
+
+/* ── Left Panel ── */
+.project-left-panel {
+  width: 61.111%;
+  position: relative;
+  overflow: hidden;
+}
+
+.project-bg-image {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.85s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.project-bg-image.active {
+  opacity: 1;
+}
+
+.project-bg-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(8px) brightness(0.35);
+  transform: scale(1.1);
+}
+
+.project-fg-container {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.project-fg-image {
+  position: absolute;
+  width: 50%;
+  aspect-ratio: 4 / 3;
+  will-change: transform;
+  overflow: hidden;
+}
+
+.project-fg-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ── Right Panel ── */
+.project-right-panel {
+  width: 38.889%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 3rem 3rem 3rem 2rem;
+  position: relative;
+}
+
+/* ── Project List (top area) ── */
+.project-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.project-list-item {
+  font-family: var(--font-body);
+  font-size: clamp(0.7rem, 0.9vw, 1.4rem);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: -0.04em;
+  color: rgba(255, 255, 255, 0.35);
+  transition: color 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+  cursor: default;
+  white-space: nowrap;
+}
+
+.project-list-item.active {
+  color: #fff;
+}
+
+/* ── Big Number (top-right) ── */
+.project-number-wrapper {
+  position: absolute;
+  top: 2rem;
+  right: 3rem;
+  overflow: hidden;
+  font-size: clamp(8rem, 15vw, 15.2rem);
+  height: 1em;
+  line-height: 1;
+}
+
+.project-number {
+  font-family: var(--font-heading);
+  font-size: clamp(8rem, 15vw, 15.2rem);
+  font-weight: 800;
+  color: #fff;
+  line-height: 1;
+  will-change: transform;
+}
+
+/* ── Bottom Right (title + view more) ── */
+.project-bottom-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1rem;
+  text-align: right;
+}
+
+.project-view-more {
+  font-family: var(--font-body);
+  font-size: clamp(0.75rem, 0.9vw, 1rem);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.6);
+  text-decoration: none;
+  transition: color 0.3s ease;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.project-view-more:hover {
+  color: #fff;
+}
+
+.project-title-wrapper {
+  overflow: hidden;
+  width: 100%;
+}
+
+.project-title-mask {
+  overflow: hidden;
+  font-size: clamp(2.5rem, 5.5vw, 7.8rem);
+  height: 1.1em;
+  line-height: 1.1;
+  position: relative;
+}
+
+.project-title {
+  font-family: var(--font-heading);
+  font-size: clamp(2.5rem, 5.5vw, 7.8rem);
+  font-weight: 400;
+  color: #fff;
+  line-height: 1.1;
+  text-align: right;
+  will-change: transform;
+}
+
+/* ── Mobile list (hidden on desktop) ── */
+.project-mobile-list {
+  display: none;
+}
+
+/* ── Responsive ── */
+@media (max-width: 767px) {
+  .project-showcase {
+    height: auto;
+  }
+
+  .project-showcase-sticky {
+    position: relative;
+    height: auto;
+    flex-direction: column;
+  }
+
+  .project-left-panel {
+    display: none;
+  }
+
+  .project-right-panel {
+    width: 100%;
+    padding: 0;
+  }
+
+  .project-mobile-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* ── Mobile card ── */
+  .project-mobile-card {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+  }
+
+  /* Image area: BG + foreground stacked */
+  .project-mobile-card-image-area {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+  }
+
+  .project-mobile-card-bg {
+    position: absolute;
+    inset: 0;
+  }
+
+  .project-mobile-card-bg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: blur(6px) brightness(0.3);
+    transform: scale(1.1);
+  }
+
+  .project-mobile-card-fg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 60%;
+    overflow: hidden;
+  }
+
+  .project-mobile-card-fg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Info area below image */
+  .project-mobile-card-info {
+    background: #0d0d0d;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .project-mobile-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .project-mobile-card-title {
+    font-family: var(--font-heading);
+    font-size: clamp(1.5rem, 6vw, 2.5rem);
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.1;
+    flex: 1;
+  }
+
+  .project-mobile-card-number {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: rgba(255, 255, 255, 0.5);
+    white-space: nowrap;
+    padding-top: 0.3rem;
+  }
+
+  .project-mobile-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .project-mobile-card-view {
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .project-mobile-card-arrow {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .project-number-wrapper,
+  .project-list,
+  .project-bottom-right {
+    display: none;
+  }
+}
+
 /* ── Shiki syntax-highlighted code blocks ────────────── */
 .portable-text .shiki {
   margin: 0;
