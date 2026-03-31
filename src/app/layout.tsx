@@ -1,15 +1,22 @@
 import type { Metadata } from 'next'
-import { Syne, Bebas_Neue, DM_Sans, JetBrains_Mono, DM_Serif_Display } from 'next/font/google'
+import { Bebas_Neue, JetBrains_Mono } from 'next/font/google'
+import localFont from 'next/font/local'
 import { draftMode } from 'next/headers'
 import { VisualEditing } from 'next-sanity/visual-editing'
 import { SanityLive } from '@/lib/sanity/live'
 import { DisableDraftMode } from '@/components/sanity/DisableDraftMode'
 import './globals.css'
 
-const syne = Syne({
-  variable: '--font-syne',
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800'],
+const satoshi = localFont({
+  src: [
+    { path: '../../public/fonts/satoshi/satoshi-300.woff2', weight: '300', style: 'normal' },
+    { path: '../../public/fonts/satoshi/satoshi-400.woff2', weight: '400', style: 'normal' },
+    { path: '../../public/fonts/satoshi/satoshi-500.woff2', weight: '500', style: 'normal' },
+    { path: '../../public/fonts/satoshi/satoshi-700.woff2', weight: '700', style: 'normal' },
+    { path: '../../public/fonts/satoshi/satoshi-900.woff2', weight: '900', style: 'normal' },
+  ],
+  variable: '--font-satoshi',
+  display: 'swap',
 })
 
 const bebasNeue = Bebas_Neue({
@@ -18,20 +25,8 @@ const bebasNeue = Bebas_Neue({
   weight: ['400'],
 })
 
-const dmSans = DM_Sans({
-  variable: '--font-dm-sans',
-  subsets: ['latin'],
-  weight: ['400', '500', '600'],
-})
-
 const jetbrainsMono = JetBrains_Mono({
   variable: '--font-jetbrains-mono',
-  subsets: ['latin'],
-  weight: ['400'],
-})
-
-const dmSerifDisplay = DM_Serif_Display({
-  variable: '--font-serif-display',
   subsets: ['latin'],
   weight: ['400'],
 })
@@ -51,7 +46,7 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${syne.variable} ${bebasNeue.variable} ${dmSans.variable} ${jetbrainsMono.variable} ${dmSerifDisplay.variable}`}
+      className={`${satoshi.variable} ${bebasNeue.variable} ${jetbrainsMono.variable}`}
     >
       <body className="antialiased">
         {children}

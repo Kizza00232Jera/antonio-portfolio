@@ -1,28 +1,41 @@
-import Link from 'next/link'
-import { CharRevealText } from '@/components/ui/CharReveal'
+import { CharRevealLink } from '@/components/ui/CharReveal'
 import { MenuButton } from '@/components/layout/MenuButton'
 
-interface HeaderProps {
-  heroVariant?: boolean
-}
+const NAV_LINKS = [
+  { label: 'Home', href: '/' },
+  { label: 'Projects', href: '/projects' },
+  { label: 'Blog', href: '/blog' },
+  { label: 'Connect', href: '#contact' },
+]
 
-export default function Header({ heroVariant }: HeaderProps) {
+export default function Header() {
   return (
-    <header className="absolute top-0 left-0 right-0">
-      <div
-        className="flex h-16 items-center justify-between px-6"
-        style={heroVariant ? { color: '#000' } : undefined}
-      >
-        <MenuButton />
-        <Link
+    <header className="header-root">
+      <div className="header-inner">
+        {/* Logo — left */}
+        <CharRevealLink
           href="/"
-          className="group flex flex-col leading-none tracking-tight uppercase"
-          aria-label="Antonio Jerkovic — home"
-          style={{ fontFamily: 'var(--font-dm-sans), sans-serif', fontSize: '1rem' }}
-        >
-          <CharRevealText text="Antonio" className="font-light" />
-          <CharRevealText text="Jerkovic" className="font-semibold" />
-        </Link>
+          label="ANTONIO JERKOVIC"
+          className="header-logo"
+        />
+
+        {/* Nav — center (desktop only) */}
+        <nav className="header-nav" aria-label="Site navigation">
+          {NAV_LINKS.map(({ label, href }) => (
+            <span key={label} className="nav-bracket-wrap">
+              <CharRevealLink
+                href={href}
+                label={label.toUpperCase()}
+                className="header-nav-link"
+              />
+            </span>
+          ))}
+        </nav>
+
+        {/* Menu button — right */}
+        <div className="header-right">
+          <MenuButton />
+        </div>
       </div>
     </header>
   )

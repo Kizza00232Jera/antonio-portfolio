@@ -34,7 +34,7 @@ const stops: JourneyStop[] = [
       'Moved from Croatia to Aalborg to study Medialogy — a bachelor programme at the intersection of design, code, and human experience. Learned to prototype, test, and iterate on digital products.',
     skills: ['Prototyping', 'UX Research', 'Interactive Design'],
     flag: '/images/flags/denmark.svg',
-    accent: '#F5EDE0',
+    accent: '#fafaf8',
   },
   {
     id: 'mono',
@@ -47,7 +47,7 @@ const stops: JourneyStop[] = [
       'Three-month placement as a UI/UX Designer at Mono. Worked on client-facing design projects — wireframing, prototyping in Figma, and collaborating with developers.',
     skills: ['Figma', 'Wireframing', 'UI Design'],
     flag: '/images/flags/croatia.svg',
-    accent: '#E8EDF5',
+    accent: '#fafaf8',
   },
   {
     id: 'webdev',
@@ -60,7 +60,7 @@ const stops: JourneyStop[] = [
       'One-year top-up degree deepening the technical side: JavaScript, TypeScript, React, Next.js, databases, and APIs. Bridging design thinking and engineering craft.',
     skills: ['React', 'TypeScript', 'Next.js'],
     flag: '/images/flags/denmark.svg',
-    accent: '#EDF5E8',
+    accent: '#fafaf8',
   },
   {
     id: 'decode',
@@ -73,7 +73,7 @@ const stops: JourneyStop[] = [
       'Three-month placement as a Web Developer at Decode. Shipped production features, worked in a team codebase, and built the habit of writing code others can maintain.',
     skills: ['Production Code', 'Team Workflow', 'Code Review'],
     flag: '/images/flags/croatia.svg',
-    accent: '#F0E8F5',
+    accent: '#fafaf8',
   },
   {
     id: 'stockholm',
@@ -86,7 +86,7 @@ const stops: JourneyStop[] = [
       "Master's degree at Stockholm University exploring the intersection of design, emerging technology, and immersive experiences. Pushing into XR, creative coding, and human-centred innovation.",
     skills: ['XR Design', 'Creative Coding', 'Immersive Tech'],
     flag: '/images/flags/sweden.svg',
-    accent: '#E8F0F5',
+    accent: '#fafaf8',
   },
 ]
 
@@ -136,84 +136,71 @@ export default function JourneyScrollSection() {
     if (reducedMotion) return
 
     const section = sectionRef.current
-    const right = rightRef.current
     const ruler = rulerRef.current
-    if (!section || !right || !ruler) return
+    if (!section || !ruler) return
 
     const ctx = gsap.context(() => {
       const mm = gsap.matchMedia()
 
       /* ── Desktop ─────────────────────────────────── */
       mm.add('(min-width: 769px)', () => {
+        const scrollDistance = N * window.innerHeight
+
         // Images are in reverse DOM order (stop5 first, stop1 last = on top)
-        // Reverse the array so imgs[0] = stop1 (top), imgs[4] = stop5 (bottom)
+        // Reverse so imgs[0] = stop1 (top of stack), imgs[4] = stop5 (bottom)
         const rawImgs = gsap.utils.toArray<HTMLElement>(
           '.j-arch .j-img-wrap img',
         )
         const imgs = [...rawImgs].reverse()
 
-        gsap.set(imgs, {
-          clipPath: 'inset(0)',
-          objectPosition: '0px 0%',
-        })
+        // Text blocks in DOM order (stop1 first)
+        const textBlocks = gsap.utils.toArray<HTMLElement>('.j-arch-info')
 
+        // Initial state
+        gsap.set(imgs, { clipPath: 'inset(0)', objectPosition: '0px 0%' })
+        gsap.set(textBlocks, { opacity: 0 })
+        gsap.set(textBlocks[0], { opacity: 1 })
+
+        // Pin the entire section — this creates the freeze effect
         const mainTl = gsap.timeline({
           scrollTrigger: {
-            trigger: '.j-arch',
+            trigger: section,
             start: 'top top',
-            end: 'bottom bottom',
-            pin: right,
+            end: `+=${scrollDistance}`,
+            pin: true,
             scrub: true,
+            anticipatePin: 1,
           },
         })
 
-        // Transition bg colors (after each clip reveal)
         const bgColors = stops.slice(1).map((s) => s.accent)
 
         imgs.forEach((currentImage, index) => {
           const nextImage = imgs[index + 1] ?? null
+          const currentText = textBlocks[index] ?? null
+          const nextText = textBlocks[index + 1] ?? null
 
           const tl = gsap.timeline()
 
           if (nextImage) {
-            tl.to(
-              section,
-              {
-                backgroundColor: bgColors[index],
-                duration: 1.5,
-                ease: 'power2.inOut',
-              },
-              0,
-            )
-              .to(
-                currentImage,
-                {
-                  clipPath: 'inset(0px 0px 100%)',
-                  objectPosition: '0px 60%',
-                  duration: 1.5,
-                  ease: 'none',
-                },
-                0,
-              )
-              .to(
-                nextImage,
-                {
-                  objectPosition: '0px 40%',
-                  duration: 1.5,
-                  ease: 'none',
-                },
-                0,
-              )
+            // Fade out current text, fade in next
+            tl.to(currentText, { opacity: 0, duration: 0.5, ease: 'power2.inOut' }, 0)
+              .to(nextText, { opacity: 1, duration: 0.5, ease: 'power2.inOut' }, 0.5)
+              // Background color shift
+              .to(section, { backgroundColor: bgColors[index], duration: 1.5, ease: 'power2.inOut' }, 0)
+              // Image clip reveal
+              .to(currentImage, { clipPath: 'inset(0px 0px 100%)', objectPosition: '0px 60%', duration: 1.5, ease: 'none' }, 0)
+              .to(nextImage, { objectPosition: '0px 40%', duration: 1.5, ease: 'none' }, 0)
           }
 
           mainTl.add(tl)
         })
 
-        // Pin the ruler alongside the images
+        // Pin the ruler (no extra scroll space — section already pins)
         ScrollTrigger.create({
-          trigger: '.j-arch',
+          trigger: section,
           start: 'top top',
-          end: 'bottom bottom',
+          end: `+=${scrollDistance}`,
           pin: ruler,
           pinSpacing: false,
         })
@@ -231,12 +218,11 @@ export default function JourneyScrollSection() {
             top: `${dotEnd}%`,
             ease: 'none',
             scrollTrigger: {
-              trigger: '.j-arch',
+              trigger: section,
               start: 'top top',
-              end: 'bottom bottom',
+              end: `+=${scrollDistance}`,
               scrub: true,
               onUpdate: (self) => {
-                // Calculate which year the dot is closest to
                 const currentPos = dotStart + (dotEnd - dotStart) * self.progress
                 yearEls.forEach((el) => {
                   const y = parseInt(el.dataset.year ?? '0', 10)
@@ -319,7 +305,7 @@ export default function JourneyScrollSection() {
       <section
         data-theme="light"
         className="py-[var(--section-gap)]"
-        style={{ backgroundColor: stops[0].accent }}
+        style={{ backgroundColor: '#fafaf8' }}
       >
         <div className="mx-auto max-w-[var(--max-width)] px-6">
           <div className="flex flex-col gap-16">

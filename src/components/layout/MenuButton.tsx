@@ -12,7 +12,7 @@ export function MenuButton() {
       aria-label={isOpen ? 'Close navigation menu' : 'Open navigation menu'}
       aria-expanded={isOpen}
       className="char-reveal flex cursor-pointer items-center gap-2 text-base tracking-wide"
-      style={{ fontFamily: 'var(--font-dm-sans), sans-serif' }}
+      style={{ fontFamily: 'var(--font-satoshi), sans-serif' }}
     >
       <CharRevealText text={isOpen ? '× Close' : '≡ Menu'} />
     </button>
