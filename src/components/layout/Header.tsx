@@ -4,7 +4,7 @@ const NAV_LINKS = [
   { label: 'Home', href: '/' },
   { label: 'Projects', href: '/projects' },
   { label: 'Blog', href: '/blog' },
-  { label: 'Connect', href: '#contact' },
+  { label: 'Contact', href: '#contact' },
 ]
 
 export default function Header() {

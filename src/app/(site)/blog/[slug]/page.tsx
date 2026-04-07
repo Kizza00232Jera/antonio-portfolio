@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import Header from '@/components/layout/Header'
+import ThemeObserver from '@/components/providers/ThemeObserver'
 import PortableTextRenderer from '@/components/sanity/PortableTextRenderer'
 import { getBlogPostBySlug } from '@/lib/sanity/queries'
 
@@ -40,63 +41,65 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   }
 
   return (
-    <article className="relative mx-auto max-w-[var(--max-width)] px-6 py-[var(--section-gap)]">
-      {/* Back link */}
-      <Link
-        href="/blog"
-        className="inline-flex items-center gap-1 text-sm font-medium text-text-muted hover:text-text transition-colors mb-10"
-      >
-        ← Back to blog
-      </Link>
+    <div data-theme="dark">
+      <ThemeObserver />
+      <Header />
+    <article className="px-[clamp(1rem,3vw,3.5rem)] pt-[clamp(6rem,10vw,10rem)] pb-[clamp(3rem,6vw,6rem)]">
+      {/* Centered content column */}
+      <div className="mx-auto max-w-4xl">
 
-      {/* Header */}
-      <header className="mb-12">
-        <h1
-          className="font-heading font-bold text-text leading-tight mb-4 text-[length:var(--text-display)]"
+        {/* Back link */}
+        <Link
+          href="/blog"
+          className="inline-flex items-center gap-1 text-sm font-medium text-text-muted hover:text-text transition-colors mb-10"
         >
-          {post.title}
-        </h1>
+          ← Back to blogs
+        </Link>
 
-        <div className="flex flex-wrap items-center gap-4 text-sm text-text-muted">
-          {post.publishedAt && (
-            <time className="font-ui" dateTime={post.publishedAt}>
-              {formatDate(post.publishedAt)}
-            </time>
+        {/* Header — centered */}
+        <header className="mb-12 text-center">
+          <h1 className="font-heading font-bold text-text leading-tight mb-4 text-(length:--text-display)">
+            {post.title}
+          </h1>
+
+          <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-text-muted">
+            {post.publishedAt && (
+              <time className="font-ui" dateTime={post.publishedAt}>
+                {formatDate(post.publishedAt)}
+              </time>
+            )}
+
+            {post.tags && post.tags.length > 0 && (
+              <div className="flex flex-wrap justify-center gap-2">
+                {post.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="rounded-full border border-border px-3 py-0.5 font-ui text-xs"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {post.excerpt && (
+            <p className="mt-6 text-text-muted leading-relaxed text-(length:--text-body)">
+              {post.excerpt}
+            </p>
           )}
+        </header>
 
-          {post.tags && post.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {post.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="rounded-full border border-border px-3 py-0.5 font-ui text-xs"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {post.excerpt && (
-          <p
-            className="mt-6 text-text-muted leading-relaxed text-[length:var(--text-body)]"
-          >
-            {post.excerpt}
-          </p>
+        {/* Body */}
+        {post.body && (
+          <div>
+            <PortableTextRenderer value={post.body} />
+          </div>
         )}
-      </header>
 
-      {/* Body */}
-      {post.body && (
-        <div className="mx-auto max-w-3xl">
-          <PortableTextRenderer value={post.body} />
-        </div>
-      )}
-
-      {/* Footer */}
-      <footer className="mx-auto max-w-3xl mt-16 pt-8 border-t border-border">
-        <div className="flex flex-wrap gap-4">
+        {/* Footer */}
+        <footer className="mt-16 pt-8 border-t border-border">
+          <div className="flex flex-wrap gap-4">
           {post.githubUrl && (
             <a
               href={post.githubUrl}
@@ -148,10 +151,11 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           href="/blog"
           className="inline-flex items-center gap-1 text-sm font-medium text-text-muted hover:text-text transition-colors mt-8"
         >
-          ← All posts
+          ← All blogs
         </Link>
-      </footer>
-      <Header />
+        </footer>
+      </div>{/* /max-w-4xl */}
     </article>
+    </div>
   )
 }
