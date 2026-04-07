@@ -9,31 +9,21 @@ interface LatestPostsSectionProps {
 export default function LatestPostsSection({ posts }: LatestPostsSectionProps) {
   return (
     <section data-theme="dark" className="sticky top-0 min-h-screen max-h-screen overflow-hidden">
-      <div className="mx-auto max-w-[var(--max-width)] px-6 py-[var(--section-gap)]">
-      <div className="flex items-end justify-between gap-4 mb-6">
-          <h2 className="font-heading font-bold text-text leading-none text-[length:var(--text-display)]">
-            <span className="hidden md:inline">Blogs{' '}
-              <span className="text-text-muted align-super" style={{ fontSize: '0.4em' }}>
-                ({posts.length})
-              </span>
-            </span>
-            <span className="md:hidden">Latest blogs</span>
-          </h2>
-
+      <div className="mx-auto max-w-(--max-width) px-6 py-(--section-gap)">
+        <div className="flex items-center justify-end mb-6">
           <Link
             href="/blog"
             className="shrink-0 text-sm font-medium text-text-muted underline underline-offset-4 decoration-border hover:text-text hover:decoration-accent transition-colors"
           >
-            <span className="hidden md:inline">All posts</span>
-            <span className="md:hidden">Show all blogs</span>
+            View all posts →
           </Link>
-      </div>
+        </div>
 
-      {posts.length === 0 ? (
-        <p className="text-sm text-text-muted pt-6 border-t border-border">Posts coming soon.</p>
-      ) : (
-        <BlogListClient posts={posts} mobileLimit={4} />
-      )}
+        {posts.length === 0 ? (
+          <p className="text-sm text-text-muted pt-6 border-t border-border">Posts coming soon.</p>
+        ) : (
+          <BlogListClient posts={posts} mobileLimit={6} />
+        )}
       </div>
     </section>
   )
