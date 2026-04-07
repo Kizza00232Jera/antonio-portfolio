@@ -138,8 +138,9 @@ html.projects-theme body {
   color: white;
 }
 .header-root a,
-.header-root button {
-  pointer-events: auto;        /* re-enable clicks on interactive children */
+.header-root button,
+.header-root .nav-bracket-wrap {
+  pointer-events: auto;        /* re-enable clicks/hover on interactive children */
 }
 .header-root .char-reveal {
   --cr-color: white;           /* char pseudo-elements use white → difference handles the rest */
@@ -160,14 +161,23 @@ html.projects-theme body {
   }
 }
 
-.header-logo.char-reveal {
-  font-family: var(--font-satoshi), sans-serif;
-  font-size: 0.875rem;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+.header-logo-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
   justify-self: start;
   align-self: center;
+  line-height: 1;
+}
+
+.header-logo.char-reveal {
+  font-family: var(--font-satoshi), sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.2;
+  display: block;
 }
 
 .header-nav {
@@ -234,13 +244,12 @@ html.projects-theme body {
 
 .hero-wrapper {
   position: relative;
-  height: 300vh;
+  min-height: 100vh;
 }
 
 .hero-section {
-  position: sticky;
-  top: 0;
-  height: 100vh;
+  position: relative;
+  min-height: 100vh;
   overflow: hidden;
   background: #0d0d0d;
   color: #f7f7f7;
@@ -250,24 +259,22 @@ html.projects-theme body {
 .hero-body {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  min-height: 100vh;
   padding-top: 4rem; /* clear fixed header */
-  /* NO padding-inline — title goes edge-to-edge like Olha's */
   padding-bottom: clamp(1.5rem, 3vw, 2.5rem);
-  gap: 0; /* title and portrait-stack touch */
+  gap: 0;
 }
 
-/* Title — full-width, fluid, never wraps */
+/* Title — single row, fills most of viewport width */
 .hero-title {
   font-family: var(--font-display-alt);
-  font-size: clamp(2rem, 13vw, 17rem);
+  font-size: clamp(2rem, 12vw, 15rem);
   line-height: 0.88;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.01em;
   color: #f7f7f7;
   user-select: none;
   white-space: nowrap;
-  padding-inline: clamp(1rem, 2.5vw, 2.5rem);
-  /* Sits above portrait in z-order so it overlaps cleanly */
+  padding-inline: clamp(0.5rem, 2vw, 2rem);
   position: relative;
   z-index: 1;
 }
@@ -275,10 +282,10 @@ html.projects-theme body {
 .hero-title-line {
   display: flex;
   align-items: flex-end;
+  justify-content: center;
   gap: 0.28em;
 }
 
-/* Per-word group: letters sit side-by-side */
 .hero-title-word-group {
   display: flex;
 }
@@ -295,40 +302,34 @@ html.projects-theme body {
   will-change: transform;
 }
 
-/* Columns row — portrait aligns to top so it rises to meet the title */
+/* Columns row */
 .hero-columns {
   flex: 1;
   display: flex;
   align-items: flex-start;
-  gap: clamp(1.5rem, 3vw, 4rem);
+  gap: clamp(1rem, 2.5vw, 3rem);
   min-height: 0;
-  padding-inline: clamp(1.5rem, 4vw, 4rem);
+  padding-inline: clamp(1rem, 3vw, 3.5rem);
 }
 
-/* LEFT: portrait stack is the only direct child now */
+/* LEFT: portrait stack */
 .hero-left {
   display: block;
   flex-shrink: 0;
 }
 
-/* Portrait stack — wide enough to hold photo + descriptor panel side by side */
+/*
+ * Portrait stack — padding-bottom trick keeps height = 60% of width,
+ * which exactly matches the square photo child (60% wide × full height = square).
+ */
 .hero-portrait-stack {
   position: relative;
-  width: clamp(380px, 46vw, 660px);
-  height: clamp(280px, 32vw, 440px);
+  width: clamp(260px, 38vw, 560px);
+  height: 0;
+  padding-bottom: 60%; /* 60% of width → creates the square photo height */
   flex-shrink: 0;
-}
-
-.hero-photo-shade {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 60%;
-  height: 100%;
-  transform: translate(8px, 8px);
-  filter: blur(10px) brightness(0.2) opacity(0.6);
-  z-index: 0;
-  overflow: hidden;
+  margin-top: clamp(-2rem, -3vw, -1rem);
+  z-index: 2;
 }
 
 .hero-photo-main {
@@ -342,6 +343,13 @@ html.projects-theme body {
   clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
 }
 
+/* CSS gradient placeholder — swap for real square photo when ready */
+.hero-photo-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(160deg, #1c1c1c 0%, #2e2e2e 55%, #141414 100%);
+}
+
 /* Dark panel — right side of portrait stack, holds descriptor text */
 .hero-descriptor-panel {
   position: absolute;
@@ -350,24 +358,25 @@ html.projects-theme body {
   width: 41%;
   height: 100%;
   background-color: #181818;
+  border: 1px solid #2a2a2a;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 0 1.25rem 1.5rem;
-  gap: 4px;
+  padding: 1.5rem 1.25rem;
+  gap: 6px;
   z-index: 1;
 }
 
 .hero-descriptor {
   font-family: var(--font-mono);
-  font-size: clamp(0.6rem, 0.75vw, 0.75rem);
+  font-size: clamp(0.6rem, 0.85vw, 0.8rem);
   text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: rgba(247, 247, 247, 0.5);
+  letter-spacing: 0.12em;
+  color: rgba(247, 247, 247, 0.6);
   white-space: nowrap;
 }
 
-/* RIGHT: ball + sentence */
+/* RIGHT: spinning ball */
 .hero-right {
   flex: 1;
   position: relative;
@@ -380,8 +389,8 @@ html.projects-theme body {
 
 .hero-ball {
   position: relative;
-  width: clamp(240px, 30vw, 400px);
-  height: clamp(240px, 30vw, 400px);
+  width: clamp(200px, 28vw, 380px);
+  height: clamp(200px, 28vw, 380px);
   flex-shrink: 0;
 }
 
@@ -400,70 +409,46 @@ html.projects-theme body {
   transform: translate(-50%, -50%);
 }
 
-.hero-sentence {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 0 0.5em;
-  font-family: var(--font-body);
-  font-size: clamp(1rem, 1.4vw, 1.25rem);
-  letter-spacing: -0.01em;
-  line-height: 1.5;
-  color: #f7f7f7;
-  pointer-events: none;
-  padding: clamp(1rem, 3vw, 2.5rem);
-}
-
-.hero-sentence-word {
-  display: inline-block;
-  will-change: transform, opacity;
-}
-
-/* (old .hero-nav-link removed — nav now uses .header-nav-link via CharRevealLink) */
-
 /* ── Hero responsive ──────────────────────────────────── */
 @media (max-width: 900px) {
   .hero-columns {
     gap: 1rem;
   }
   .hero-portrait-stack {
-    width: clamp(280px, 42vw, 480px);
-    height: clamp(220px, 28vw, 360px);
+    width: clamp(220px, 40vw, 420px);
   }
 }
 
 @media (max-width: 768px) {
   .hero-title {
     font-size: clamp(2rem, 13vw, 7rem);
+    white-space: nowrap;
   }
 
   .hero-columns {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
+    align-items: center;
+    gap: 1.5rem;
   }
 
   .hero-portrait-stack {
-    width: min(85vw, 320px);
-    height: min(50vw, 200px);
+    width: min(82vw, 340px);
+    margin-top: 0;
   }
 
   .hero-descriptor-panel {
-    padding: 0 1rem 1rem;
-  }
-
-  .hero-ball {
-    width: 260px;
-    height: 260px;
-    align-self: center;
+    padding: 1rem;
+    gap: 4px;
   }
 
   .hero-right {
     width: 100%;
     justify-content: center;
+  }
+
+  .hero-ball {
+    width: 240px;
+    height: 240px;
   }
 }
 
@@ -520,12 +505,14 @@ html.projects-theme body {
   transform: translateY(100%);
 }
 .char-reveal:hover [data-char]::before,
-.group:hover .char-reveal [data-char]::before {
+.group:hover .char-reveal [data-char]::before,
+.nav-bracket-wrap:hover .char-reveal [data-char]::before {
   transform: translateY(-100%);
   opacity: 0;
 }
 .char-reveal:hover [data-char]::after,
-.group:hover .char-reveal [data-char]::after {
+.group:hover .char-reveal [data-char]::after,
+.nav-bracket-wrap:hover .char-reveal [data-char]::after {
   transform: translateY(0);
   opacity: 1;
   color: var(--cr-hover);
