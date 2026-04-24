@@ -18,6 +18,7 @@ interface JourneyStop {
   period: string
   description: string
   skills: string[]
+  image: string
   flag: string
   accent: string
 }
@@ -31,8 +32,9 @@ const stops: JourneyStop[] = [
     location: 'Aalborg, Denmark',
     period: '2020 – 2023',
     description:
-      'Moved from Croatia to Aalborg to study Medialogy — a bachelor programme at the intersection of design, code, and human experience. Learned to prototype, test, and iterate on digital products.',
-    skills: ['Prototyping', 'UX Research', 'Interactive Design'],
+      'Three years studying interaction design, front-end fundamentals, and user-centred thinking at Aalborg University. Built my first real understanding of how design and code work together — from UX research and prototyping, to building products with HTML, CSS and JavaScript.',
+    skills: ['Prototyping', 'UX Research', 'Interactive Design', 'HTML', 'CSS', 'JavaScript'],
+    image: '/images/multimedia_design.jpg',
     flag: '/images/flags/denmark.svg',
     accent: '#fafaf8',
   },
@@ -44,8 +46,9 @@ const stops: JourneyStop[] = [
     location: 'Osijek, Croatia',
     period: '2022',
     description:
-      'Three-month placement as a UI/UX Designer at Mono. Worked on client-facing design projects — wireframing, prototyping in Figma, and collaborating with developers.',
-    skills: ['Figma', 'Wireframing', 'UI Design'],
+      'Designed a marketing website and internal dashboard for a gas company repositioning itself as a green, innovative brand — starting with research, sitemaps, and user flows before a single screen was drawn. Translated that foundation into a strong visual identity across both products.',
+    skills: ['UX Research', 'Information Architecture', 'UI Design', 'Figma'],
+    image: '/images/mono2.jpg',
     flag: '/images/flags/croatia.svg',
     accent: '#fafaf8',
   },
@@ -59,6 +62,7 @@ const stops: JourneyStop[] = [
     description:
       'One-year top-up degree deepening the technical side: JavaScript, TypeScript, React, Next.js, databases, and APIs. Bridging design thinking and engineering craft.',
     skills: ['React', 'TypeScript', 'Next.js'],
+    image: '/images/web_development.jpg',
     flag: '/images/flags/denmark.svg',
     accent: '#fafaf8',
   },
@@ -70,8 +74,9 @@ const stops: JourneyStop[] = [
     location: 'Zagreb, Croatia',
     period: '2024',
     description:
-      'Three-month placement as a Web Developer at Decode. Shipped production features, worked in a team codebase, and built the habit of writing code others can maintain.',
-    skills: ['Production Code', 'Team Workflow', 'Code Review'],
+      'Designed an internal educational platform for Decode employees — building the full design system from scratch, including colour palette, typography, and components across iOS, Android, and desktop. Delivered every component with written documentation in Storybook.',
+    skills: ['Design Systems', 'Storybook', 'UI Design', 'iOS', 'Android'],
+    image: '/images/decode.webp',
     flag: '/images/flags/croatia.svg',
     accent: '#fafaf8',
   },
@@ -84,7 +89,8 @@ const stops: JourneyStop[] = [
     period: '2024 – 2026',
     description:
       "Master's degree at Stockholm University exploring the intersection of design, emerging technology, and immersive experiences. Pushing into XR, creative coding, and human-centred innovation.",
-    skills: ['XR Design', 'Creative Coding', 'Immersive Tech'],
+    skills: ['Unity', 'IoT', 'VR & MR', 'Immersive Technology'],
+    image: '/images/stockholm_university.jpeg',
     flag: '/images/flags/sweden.svg',
     accent: '#fafaf8',
   },
@@ -374,10 +380,12 @@ export default function JourneyScrollSection() {
               <div className="j-content">
                 <div className="j-card-img-mobile">
                   <Image
-                    src={stop.flag}
+                    src={stop.image}
                     alt=""
                     fill
-                    sizes="(max-width: 768px) 90vw, 1px"
+                    quality={90}
+                    className="object-cover"
+                    sizes="90vw"
                   />
                 </div>
                 <p className="j-label">
@@ -415,11 +423,12 @@ export default function JourneyScrollSection() {
           {[...stops].reverse().map((stop) => (
             <div key={`img-${stop.id}`} className="j-img-wrap">
               <Image
-                src={stop.flag}
+                src={stop.image}
                 alt=""
                 fill
-                className="j-img"
-                sizes="(max-width: 768px) 100vw, 540px"
+                quality={90}
+                className="j-img object-cover"
+                sizes="(max-width: 768px) 100vw, 600px"
               />
             </div>
           ))}

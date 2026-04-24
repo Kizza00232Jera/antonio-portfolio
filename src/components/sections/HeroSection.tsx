@@ -325,34 +325,34 @@ export default function HeroSection() {
 
           {/* ── Columns ────────────────────────── */}
           <div className="hero-columns">
-            {/* LEFT: portrait + descriptors */}
+            {/* LEFT: portrait stack (photo + descriptor panel) */}
             <div className="hero-left">
               <div className="hero-portrait-stack">
                 <div ref={photoShadeRef} className="hero-photo-shade" aria-hidden>
                   <Image
-                    src="/images/hero-portrait.png"
+                    src="/images/hero-portrait.jpeg"
                     alt=""
                     fill
                     className="object-cover object-top"
-                    sizes="(max-width: 768px) 60vw, 320px"
+                    sizes="(max-width: 768px) 50vw, 400px"
                   />
                 </div>
                 <div ref={photoMainRef} className="hero-photo-main">
                   <Image
-                    src="/images/hero-portrait.png"
+                    src="/images/hero-portrait.jpeg"
                     alt="Antonio Jerkovic"
                     fill
                     className="object-cover object-top"
-                    sizes="(max-width: 768px) 60vw, 320px"
+                    sizes="(max-width: 768px) 50vw, 400px"
                     priority
                   />
                 </div>
-              </div>
-
-              <div className="hero-descriptors">
-                {DESCRIPTORS.map((d) => (
-                  <span key={d} className="hero-descriptor">{d}</span>
-                ))}
+                {/* Dark panel — to the right of photo, descriptors overlaid */}
+                <div className="hero-descriptor-panel">
+                  {DESCRIPTORS.map((d) => (
+                    <span key={d} className="hero-descriptor">{d}</span>
+                  ))}
+                </div>
               </div>
             </div>
 
