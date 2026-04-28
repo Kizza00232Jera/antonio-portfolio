@@ -3,7 +3,6 @@ import Header from '@/components/layout/Header'
 import HeroSection from '@/components/sections/HeroSection'
 import JourneyScrollSection from '@/components/sections/JourneyScrollSection'
 import ProjectShowcaseSection from '@/components/sections/ProjectShowcaseSection'
-import TechStackSection from '@/components/sections/TechStackSection'
 import LatestPostsSection from '@/components/sections/LatestPostsSection'
 import SectionReveal from '@/components/ui/SectionReveal'
 import SectionTitle from '@/components/ui/SectionTitle'
@@ -25,7 +24,7 @@ export default async function HomePage() {
       <JourneyScrollSection />
       <SectionTitle title="MY PROJECTS" theme="dark" />
       <ProjectShowcaseSection projects={projects} />
-      <TechStackSection />
+      <SectionTitle title="BLOGS" theme="dark" />
       <LatestPostsSection posts={posts} />
     </div>
   )

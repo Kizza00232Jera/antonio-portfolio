@@ -1,5 +1,5 @@
-import { CharRevealLink } from '@/components/ui/CharReveal'
-import { MenuButton } from '@/components/layout/MenuButton'
+import Link from 'next/link'
+import { CharRevealLink, CharRevealText } from '@/components/ui/CharReveal'
 
 const NAV_LINKS = [
   { label: 'Home', href: '/' },
@@ -12,12 +12,11 @@ export default function Header() {
   return (
     <header className="header-root">
       <div className="header-inner">
-        {/* Logo — left */}
-        <CharRevealLink
-          href="/"
-          label="ANTONIO JERKOVIC"
-          className="header-logo"
-        />
+        {/* Logo — left, two stacked rows */}
+        <Link href="/" className="header-logo-wrap group">
+          <CharRevealText text="ANTONIO" className="header-logo" />
+          <CharRevealText text="JERKOVIC" className="header-logo" />
+        </Link>
 
         {/* Nav — center (desktop only) */}
         <nav className="header-nav" aria-label="Site navigation">
@@ -32,9 +31,13 @@ export default function Header() {
           ))}
         </nav>
 
-        {/* Menu button — right */}
+        {/* Contact — right */}
         <div className="header-right">
-          <MenuButton />
+          <CharRevealLink
+            href="#contact"
+            label="CONTACT ME ↗"
+            className="header-contact"
+          />
         </div>
       </div>
     </header>

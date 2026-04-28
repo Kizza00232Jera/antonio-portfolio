@@ -117,7 +117,7 @@
   --color-border:     #d1cdc7;
 
   /* Layout heights for calc-based sizing */
-  --header-h: 4rem;
+  --header-h: 5rem;
   --filter-h: 2.75rem;
   --progress-h: 1px;
   --card-h: calc(100dvh - var(--header-h) - var(--filter-h) - var(--progress-h));
@@ -148,9 +148,10 @@ html.projects-theme body {
 
 .header-inner {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  height: 4rem;
+  height: var(--header-h);
+  padding-top: 2.5rem;
   padding-inline: clamp(1.5rem, 4vw, 4rem);
 }
 @media (min-width: 769px) {
@@ -160,14 +161,33 @@ html.projects-theme body {
   }
 }
 
+/* Two-row logo wrapper */
+.header-logo-wrap {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.05;
+  gap: 0;
+  justify-self: start;
+  align-self: center;
+  text-decoration: none;
+}
+
 .header-logo.char-reveal {
   font-family: var(--font-satoshi), sans-serif;
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  justify-self: start;
-  align-self: center;
+}
+
+.header-contact.char-reveal {
+  font-family: var(--font-satoshi), sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.7);
+  padding-bottom: 2px;
 }
 
 .header-nav {
@@ -232,157 +252,97 @@ html.projects-theme body {
 
 /* ── Hero section ──────────────────────────────────────────── */
 
-.hero-wrapper {
-  position: relative;
-  height: 300vh;
-}
-
 .hero-section {
-  position: sticky;
-  top: 0;
   height: 100vh;
+  min-height: 600px;
   overflow: hidden;
   background: #0d0d0d;
   color: #f7f7f7;
 }
 
-/* Hero body starts below fixed header */
 .hero-body {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  padding-top: 4rem; /* clear fixed header */
-  /* NO padding-inline — title goes edge-to-edge like Olha's */
-  padding-bottom: clamp(1.5rem, 3vw, 2.5rem);
-  gap: 0; /* title and portrait-stack touch */
+  height: 100%;
+  padding-top: var(--header-h);
+  padding-bottom: 0;
 }
 
-/* Title — full-width, fluid, never wraps */
-.hero-title {
-  font-family: var(--font-display-alt);
-  font-size: clamp(2rem, 13vw, 17rem);
-  line-height: 0.88;
-  letter-spacing: -0.03em;
-  color: #f7f7f7;
-  user-select: none;
-  white-space: nowrap;
-  padding-inline: clamp(1rem, 2.5vw, 2.5rem);
-  /* Sits above portrait in z-order so it overlaps cleanly */
-  position: relative;
-  z-index: 1;
-}
-
-.hero-title-line {
-  display: flex;
-  align-items: flex-end;
-  gap: 0.28em;
-}
-
-/* Per-word group: letters sit side-by-side */
-.hero-title-word-group {
-  display: flex;
-}
-
-/* Per-char clip: masks the y travel so letters "drop in" */
-.hero-char-clip {
-  display: inline-block;
-  overflow: hidden;
-  line-height: 0.95;
-}
-
-.hero-char {
-  display: inline-block;
-  will-change: transform;
-}
-
-/* Columns row — portrait aligns to top so it rises to meet the title */
-.hero-columns {
+/* ── Main: 3-col row — left-text | globe | right-text ─── */
+.hero-main {
   flex: 1;
   display: flex;
-  align-items: flex-start;
-  gap: clamp(1.5rem, 3vw, 4rem);
+  align-items: center;
   min-height: 0;
-  padding-inline: clamp(1.5rem, 4vw, 4rem);
+  padding-inline: clamp(2.5rem, 5vw, 6rem);
+  gap: clamp(1rem, 2.5vw, 3rem);
 }
 
-/* LEFT: portrait stack is the only direct child now */
-.hero-left {
-  display: block;
+.hero-intro-left {
   flex-shrink: 0;
-}
-
-/* Portrait stack — wide enough to hold photo + descriptor panel side by side */
-.hero-portrait-stack {
-  position: relative;
-  width: clamp(380px, 46vw, 660px);
-  height: clamp(280px, 32vw, 440px);
-  flex-shrink: 0;
-}
-
-.hero-photo-shade {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 60%;
-  height: 100%;
-  transform: translate(8px, 8px);
-  filter: blur(10px) brightness(0.2) opacity(0.6);
-  z-index: 0;
-  overflow: hidden;
-}
-
-.hero-photo-main {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 60%;
-  height: 100%;
-  z-index: 1;
-  overflow: hidden;
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
-}
-
-/* Dark panel — right side of portrait stack, holds descriptor text */
-.hero-descriptor-panel {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 41%;
-  height: 100%;
-  background-color: #181818;
+  width: clamp(130px, 13vw, 210px);
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  padding: 0 1.25rem 1.5rem;
-  gap: 4px;
-  z-index: 1;
+  gap: 0.6rem;
 }
 
-.hero-descriptor {
-  font-family: var(--font-mono);
-  font-size: clamp(0.6rem, 0.75vw, 0.75rem);
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: rgba(247, 247, 247, 0.5);
-  white-space: nowrap;
-}
-
-/* RIGHT: ball + sentence */
-.hero-right {
+.hero-globe-wrap {
   flex: 1;
-  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 0;
-  height: 100%;
+  min-width: 0;
 }
 
+.hero-intro-right {
+  flex-shrink: 0;
+  width: clamp(155px, 17vw, 270px);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  text-align: right;
+}
+
+.hero-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(247, 247, 247, 0.35);
+}
+
+.hero-roles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.hero-role {
+  font-family: var(--font-mono);
+  font-size: clamp(0.65rem, 0.8vw, 0.85rem);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #f7f7f7;
+}
+
+.hero-about {
+  font-family: var(--font-body);
+  font-size: clamp(0.72rem, 0.82vw, 0.875rem);
+  line-height: 1.65;
+  color: rgba(247, 247, 247, 0.55);
+}
+
+/* ── Globe ──────────────────────────────────────── */
 .hero-ball {
   position: relative;
-  width: clamp(240px, 30vw, 400px);
-  height: clamp(240px, 30vw, 400px);
+  width: clamp(220px, 26vw, 360px);
+  height: clamp(220px, 26vw, 360px);
   flex-shrink: 0;
+  cursor: grab;
+  touch-action: none;
+}
+.hero-ball.is-dragging {
+  cursor: grabbing;
 }
 
 .hero-ball-item {
@@ -400,70 +360,72 @@ html.projects-theme body {
   transform: translate(-50%, -50%);
 }
 
-.hero-sentence {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 0 0.5em;
-  font-family: var(--font-body);
-  font-size: clamp(1rem, 1.4vw, 1.25rem);
-  letter-spacing: -0.01em;
-  line-height: 1.5;
-  color: #f7f7f7;
-  pointer-events: none;
-  padding: clamp(1rem, 3vw, 2.5rem);
+/* ── Wordmark — SVG, fills 100% viewport width ── */
+.hero-title {
+  flex-shrink: 0;
+  width: 100%;
+  overflow: hidden;
+  user-select: none;
+  line-height: 0;
+  margin-top: clamp(0.5rem, 1.5vw, 2rem);
 }
 
-.hero-sentence-word {
-  display: inline-block;
-  will-change: transform, opacity;
+.hero-title-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
 }
 
-/* (old .hero-nav-link removed — nav now uses .header-nav-link via CharRevealLink) */
+.hero-title-text {
+  font-family: var(--font-display-alt);
+  fill: #f7f7f7;
+}
 
-/* ── Hero responsive ──────────────────────────────────── */
+/* ── Hero responsive ─────────────────────────── */
 @media (max-width: 900px) {
-  .hero-columns {
+  .hero-main {
+    padding-inline: clamp(1.5rem, 3vw, 3rem);
     gap: 1rem;
   }
-  .hero-portrait-stack {
-    width: clamp(280px, 42vw, 480px);
-    height: clamp(220px, 28vw, 360px);
-  }
+  .hero-intro-left { width: clamp(110px, 12vw, 170px); }
+  .hero-intro-right { width: clamp(130px, 15vw, 220px); }
 }
 
+/* Mobile — sandwich: roles / globe / about / wordmark */
 @media (max-width: 768px) {
-  .hero-title {
-    font-size: clamp(2rem, 13vw, 7rem);
+  .hero-body {
+    padding-top: var(--header-h);
   }
 
-  .hero-columns {
+  .hero-main {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
+    align-items: stretch;
+    padding-inline: 1.25rem;
+    gap: 0;
   }
 
-  .hero-portrait-stack {
-    width: min(85vw, 320px);
-    height: min(50vw, 200px);
+  .hero-intro-left {
+    width: 100%;
+    padding-bottom: 0.5rem;
+    gap: 0.4rem;
   }
 
-  .hero-descriptor-panel {
-    padding: 0 1rem 1rem;
+  .hero-globe-wrap {
+    flex: 1;
+    min-height: 200px;
+  }
+
+  .hero-intro-right {
+    width: 100%;
+    text-align: left;
+    padding-top: 0.5rem;
+    gap: 0.4rem;
   }
 
   .hero-ball {
-    width: 260px;
-    height: 260px;
-    align-self: center;
-  }
-
-  .hero-right {
-    width: 100%;
-    justify-content: center;
+    width: min(70vw, 230px);
+    height: min(70vw, 230px);
   }
 }
 
