@@ -67,7 +67,7 @@ export default function SectionTitle({ title, theme }: SectionTitleProps) {
           fontFamily: 'var(--font-display-alt)',
           fontSize: 'clamp(5rem, 13vw, 17rem)',
           lineHeight: 0.9,
-          letterSpacing: '-0.04em',
+          letterSpacing: '0.04em',
           color,
           display: 'flex',
           flexWrap: 'wrap',
