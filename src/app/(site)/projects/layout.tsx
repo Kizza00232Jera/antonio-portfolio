@@ -6,7 +6,7 @@ export default function ProjectsLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="projects-theme projects-theme-bg">
+    <div className="projects-theme">
       <ThemeScope className="projects-theme" />
       <div id="projects-content" className="relative">{children}</div>
     </div>

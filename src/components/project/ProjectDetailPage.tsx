@@ -118,7 +118,7 @@ export function ProjectDetailPage({ project, posterUrl }: ProjectDetailPageProps
   }, [])
 
   const closeButtonClass =
-    'flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-border text-lg text-text-muted transition-colors hover:text-text'
+    'flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-text/25 text-lg text-text transition-colors hover:border-text/60'
   const metaLabelClass =
     'block font-ui text-[0.625rem] uppercase tracking-widest text-text-muted/60'
   const metaValueClass = 'text-sm text-text md:text-2xl'

@@ -31,9 +31,9 @@ export function ProjectsListingClient({
   }, [])
 
   return (
-    <section className="flex h-full flex-col">
+    <section className="flex flex-col md:h-full">
       {/* ── Mobile vertical list (< 768px) ── */}
-      <div className="flex flex-1 flex-col overflow-y-auto md:hidden">
+      <div className="flex flex-col pb-12 md:hidden">
         <div className="px-5 pb-4 pt-20">
           <h1
             className="font-heading font-bold uppercase leading-none text-text"
@@ -113,7 +113,7 @@ export function ProjectsListingClient({
       </div>
 
       {/* Progress bar + filter bar */}
-      <div className="shrink-0">
+      <div className="fixed bottom-0 left-0 right-0 z-10 md:relative md:shrink-0">
         {/* Scroll progress — desktop only */}
         <div className="hidden h-px bg-border md:block">
           <div

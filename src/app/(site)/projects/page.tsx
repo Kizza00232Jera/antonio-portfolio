@@ -14,7 +14,7 @@ export default async function ProjectsPage() {
   const [projects, tags] = await Promise.all([getAllProjects(), getAllTags()])
 
   return (
-    <div className="relative h-dvh overflow-hidden">
+    <div className="relative md:h-dvh md:overflow-hidden">
       <LenisStop />
       <ProjectsListingClient projects={projects} tags={tags} />
       <Header />

@@ -108,25 +108,13 @@
   background-color: #f2ede8;
 }
 
-/* ── Projects theme scope (warm beige) — used on /projects, /blog ── */
+/* ── Projects theme scope — used on /projects ── */
 .projects-theme {
-  --color-bg:         #f2ede8;
-  --color-bg-alt:     #e8e2da;
-  --color-text:       #080c18;
-  --color-text-muted: #5a6178;
-  --color-accent:     #3b82f6;
-  --color-border:     #d1cdc7;
-
   /* Layout heights for calc-based sizing */
   --header-h: 4rem;
   --filter-h: 2.75rem;
   --progress-h: 1px;
   --card-h: calc(100dvh - var(--header-h) - var(--filter-h) - var(--progress-h));
-}
-
-/* Body text on light theme — headings stay dark via text-text class */
-html.projects-theme body {
-  color: #5a6178;
 }
 
 /* ── Header — fixed, 3-col grid, mix-blend-mode: difference ── */
