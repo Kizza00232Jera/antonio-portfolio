@@ -135,7 +135,7 @@ export default function ProjectShowcaseSection({
   useEffect(() => {
     if (projects.length === 0) return
 
-    const isMobile = window.innerWidth < 768
+    const isMobile = window.innerWidth < 1024
     if (isMobile) return
 
     const section = sectionRef.current

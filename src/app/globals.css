@@ -1386,14 +1386,14 @@ html.projects-theme body {
 }
 
 /* ── Desktop height via CSS var — avoids SSR/hydration inline-style override on mobile ── */
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
   .project-showcase {
     height: var(--showcase-h);
   }
 }
 
 /* ── Responsive ── */
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   .project-showcase-sticky {
     position: relative;
     height: auto;
