@@ -242,154 +242,97 @@ html.projects-theme body {
 
 /* ── Hero section ──────────────────────────────────────────── */
 
-.hero-wrapper {
-  position: relative;
-}
-
 .hero-section {
   height: 100vh;
+  min-height: 600px;
   overflow: hidden;
   background: #0d0d0d;
   color: #f7f7f7;
 }
 
-/* Hero body starts below fixed header */
 .hero-body {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  padding-top: 4rem; /* clear fixed header */
-  padding-bottom: clamp(1.5rem, 3vw, 2.5rem);
-  gap: 0;
+  height: 100%;
+  padding-top: var(--header-h);
+  padding-bottom: 0;
 }
 
-/* Title — single row, fills most of viewport width */
-.hero-title {
-  font-family: var(--font-display-alt);
-  font-size: clamp(2rem, 12vw, 15rem);
-  line-height: 0.88;
-  letter-spacing: -0.01em;
-  color: #f7f7f7;
-  user-select: none;
-  white-space: nowrap;
-  padding-inline: clamp(0.5rem, 2vw, 2rem);
-  position: relative;
-  z-index: 1;
-}
-
-.hero-title-line {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 0.28em;
-}
-
-.hero-title-word-group {
-  display: flex;
-}
-
-/* Per-char clip: masks the y travel so letters "drop in" */
-.hero-char-clip {
-  display: inline-block;
-  overflow: hidden;
-  line-height: 0.95;
-}
-
-.hero-char {
-  display: inline-block;
-  will-change: transform;
-}
-
-/* Columns row */
-.hero-columns {
+/* ── Main: 3-col row — left-text | globe | right-text ─── */
+.hero-main {
   flex: 1;
   display: flex;
-  align-items: flex-start;
-  gap: clamp(1rem, 2.5vw, 3rem);
+  align-items: center;
   min-height: 0;
-  padding-inline: clamp(1rem, 3vw, 3.5rem);
+  padding-inline: clamp(2.5rem, 5vw, 6rem);
+  gap: clamp(1rem, 2.5vw, 3rem);
 }
 
-/* LEFT: portrait stack */
-.hero-left {
-  display: block;
+.hero-intro-left {
   flex-shrink: 0;
-}
-
-/*
- * Portrait stack: photo is 60% of stack width and square.
- * So stack height = 60% of stack width.
- * clamp(156px, 22.8vw, 336px) = 60% of clamp(260px, 38vw, 560px)
- */
-.hero-portrait-stack {
-  position: relative;
-  width: clamp(260px, 38vw, 560px);
-  height: clamp(156px, 22.8vw, 336px);
-  flex-shrink: 0;
-  margin-top: clamp(-2rem, -3vw, -1rem);
-  z-index: 2;
-}
-
-.hero-photo-main {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 60%;
-  height: 100%;
-  z-index: 1;
-  overflow: hidden;
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
-}
-
-/* CSS gradient placeholder — swap for real square photo when ready */
-.hero-photo-placeholder {
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(160deg, #1c1c1c 0%, #2e2e2e 55%, #141414 100%);
-}
-
-/* Dark panel — right side of portrait stack, holds descriptor text */
-.hero-descriptor-panel {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 41%;
-  height: 100%;
-  background-color: #181818;
-  border: 1px solid #2a2a2a;
+  width: clamp(130px, 13vw, 210px);
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  padding: 1.5rem 1.25rem;
-  gap: 6px;
-  z-index: 1;
+  gap: 0.6rem;
 }
 
-.hero-descriptor {
-  font-family: var(--font-mono);
-  font-size: clamp(0.6rem, 0.85vw, 0.8rem);
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: rgba(247, 247, 247, 0.6);
-  white-space: nowrap;
-}
-
-/* RIGHT: spinning ball */
-.hero-right {
+.hero-globe-wrap {
   flex: 1;
-  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 0;
-  height: 100%;
+  min-width: 0;
 }
 
+.hero-intro-right {
+  flex-shrink: 0;
+  width: clamp(155px, 17vw, 270px);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  text-align: right;
+}
+
+.hero-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(247, 247, 247, 0.35);
+}
+
+.hero-roles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.hero-role {
+  font-family: var(--font-mono);
+  font-size: clamp(0.65rem, 0.8vw, 0.85rem);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #f7f7f7;
+}
+
+.hero-about {
+  font-family: var(--font-body);
+  font-size: clamp(0.72rem, 0.82vw, 0.875rem);
+  line-height: 1.65;
+  color: rgba(247, 247, 247, 0.55);
+}
+
+/* ── Globe ──────────────────────────────────────── */
 .hero-ball {
   position: relative;
-  width: clamp(200px, 28vw, 380px);
-  height: clamp(200px, 28vw, 380px);
+  width: clamp(220px, 26vw, 360px);
+  height: clamp(220px, 26vw, 360px);
   flex-shrink: 0;
+  cursor: grab;
+  touch-action: none;
+}
+.hero-ball.is-dragging {
+  cursor: grabbing;
 }
 
 .hero-ball-item {
@@ -407,48 +350,72 @@ html.projects-theme body {
   transform: translate(-50%, -50%);
 }
 
-/* ── Hero responsive ──────────────────────────────────── */
-@media (max-width: 900px) {
-  .hero-columns {
-    gap: 1rem;
-  }
-  .hero-portrait-stack {
-    width: clamp(220px, 40vw, 420px);
-    height: clamp(132px, 24vw, 252px); /* 60% of width */
-  }
+/* ── Wordmark — SVG, fills 100% viewport width ── */
+.hero-title {
+  flex-shrink: 0;
+  width: 100%;
+  overflow: hidden;
+  user-select: none;
+  line-height: 0;
+  margin-top: clamp(0.5rem, 1.5vw, 2rem);
 }
 
+.hero-title-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.hero-title-text {
+  font-family: var(--font-display-alt);
+  fill: #f7f7f7;
+}
+
+/* ── Hero responsive ─────────────────────────── */
+@media (max-width: 900px) {
+  .hero-main {
+    padding-inline: clamp(1.5rem, 3vw, 3rem);
+    gap: 1rem;
+  }
+  .hero-intro-left { width: clamp(110px, 12vw, 170px); }
+  .hero-intro-right { width: clamp(130px, 15vw, 220px); }
+}
+
+/* Mobile — sandwich: roles / globe / about / wordmark */
 @media (max-width: 768px) {
-  .hero-title {
-    font-size: clamp(2rem, 13vw, 7rem);
-    white-space: nowrap;
+  .hero-body {
+    padding-top: var(--header-h);
   }
 
-  .hero-columns {
+  .hero-main {
     flex-direction: column;
-    align-items: center;
-    gap: 1.5rem;
+    align-items: stretch;
+    padding-inline: 1.25rem;
+    gap: 0;
   }
 
-  .hero-portrait-stack {
-    width: min(82vw, 340px);
-    height: min(49.2vw, 204px); /* 60% of width */
-    margin-top: 0;
-  }
-
-  .hero-descriptor-panel {
-    padding: 1rem;
-    gap: 4px;
-  }
-
-  .hero-right {
+  .hero-intro-left {
     width: 100%;
-    justify-content: center;
+    padding-bottom: 0.5rem;
+    gap: 0.4rem;
+  }
+
+  .hero-globe-wrap {
+    flex: 1;
+    min-height: 200px;
+  }
+
+  .hero-intro-right {
+    width: 100%;
+    text-align: left;
+    padding-top: 0.5rem;
+    gap: 0.4rem;
   }
 
   .hero-ball {
-    width: 240px;
-    height: 240px;
+    width: min(70vw, 230px);
+    height: min(70vw, 230px);
   }
 }
 
@@ -471,7 +438,7 @@ html.projects-theme body {
 /* ── Staggered character reveal hover animation ──────── */
 .char-reveal {
   --cr-size: inherit;
-  --cr-color: #eef0f6;   /* default; overridden by .header-root per theme */
+  --cr-color: #eef0f6;
   --cr-hover: #3b82f6;
   --cr-delay: 25ms;
 
