@@ -37,6 +37,7 @@
 :root {
   --section-gap: clamp(5rem, 7vw, 7rem);
   --max-width: 1200px;
+  --header-h: 5rem;
 }
 
 /* ── Base reset ────────────────────────────────────────────── */
@@ -382,40 +383,85 @@ html.projects-theme body {
   .hero-intro-right { width: clamp(130px, 15vw, 220px); }
 }
 
-/* Mobile — sandwich: roles / globe / about / wordmark */
-@media (max-width: 768px) {
-  .hero-body {
-    padding-top: var(--header-h);
-  }
+/* Mobile — two-panel carousel replaces three-column layout */
 
+/* Carousel container — hidden on desktop */
+.hero-mobile-carousel {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  /* Hide desktop 3-col layout and globe */
   .hero-main {
-    flex-direction: column;
-    align-items: stretch;
-    padding-inline: 1.25rem;
-    gap: 0;
+    display: none;
   }
 
-  .hero-intro-left {
-    width: 100%;
-    padding-bottom: 0.5rem;
-    gap: 0.4rem;
-  }
-
-  .hero-globe-wrap {
+  /* Show carousel */
+  .hero-mobile-carousel {
     flex: 1;
-    min-height: 200px;
+    position: relative;
+    display: flex;
+    min-height: 0;
   }
 
-  .hero-intro-right {
-    width: 100%;
-    text-align: left;
-    padding-top: 0.5rem;
-    gap: 0.4rem;
+  .hero-carousel-panel {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1.5rem;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
   }
 
-  .hero-ball {
-    width: min(70vw, 230px);
-    height: min(70vw, 230px);
+  .hero-carousel-panel.is-active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .hero-carousel-panel .hero-eyebrow {
+    font-size: 0.75rem;
+  }
+
+  .hero-carousel-panel .hero-role {
+    font-size: 0.875rem;
+  }
+
+  .hero-carousel-panel .hero-about {
+    font-size: 0.875rem;
+  }
+
+  /* Dot indicators — bottom-right of carousel */
+  .hero-carousel-dots {
+    position: absolute;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    display: flex;
+    gap: 0.5rem;
+    z-index: 1;
+  }
+
+  .hero-carousel-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(247, 247, 247, 0.3);
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: background-color 0.3s ease;
+    touch-action: manipulation;
+  }
+
+  .hero-carousel-dot.is-active {
+    background: rgba(247, 247, 247, 0.9);
+  }
+
+  /* Wordmark bottom padding */
+  .hero-title {
+    padding-bottom: 2rem;
   }
 }
 
@@ -1339,12 +1385,15 @@ html.projects-theme body {
   display: none;
 }
 
+/* ── Desktop height via CSS var — avoids SSR/hydration inline-style override on mobile ── */
+@media (min-width: 768px) {
+  .project-showcase {
+    height: var(--showcase-h);
+  }
+}
+
 /* ── Responsive ── */
 @media (max-width: 767px) {
-  .project-showcase {
-    height: auto;
-  }
-
   .project-showcase-sticky {
     position: relative;
     height: auto;

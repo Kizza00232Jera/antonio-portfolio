@@ -2,6 +2,7 @@
 
 import { useRef, useEffect } from 'react'
 import { gsap } from 'gsap'
+import { useCarouselState } from '@/components/ui/useCarouselState'
 
 /* ── Data ─────────────────────────────────────────── */
 
@@ -32,6 +33,7 @@ const BASE_POSITIONS = Array.from({ length: N }, (_, i) => {
 /* ── Component ────────────────────────────────────── */
 
 export default function HeroSection() {
+  const { activePanel, goToPanel } = useCarouselState(2)
   const sectionRef = useRef<HTMLElement>(null)
   const titleRef = useRef<HTMLDivElement>(null)
   const ballContainerRef = useRef<HTMLDivElement>(null)
@@ -61,7 +63,7 @@ export default function HeroSection() {
       }
 
       // Intro panels
-      gsap.from('.hero-eyebrow', {
+      gsap.from('.hero-main .hero-eyebrow', {
         opacity: 0,
         y: 8,
         duration: 0.7,
@@ -69,7 +71,7 @@ export default function HeroSection() {
         stagger: 0.15,
         delay: 0.55,
       })
-      gsap.from('.hero-role', {
+      gsap.from('.hero-main .hero-role', {
         opacity: 0,
         x: -10,
         duration: 0.6,
@@ -77,7 +79,7 @@ export default function HeroSection() {
         stagger: 0.08,
         delay: 0.7,
       })
-      gsap.from('.hero-about', {
+      gsap.from('.hero-main .hero-about', {
         opacity: 0,
         y: 10,
         duration: 0.8,
@@ -246,6 +248,32 @@ export default function HeroSection() {
             <p className="hero-about">{ABOUT}</p>
           </div>
 
+        </div>
+
+        {/* ── Mobile: 2-panel carousel ─────────── */}
+        <div className="hero-mobile-carousel">
+          <div className={`hero-carousel-panel${activePanel === 0 ? ' is-active' : ''}`}>
+            <span className="hero-eyebrow">/ 02 — ABOUT ME</span>
+            <p className="hero-about">{ABOUT}</p>
+          </div>
+          <div className={`hero-carousel-panel${activePanel === 1 ? ' is-active' : ''}`}>
+            <span className="hero-eyebrow">/ 01 — ROLES</span>
+            <div className="hero-roles">
+              {ROLES.map((r) => (
+                <span key={r} className="hero-role">{r}</span>
+              ))}
+            </div>
+          </div>
+          <div className="hero-carousel-dots">
+            {[0, 1].map((i) => (
+              <button
+                key={i}
+                className={`hero-carousel-dot${activePanel === i ? ' is-active' : ''}`}
+                onClick={() => goToPanel(i)}
+                aria-label={`Panel ${i + 1}`}
+              />
+            ))}
+          </div>
         </div>
 
         {/* ── Wordmark — SVG, fills 100% width ──── */}
