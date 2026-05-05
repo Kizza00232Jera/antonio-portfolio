@@ -39,6 +39,7 @@ export default function HeroSection() {
   const ballContainerRef = useRef<HTMLDivElement>(null)
   const ballItemRefs = useRef<(HTMLSpanElement | null)[]>([])
   const rafIdRef = useRef(0)
+  const radiusRef = useRef(0)
   const rotYRef = useRef(0)
   const rotXRef = useRef(0)
   const speedRef = useRef(0.007)
@@ -96,7 +97,7 @@ export default function HeroSection() {
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (prefersReduced) return
 
-    const RADIUS = window.innerWidth < 768 ? 110 : 160
+    radiusRef.current = window.innerWidth < 768 ? 110 : 160
     const FOCAL = 380
 
     function animate() {
@@ -110,6 +111,7 @@ export default function HeroSection() {
       const sinX = Math.sin(rotXRef.current)
       const cosY = Math.cos(rotYRef.current)
       const sinY = Math.sin(rotYRef.current)
+      const R = radiusRef.current
 
       BASE_POSITIONS.forEach((pos, i) => {
         const el = ballItemRefs.current[i]
@@ -123,9 +125,9 @@ export default function HeroSection() {
         const finalY = ry * cosX - rz * sinX
         const finalZ = ry * sinX + rz * cosX
 
-        const scale = FOCAL / (FOCAL + finalZ * RADIUS)
-        const sx = finalX * RADIUS * scale
-        const sy = finalY * RADIUS * scale
+        const scale = FOCAL / (FOCAL + finalZ * R)
+        const sx = finalX * R * scale
+        const sy = finalY * R * scale
         const depth = (finalZ + 1) / 2
 
         el.style.transform = `translate(-50%, -50%) translate3d(${sx.toFixed(1)}px, ${sy.toFixed(1)}px, 0)`
@@ -139,6 +141,22 @@ export default function HeroSection() {
 
     rafIdRef.current = requestAnimationFrame(animate)
     return () => cancelAnimationFrame(rafIdRef.current)
+  }, [])
+
+  /* ── Recompute orbit radius on resize ────────── */
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout>
+    const onResize = () => {
+      clearTimeout(timer)
+      timer = setTimeout(() => {
+        radiusRef.current = window.innerWidth < 768 ? 110 : 160
+      }, 150)
+    }
+    window.addEventListener('resize', onResize)
+    return () => {
+      clearTimeout(timer)
+      window.removeEventListener('resize', onResize)
+    }
   }, [])
 
   /* ── Globe interaction (hover + drag) ────────── */
