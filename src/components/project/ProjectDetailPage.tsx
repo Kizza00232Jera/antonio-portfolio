@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import Image from 'next/image'
@@ -40,6 +41,7 @@ interface ProjectDetailPageProps {
 }
 
 export function ProjectDetailPage({ project, posterUrl }: ProjectDetailPageProps) {
+  const router = useRouter()
   const { isTransitioning } = useProjectTransition()
   const contentRef = useRef<HTMLDivElement>(null)
   const heroRef = useRef<HTMLDivElement>(null)
@@ -131,7 +133,7 @@ export function ProjectDetailPage({ project, posterUrl }: ProjectDetailPageProps
           <div className="grid grid-cols-1 gap-x-8 gap-y-4 md:grid-cols-2" data-animate>
             {/* Row 1, col 1: X close button */}
             <button
-              onClick={() => { window.location.href = '/projects' }}
+              onClick={() => { router.push('/projects') }}
               className={closeButtonClass}
               aria-label="Back to projects"
             >
@@ -220,7 +222,7 @@ export function ProjectDetailPage({ project, posterUrl }: ProjectDetailPageProps
           {/* Left column — X close button top, "Scroll for more" bottom */}
           <div className="flex w-[25%] shrink-0 flex-col justify-between pt-28 pb-8">
             <button
-              onClick={() => { window.location.href = '/projects' }}
+              onClick={() => { router.push('/projects') }}
               className={closeButtonClass}
               aria-label="Back to projects"
               data-animate
