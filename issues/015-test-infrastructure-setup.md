@@ -1,35 +1,33 @@
 ---
 title: Set up Vitest + React Testing Library + Playwright test infrastructure
-type: AFK
+type: HITL
 priority: normal
 ---
 
-## Problem
+## Status: blocked on package installation
 
-There is no test suite. Before writing any unit or e2e tests, the test infrastructure must be installed and configured.
+Config files, scripts, and `e2e/` directory are committed. Human must run:
 
-## Desired behaviour
+```
+pnpm add -D vitest @vitejs/plugin-react jsdom @testing-library/react \
+  @testing-library/jest-dom @testing-library/user-event @playwright/test
+```
 
-Three testing layers are configured and can run with a single command each:
-- `pnpm test` — Vitest unit tests
-- `pnpm test:e2e` — Playwright end-to-end tests
+Once that runs and `pnpm-lock.yaml` is updated, this issue is complete.
+Verify with `pnpm test` (exits 0) and `pnpm test:e2e` (exits 0).
 
-## Acceptance criteria
+## What was done
 
-- [ ] `vitest` and `@testing-library/react` and `@testing-library/jest-dom` are installed as dev dependencies
-- [ ] `vitest.config.ts` is created at the project root, configured for jsdom environment and Next.js
-- [ ] `@playwright/test` is installed as a dev dependency
-- [ ] `playwright.config.ts` is created at the project root, configured to run against `http://localhost:3000`
-- [ ] `pnpm test` runs Vitest and exits 0 (even if no tests exist yet — zero tests passing is fine)
-- [ ] `pnpm test:e2e` runs Playwright and exits 0 (or reports "no tests found" cleanly)
-- [ ] `pnpm build` passes with no errors
+- [x] `vitest.config.ts` created (jsdom env, @vitejs/plugin-react, path alias, passWithNoTests)
+- [x] `vitest.setup.ts` created (imports @testing-library/jest-dom)
+- [x] `playwright.config.ts` created (testDir: e2e/, baseURL: localhost:3000)
+- [x] `pnpm test` and `pnpm test:e2e` scripts added to package.json
+- [x] All new devDependencies declared in package.json (need `pnpm install` to lock)
+- [x] `vitest.config.ts`, `vitest.setup.ts`, `playwright.config.ts` excluded from tsconfig.json
+- [x] `e2e/` directory created with .gitkeep
+- [x] `pnpm build` passes with no errors
 
-## Out of scope
+## Blocked on
 
-- Do not write any tests in this issue — infrastructure only
-- Do not configure code coverage
-
-## Notes
-
-For Vitest with Next.js App Router, the config needs `environment: 'jsdom'` and may need to handle CSS module transforms. Use `@vitejs/plugin-react` if needed.
-Add `"test": "vitest run"` and `"test:e2e": "playwright test"` to `package.json` scripts.
+`pnpm add` was not available in the current session permission mode (acceptEdits).
+A human or privileged session must run the install command above.
