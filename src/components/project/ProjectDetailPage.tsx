@@ -128,7 +128,7 @@ export function ProjectDetailPage({ project, posterUrl }: ProjectDetailPageProps
 
         {/* ===== MOBILE LAYOUT (< lg): 2-col grid matching reference ===== */}
         <div className="flex h-full flex-col pt-24 pb-8 lg:hidden">
-          <div className="grid grid-cols-2 gap-x-8 gap-y-4" data-animate>
+          <div className="grid grid-cols-1 gap-x-8 gap-y-4 md:grid-cols-2" data-animate>
             {/* Row 1, col 1: X close button */}
             <button
               onClick={() => { window.location.href = '/projects' }}
@@ -183,8 +183,8 @@ export function ProjectDetailPage({ project, posterUrl }: ProjectDetailPageProps
               )}
             </div>
 
-            {/* Row 3, col 1: empty spacer */}
-            <div />
+            {/* Row 3, col 1: empty spacer (2-col layout only) */}
+            <div className="hidden md:block" />
 
             {/* Row 3, col 2: Live Website */}
             {project.liveUrl && (
