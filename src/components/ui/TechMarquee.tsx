@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import { useEffect, useRef } from 'react'
 import { urlFor } from '@/lib/sanity/image'
 import type { TechStackItem } from '@/lib/sanity/types'
 import { cn } from '@/utils/cn'
@@ -11,6 +12,24 @@ interface TechMarqueeProps {
 }
 
 export function TechMarquee({ items, className }: TechMarqueeProps) {
+  const trackRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const el = trackRef.current
+    if (!el) return
+
+    const pause = () => { el.style.animationPlayState = 'paused' }
+    const resume = () => { el.style.animationPlayState = '' }
+
+    el.addEventListener('touchstart', pause, { passive: true })
+    el.addEventListener('touchend', resume, { passive: true })
+
+    return () => {
+      el.removeEventListener('touchstart', pause)
+      el.removeEventListener('touchend', resume)
+    }
+  }, [])
+
   if (items.length === 0) return null
 
   // Duplicate items for seamless infinite loop
@@ -19,6 +38,7 @@ export function TechMarquee({ items, className }: TechMarqueeProps) {
   return (
     <div className={cn('overflow-hidden border-y border-border py-4', className)}>
       <div
+        ref={trackRef}
         className="marquee-track flex gap-10 whitespace-nowrap"
         style={{
           animation: 'marquee-scroll 25s linear infinite',
