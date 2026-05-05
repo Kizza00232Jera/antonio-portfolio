@@ -25,8 +25,9 @@ React Testing Library tests verify the NavOverlay's observable behaviour through
 - Created `src/components/layout/NavOverlay.test.tsx` with 3 tests:
   1. Clicking the menu button sets `aria-expanded="true"` on the button
   2. Pressing Escape after opening resets `aria-expanded` to `"false"`
-  3. All four nav links (Home, Projects, Blog, Contact) are present in the DOM
+  3. All four nav links are present (checked by href: `/`, `/projects`, `/blog`, `/#contact`)
 - Mocked `next/navigation` (usePathname), `gsap`, `next/image`, `next/link`
+- `gsap.set` mock applies inline styles to DOM elements so `visibility: hidden` is removed when the overlay opens, making links accessible to ARIA queries
 - Mocked `window.matchMedia` to satisfy NavOverlay's `prefers-reduced-motion` check
 - Used full `MenuProvider` + `MenuButton` + `NavOverlay` integration render (no state mocking)
-- GSAP visibility toggling is not tested (GSAP does not run in jsdom); aria-expanded is used instead as the observable state indicator
+- Link-presence test opens the overlay first (so `aria-hidden` is removed), then checks hrefs (CharRevealLink renders chars in individual spans, so ARIA accessible name has spaces between letters)

@@ -12,7 +12,14 @@ vi.mock('next/navigation', () => ({
 
 vi.mock('gsap', () => ({
   gsap: {
-    set: vi.fn(),
+    set: vi.fn((target, props: Record<string, unknown>) => {
+      const els = Array.isArray(target) ? target : [target]
+      for (const el of els) {
+        if (el && typeof el === 'object' && 'style' in el) {
+          Object.assign((el as HTMLElement).style, props)
+        }
+      }
+    }),
     to: vi.fn(),
     fromTo: vi.fn(),
   },
@@ -65,11 +72,14 @@ describe('NavOverlay', () => {
     expect(button).toHaveAttribute('aria-expanded', 'false')
   })
 
-  it('all four nav links are present in the overlay', () => {
+  it('all four nav links are present in the overlay', async () => {
     renderNav()
-    expect(screen.getByRole('link', { name: 'Home' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Projects' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Blog' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Contact' })).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: /open navigation menu/i }))
+    const links = screen.getAllByRole('link')
+    const hrefs = links.map(link => link.getAttribute('href'))
+    expect(hrefs).toContain('/')
+    expect(hrefs).toContain('/projects')
+    expect(hrefs).toContain('/blog')
+    expect(hrefs).toContain('/#contact')
   })
 })
