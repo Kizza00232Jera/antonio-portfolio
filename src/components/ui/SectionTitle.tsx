@@ -65,7 +65,7 @@ export default function SectionTitle({ title, theme }: SectionTitleProps) {
       <h2
         style={{
           fontFamily: 'var(--font-display-alt)',
-          fontSize: 'clamp(5rem, 13vw, 17rem)',
+          fontSize: 'clamp(3rem, 13vw, 17rem)',
           lineHeight: 0.9,
           letterSpacing: '0.04em',
           color,
