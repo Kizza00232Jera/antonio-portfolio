@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { CharRevealLink, CharRevealText } from '@/components/ui/CharReveal'
+import { MenuButton } from '@/components/layout/MenuButton'
 
 const NAV_LINKS = [
   { label: 'Home', href: '/' },
@@ -31,13 +32,18 @@ export default function Header() {
           ))}
         </nav>
 
-        {/* Contact — right */}
+        {/* Right side: hamburger on mobile, Contact link on desktop */}
         <div className="header-right">
-          <CharRevealLink
-            href="#contact"
-            label="CONTACT ME ↗"
-            className="header-contact"
-          />
+          <div className="md:hidden">
+            <MenuButton />
+          </div>
+          <div className="hidden md:flex">
+            <CharRevealLink
+              href="#contact"
+              label="CONTACT ME ↗"
+              className="header-contact"
+            />
+          </div>
         </div>
       </div>
     </header>
