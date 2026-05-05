@@ -4,7 +4,6 @@ import HeroSection from '@/components/sections/HeroSection'
 import JourneyScrollSection from '@/components/sections/JourneyScrollSection'
 import ProjectShowcaseSection from '@/components/sections/ProjectShowcaseSection'
 import LatestPostsSection from '@/components/sections/LatestPostsSection'
-import SectionReveal from '@/components/ui/SectionReveal'
 import SectionTitle from '@/components/ui/SectionTitle'
 import ThemeObserver from '@/components/providers/ThemeObserver'
 
@@ -17,7 +16,6 @@ export default async function HomePage() {
   return (
     <div>
       <ThemeObserver />
-      <SectionReveal />
       <Header />
       <HeroSection />
       <SectionTitle title="MY JOURNEY" theme="light" />
