@@ -8,6 +8,7 @@ import dynamic from 'next/dynamic'
 import { useProjectTransition } from '@/contexts/ProjectTransitionContext'
 import { urlFor } from '@/lib/sanity/image'
 import type { Project } from '@/lib/sanity/types'
+import { formatDateShort } from '@/utils/format'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -32,12 +33,6 @@ const ProjectAccordion = dynamic(
     import('@/components/ui/ProjectAccordion').then((m) => m.ProjectAccordion),
   { ssr: false },
 )
-
-function formatDate(dateStr?: string): string {
-  if (!dateStr) return ''
-  const d = new Date(dateStr)
-  return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
-}
 
 interface ProjectDetailPageProps {
   project: Project
@@ -168,7 +163,7 @@ export function ProjectDetailPage({ project, posterUrl }: ProjectDetailPageProps
                 <>
                   <span className={metaLabelClass}>Date</span>
                   <span className="text-sm text-text">
-                    {formatDate(project.publishedAt)}
+                    {formatDateShort(project.publishedAt)}
                   </span>
                 </>
               )}
@@ -272,7 +267,7 @@ export function ProjectDetailPage({ project, posterUrl }: ProjectDetailPageProps
                   <div>
                     <span className={metaLabelClass}>Date</span>
                     <span className={metaValueClass}>
-                      {formatDate(project.publishedAt)}
+                      {formatDateShort(project.publishedAt)}
                     </span>
                   </div>
                 )}

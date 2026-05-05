@@ -5,6 +5,7 @@ import { HorizontalProjectCard } from '@/components/ui/HorizontalProjectCard'
 import { HorizontalScroll } from '@/components/ui/HorizontalScroll'
 import { ProjectFilterBar } from '@/components/ui/ProjectFilterBar'
 import type { Project, Tag } from '@/lib/sanity/types'
+import { filterByTag } from '@/utils/tags'
 
 interface ProjectsListingClientProps {
   projects: Project[]
@@ -18,11 +19,11 @@ export function ProjectsListingClient({
   const [activeTag, setActiveTag] = useState<string | null>(null)
   const [scrollProgress, setScrollProgress] = useState(0)
 
-  const filteredProjects = activeTag
-    ? projects.filter((p) =>
-        p.tags?.some((t) => t.slug.current === activeTag),
-      )
-    : projects
+  const filteredProjects = filterByTag(
+    projects,
+    activeTag,
+    (p) => (p.tags ?? []).map((t) => t.slug.current),
+  )
 
   const handleTagChange = useCallback((tagSlug: string | null) => {
     setActiveTag(tagSlug)

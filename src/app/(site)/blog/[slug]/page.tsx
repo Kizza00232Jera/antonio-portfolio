@@ -5,6 +5,7 @@ import Header from '@/components/layout/Header'
 import ThemeObserver from '@/components/providers/ThemeObserver'
 import PortableTextRenderer from '@/components/sanity/PortableTextRenderer'
 import { getBlogPostBySlug } from '@/lib/sanity/queries'
+import { formatDateFull } from '@/utils/format'
 
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>
@@ -22,14 +23,6 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
     title: `${post.title} | Antonio`,
     description: post.excerpt ?? 'A blog post by Antonio.',
   }
-}
-
-function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  })
 }
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
@@ -65,7 +58,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-text-muted">
             {post.publishedAt && (
               <time className="font-ui" dateTime={post.publishedAt}>
-                {formatDate(post.publishedAt)}
+                {formatDateFull(post.publishedAt)}
               </time>
             )}
 

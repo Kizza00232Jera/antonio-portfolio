@@ -7,18 +7,12 @@ import { urlFor } from '@/lib/sanity/image'
 import type { Project } from '@/lib/sanity/types'
 import { cn } from '@/utils/cn'
 import { useProjectTransition } from '@/contexts/ProjectTransitionContext'
+import { formatDateCompact } from '@/utils/format'
+import { getThumbnailUrl } from '@/utils/project'
 
 interface HorizontalProjectCardProps {
   project: Project
   className?: string
-}
-
-function formatDate(dateStr?: string): string {
-  if (!dateStr) return ''
-  const d = new Date(dateStr)
-  return d
-    .toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
-    .toUpperCase()
 }
 
 export function HorizontalProjectCard({
@@ -29,11 +23,7 @@ export function HorizontalProjectCard({
   const imageContainerRef = useRef<HTMLDivElement>(null)
   const { startTransition } = useProjectTransition()
 
-  const thumbnailUrl = project.muxVideoId
-    ? `https://image.mux.com/${project.muxVideoId}/thumbnail.png?width=900&height=1200&fit_mode=smartcrop`
-    : project.coverImage
-      ? urlFor(project.coverImage).width(900).height(1200).quality(80).url()
-      : null
+  const thumbnailUrl = getThumbnailUrl(project)
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cursorRef.current) return
@@ -133,7 +123,7 @@ export function HorizontalProjectCard({
             <div className="ml-3 flex shrink-0 flex-col [writing-mode:vertical-rl]">
               {project.publishedAt && (
                 <span className="inline-block font-ui text-[0.625rem] uppercase tracking-widest text-text-muted">
-                  {formatDate(project.publishedAt)}
+                  {formatDateCompact(project.publishedAt)}
                 </span>
               )}
               {project.tags && project.tags.length > 0 && (

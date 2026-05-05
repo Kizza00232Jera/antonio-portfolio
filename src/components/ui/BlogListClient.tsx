@@ -7,6 +7,8 @@ import Link from 'next/link'
 import { urlFor } from '@/lib/sanity/image'
 import type { BlogPost } from '@/lib/sanity/types'
 import { BlogFilterBar } from './BlogFilterBar'
+import { formatDateMedium } from '@/utils/format'
+import { filterByTag } from '@/utils/tags'
 
 const CHARS = 'abcdefghijklmnopqrstuvwxyz!@#$%^&*-_+=;:<>,'.split('')
 
@@ -52,14 +54,6 @@ interface BlogListClientProps {
   posts: BlogPost[]
   showFilter?: boolean
   mobileLimit?: number
-}
-
-function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  })
 }
 
 // ── V4 char-level text splitting & animation ──────────
@@ -137,7 +131,7 @@ export function BlogListClient({ posts, showFilter = true, mobileLimit }: BlogLi
   )
 
   const filtered = useMemo(
-    () => (activeTag ? posts.filter((p) => p.tags?.includes(activeTag)) : posts),
+    () => filterByTag(posts, activeTag, (p) => p.tags ?? []),
     [posts, activeTag],
   )
 
@@ -280,7 +274,7 @@ export function BlogListClient({ posts, showFilter = true, mobileLimit }: BlogLi
                 <span className="blog-cell">{post.title}</span>
                 <span />{/* center gap column */}
                 <span className="blog-cell">{post.tags?.join(', ') ?? ''}</span>
-                <span className="blog-cell blog-cell--end">{formatDate(post.publishedAt)}</span>
+                <span className="blog-cell blog-cell--end">{formatDateMedium(post.publishedAt)}</span>
               </Link>
             </li>
           ))}
@@ -336,7 +330,7 @@ export function BlogListClient({ posts, showFilter = true, mobileLimit }: BlogLi
                 {post.tags && post.tags.length > 0 && (
                   <TagRotator tags={post.tags} />
                 )}
-                <span className="blog-mobile-date">{formatDate(post.publishedAt)}</span>
+                <span className="blog-mobile-date">{formatDateMedium(post.publishedAt)}</span>
               </div>
             </div>
           </Link>

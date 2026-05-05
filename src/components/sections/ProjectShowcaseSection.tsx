@@ -5,27 +5,11 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { urlFor } from '@/lib/sanity/image'
 import { useProjectTransition } from '@/contexts/ProjectTransitionContext'
 import type { Project } from '@/lib/sanity/types'
+import { getThumbnailUrl, padIndex } from '@/utils/project'
 
 gsap.registerPlugin(ScrollTrigger)
-
-/* ── Helpers ─────────────────────────────────────────────── */
-
-function getThumbnailUrl(project: Project): string | null {
-  if (project.muxVideoId) {
-    return `https://image.mux.com/${project.muxVideoId}/thumbnail.png?width=900&height=1200&fit_mode=smartcrop`
-  }
-  if (project.coverImage) {
-    return urlFor(project.coverImage).width(900).height(1200).quality(80).url()
-  }
-  return null
-}
-
-function padIndex(i: number): string {
-  return String(i + 1).padStart(2, '0')
-}
 
 const SCRAMBLE_CHARS = 'abcdefghijklmnopqrstuvwxyz%^&*-_+=;:<>,'
 
@@ -48,12 +32,7 @@ export default function ProjectShowcaseSection({
   const listItemsRef = useRef<(HTMLSpanElement | null)[]>([])
   const activeIndexRef = useRef(0)
   const [activeIndex, setActiveIndex] = useState(0)
-  const [isMobile, setIsMobile] = useState(false)
   const { startTransition } = useProjectTransition()
-
-  useEffect(() => {
-    setIsMobile(window.innerWidth < 768)
-  }, [])
 
   /* ── Character scramble animation ── */
   const scrambleText = useCallback((
@@ -268,7 +247,7 @@ export default function ProjectShowcaseSection({
       ref={sectionRef}
       data-theme="dark"
       className="project-showcase"
-      style={isMobile ? undefined : { height: `${projects.length * 100}vh` }}
+      style={{ '--showcase-h': `${projects.length * 100}vh` } as React.CSSProperties}
     >
       <div ref={stickyRef} className="project-showcase-sticky">
         {/* ── Left Panel ── */}
