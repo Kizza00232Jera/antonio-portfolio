@@ -4,13 +4,14 @@ import HeroSection from '@/components/sections/HeroSection'
 import JourneyScrollSection from '@/components/sections/JourneyScrollSection'
 import ProjectShowcaseSection from '@/components/sections/ProjectShowcaseSection'
 import LatestPostsSection from '@/components/sections/LatestPostsSection'
+import ContactSection from '@/components/sections/ContactSection'
 import SectionTitle from '@/components/ui/SectionTitle'
 import ThemeObserver from '@/components/providers/ThemeObserver'
 
 export default async function HomePage() {
   const [projects, posts] = await Promise.all([
     getFeaturedProjects(),
-    getLatestBlogPosts(30),
+    getLatestBlogPosts(6),
   ])
 
   return (
@@ -24,6 +25,7 @@ export default async function HomePage() {
       <ProjectShowcaseSection projects={projects} />
       <SectionTitle title="BLOGS" theme="dark" />
       <LatestPostsSection posts={posts} />
+      <ContactSection />
     </div>
   )
 }

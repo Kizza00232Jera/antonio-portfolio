@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Header from '@/components/layout/Header'
+import ThemeObserver from '@/components/providers/ThemeObserver'
 import { getProjectBySlug } from '@/lib/sanity/queries'
 import { urlFor } from '@/lib/sanity/image'
 import { ProjectDetailPage } from '@/components/project/ProjectDetailPage'
@@ -39,8 +40,9 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
   return (
     <div className="relative">
-      <ProjectDetailPage project={project} posterUrl={posterUrl} />
+      <ThemeObserver />
       <Header />
+      <ProjectDetailPage project={project} posterUrl={posterUrl} />
     </div>
   )
 }
