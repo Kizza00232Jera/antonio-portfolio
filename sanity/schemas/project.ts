@@ -36,6 +36,13 @@ export const project = defineType({
       options: { hotspot: true },
     }),
     defineField({
+      name: 'thumbnailImage',
+      title: 'Thumbnail Image',
+      type: 'image',
+      options: { hotspot: true },
+      description: 'Preview image shown on the homepage and project cards. Overrides the Mux auto-screenshot.',
+    }),
+    defineField({
       name: 'muxVideoId',
       title: 'Mux Playback ID',
       type: 'string',

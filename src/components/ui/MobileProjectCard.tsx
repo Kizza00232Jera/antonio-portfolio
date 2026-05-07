@@ -17,7 +17,7 @@ export function MobileProjectCard({ project, index }: MobileProjectCardProps) {
       className="block border-b border-border last:border-b-0"
     >
       {thumbnailUrl && (
-        <div className="relative aspect-video w-full overflow-hidden">
+        <div className="relative aspect-[4/3] w-full overflow-hidden">
           <Image
             src={thumbnailUrl}
             alt={project.title}

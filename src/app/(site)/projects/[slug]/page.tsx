@@ -35,7 +35,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
   }
 
   const posterUrl = project.coverImage
-    ? urlFor(project.coverImage).width(1920).quality(80).url()
+    ? urlFor(project.coverImage).width(1920).height(1080).quality(80).url()
     : undefined
 
   return (

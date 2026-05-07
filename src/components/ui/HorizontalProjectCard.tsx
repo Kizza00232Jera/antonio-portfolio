@@ -79,7 +79,7 @@ export function HorizontalProjectCard({
       <div className="flex h-full flex-col justify-center">
         {/* Image + annotation row — only the image links to the project */}
         {thumbnailUrl && (
-          <div className="flex h-[72%] min-h-0">
+          <div className="flex min-h-0 w-full" style={{ aspectRatio: '4 / 3' }}>
             {/* Image — clickable, triggers transition */}
             <Link
               href={`/projects/${project.slug.current}`}

@@ -43,6 +43,7 @@ next-env.d.ts
 # Claude
 CLAUDE.md
 .claude/
+/ralph
 
 #todo and build guide
 TODO.md

@@ -6,11 +6,14 @@ export function padIndex(i: number): string {
 }
 
 export function getThumbnailUrl(project: Project): string | null {
+  if (project.thumbnailImage) {
+    return urlFor(project.thumbnailImage).width(1200).quality(80).url()
+  }
   if (project.muxVideoId) {
-    return `https://image.mux.com/${project.muxVideoId}/thumbnail.png?width=900&height=1200&fit_mode=smartcrop`
+    return `https://image.mux.com/${project.muxVideoId}/thumbnail.png?width=1200&height=900&fit_mode=smartcrop`
   }
   if (project.coverImage) {
-    return urlFor(project.coverImage).width(900).height(1200).quality(80).url()
+    return urlFor(project.coverImage).width(1200).quality(80).url()
   }
   return null
 }

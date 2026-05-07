@@ -4,7 +4,7 @@ import { defineQuery } from 'next-sanity'
 
 export const ALL_PROJECTS_QUERY = defineQuery(
   `*[_type == "project"] | order(order asc) {
-    _id, _type, title, slug, tagline, coverImage, muxVideoId,
+    _id, _type, title, slug, tagline, coverImage, thumbnailImage, muxVideoId,
     techStack,
     techStackRefs[]->{ _id, name, slug, icon },
     tags[]->{ _id, name, slug },
@@ -14,7 +14,7 @@ export const ALL_PROJECTS_QUERY = defineQuery(
 
 export const FEATURED_PROJECTS_QUERY = defineQuery(
   `*[_type == "project" && featured == true] | order(order asc) {
-    _id, _type, title, slug, tagline, coverImage, muxVideoId,
+    _id, _type, title, slug, tagline, coverImage, thumbnailImage, muxVideoId,
     techStack,
     techStackRefs[]->{ _id, name, slug, icon },
     tags[]->{ _id, name, slug },
@@ -25,7 +25,7 @@ export const FEATURED_PROJECTS_QUERY = defineQuery(
 export const PROJECT_BY_SLUG_QUERY = defineQuery(
   `*[_type == "project" && slug.current == $slug][0] {
     _id, _type, title, slug, tagline, description,
-    coverImage, muxVideoId, focusAreas, techStack,
+    coverImage, thumbnailImage, muxVideoId, focusAreas, techStack,
     techStackRefs[]->{ _id, name, slug, icon },
     tags[]->{ _id, name, slug },
     sections[]{ _key, title, content, images, links },

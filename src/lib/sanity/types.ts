@@ -56,6 +56,7 @@ export interface Project {
   tagline?: string
   description?: PortableTextBlock[]
   coverImage?: SanityImage
+  thumbnailImage?: SanityImage
   muxVideoId?: string
   focusAreas?: string[]
   techStack?: string[]
