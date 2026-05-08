@@ -68,6 +68,14 @@ export const BLOG_POST_BY_SLUG_QUERY = defineQuery(
   }`
 )
 
+export const RELATED_POSTS_QUERY = defineQuery(
+  `*[_type == "blogPost" && slug.current != $slug && count(tags[]._ref[@ in $tagIds]) > 0]
+  | order(publishedAt desc)[0...10] {
+    _id, title, slug, publishedAt,
+    tags[]->{ _id }
+  }`
+)
+
 // ─── Site Settings ────────────────────────────────────────────────────────────
 
 export const SITE_SETTINGS_QUERY = defineQuery(

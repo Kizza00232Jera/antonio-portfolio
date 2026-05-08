@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 import Header from '@/components/layout/Header'
 import ThemeObserver from '@/components/providers/ThemeObserver'
 import PortableTextRenderer from '@/components/sanity/PortableTextRenderer'
-import { getBlogPostBySlug } from '@/lib/sanity/queries'
+import { getBlogPostBySlug, getRelatedPosts } from '@/lib/sanity/queries'
 import { formatDateFull } from '@/utils/format'
 
 interface BlogPostPageProps {
@@ -32,6 +32,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   if (!post) {
     notFound()
   }
+
+  const tagIds = post.tags?.map(t => t._id) ?? []
+  const relatedPosts = await getRelatedPosts(slug, tagIds)
 
   return (
     <div data-theme="dark">
@@ -88,6 +91,24 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             <div>
               <PortableTextRenderer value={post.body} />
             </div>
+          )}
+
+          {relatedPosts.length > 0 && (
+            <section className="mt-16 pt-8 border-t border-border">
+              <h2 className="font-heading text-lg font-semibold text-text mb-4">Related posts</h2>
+              <ul className="flex flex-col gap-2">
+                {relatedPosts.map((rp) => (
+                  <li key={rp._id}>
+                    <Link
+                      href={`/blog/${rp.slug.current}`}
+                      className="text-sm font-medium text-text-muted underline underline-offset-4 decoration-border hover:text-text hover:decoration-accent transition-colors"
+                    >
+                      {rp.title} ↗
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
           )}
 
           <footer className="mt-16 pt-8 border-t border-border">
