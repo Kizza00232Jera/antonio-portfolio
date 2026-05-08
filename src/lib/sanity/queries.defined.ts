@@ -3,7 +3,7 @@ import { defineQuery } from 'next-sanity'
 // ─── Projects ────────────────────────────────────────────────────────────────
 
 export const ALL_PROJECTS_QUERY = defineQuery(
-  `*[_type == "project"] | order(order asc) {
+  `*[_type == "project" && featured == true] | order(order asc) {
     _id, _type, title, slug, tagline, coverImage, thumbnailImage, muxVideoId,
     techStack,
     techStackRefs[]->{ _id, name, slug, icon },
@@ -71,7 +71,7 @@ export const BLOG_POST_BY_SLUG_QUERY = defineQuery(
 export const RELATED_POSTS_QUERY = defineQuery(
   `*[_type == "blogPost" && slug.current != $slug && count(tags[]._ref[@ in $tagIds]) > 0]
   | order(publishedAt desc)[0...10] {
-    _id, title, slug, publishedAt,
+    _id, title, slug, publishedAt, heroImage,
     tags[]->{ _id }
   }`
 )

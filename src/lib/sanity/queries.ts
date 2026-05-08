@@ -1,5 +1,5 @@
 import { sanityFetch } from './live'
-import type { Project, BlogPost, SiteSettings, Tag, SanitySlug } from './types'
+import type { Project, BlogPost, SiteSettings, Tag, SanitySlug, SanityImage } from './types'
 import {
   ALL_PROJECTS_QUERY,
   FEATURED_PROJECTS_QUERY,
@@ -17,6 +17,7 @@ export type RelatedPost = {
   title: string
   slug: SanitySlug
   publishedAt: string
+  heroImage?: SanityImage | null
 }
 
 // ─── Projects ────────────────────────────────────────────────────────────────

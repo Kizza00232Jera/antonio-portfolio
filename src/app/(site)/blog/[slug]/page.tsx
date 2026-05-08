@@ -1,10 +1,12 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import Header from '@/components/layout/Header'
 import ThemeObserver from '@/components/providers/ThemeObserver'
 import PortableTextRenderer from '@/components/sanity/PortableTextRenderer'
 import { getBlogPostBySlug, getRelatedPosts } from '@/lib/sanity/queries'
+import { urlFor } from '@/lib/sanity/image'
 import { formatDateFull } from '@/utils/format'
 
 interface BlogPostPageProps {
@@ -55,30 +57,60 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               {post.title}
             </h1>
 
-            <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-text-muted">
+            {/* Row 1: date · By Antonio · GitHub ↗ · LinkedIn ↗ */}
+            <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-sm text-text-muted mt-4">
               {post.publishedAt && (
                 <time className="font-ui" dateTime={post.publishedAt}>
                   {formatDateFull(post.publishedAt)}
                 </time>
               )}
-
               {post.author && (
-                <span className="font-ui">By {post.author.name}</span>
+                <>
+                  <span aria-hidden>·</span>
+                  <span className="font-ui">By {post.author.name}</span>
+                </>
               )}
-
-              {post.tags && post.tags.filter(Boolean).length > 0 && (
-                <div className="flex flex-wrap justify-center gap-2">
-                  {post.tags.filter(Boolean).map((tag) => (
-                    <span
-                      key={tag._id}
-                      className="rounded-full border border-border px-3 py-0.5 font-ui text-xs"
-                    >
-                      {tag.name}
-                    </span>
-                  ))}
-                </div>
+              {post.author?.githubUrl && (
+                <>
+                  <span aria-hidden>·</span>
+                  <a
+                    href={post.author.githubUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm font-medium text-text-muted underline underline-offset-4 decoration-border hover:text-text hover:decoration-accent transition-colors"
+                  >
+                    GitHub ↗
+                  </a>
+                </>
+              )}
+              {post.author?.linkedinUrl && (
+                <>
+                  <span aria-hidden>·</span>
+                  <a
+                    href={post.author.linkedinUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm font-medium text-text-muted underline underline-offset-4 decoration-border hover:text-text hover:decoration-accent transition-colors"
+                  >
+                    LinkedIn ↗
+                  </a>
+                </>
               )}
             </div>
+
+            {/* Row 2: tags */}
+            {post.tags && post.tags.filter(Boolean).length > 0 && (
+              <div className="flex flex-wrap justify-center gap-2 mt-3">
+                {post.tags.filter(Boolean).map((tag) => (
+                  <span
+                    key={tag._id}
+                    className="rounded-full border border-border px-3 py-0.5 font-ui text-xs"
+                  >
+                    {tag.name}
+                  </span>
+                ))}
+              </div>
+            )}
 
             {post.excerpt && (
               <p className="mt-6 text-text-muted leading-relaxed text-(length:--text-body)">
@@ -95,19 +127,40 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
           {relatedPosts.length > 0 && (
             <section className="mt-16 pt-8 border-t border-border">
-              <h2 className="font-heading text-lg font-semibold text-text mb-4">Related posts</h2>
-              <ul className="flex flex-col gap-2">
+              <h2 className="font-heading text-lg font-semibold text-text mb-6">Related posts</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {relatedPosts.map((rp) => (
-                  <li key={rp._id}>
-                    <Link
-                      href={`/blog/${rp.slug.current}`}
-                      className="text-sm font-medium text-text-muted underline underline-offset-4 decoration-border hover:text-text hover:decoration-accent transition-colors"
-                    >
-                      {rp.title} ↗
-                    </Link>
-                  </li>
+                  <Link
+                    key={rp._id}
+                    href={`/blog/${rp.slug.current}`}
+                    className="group flex flex-col border border-border rounded-lg overflow-hidden hover:border-accent transition-colors"
+                  >
+                    <div className="relative aspect-video bg-surface overflow-hidden">
+                      {rp.heroImage ? (
+                        <Image
+                          src={urlFor(rp.heroImage).width(600).height(338).quality(80).url()}
+                          alt={rp.title}
+                          fill
+                          sizes="(max-width: 640px) 100vw, 33vw"
+                          className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-surface-raised" />
+                      )}
+                    </div>
+                    <div className="p-4 flex flex-col gap-1">
+                      <p className="font-ui text-sm font-medium text-text leading-snug line-clamp-2">
+                        {rp.title}
+                      </p>
+                      {rp.publishedAt && (
+                        <time className="font-ui text-xs text-text-muted" dateTime={rp.publishedAt}>
+                          {formatDateFull(rp.publishedAt)}
+                        </time>
+                      )}
+                    </div>
+                  </Link>
                 ))}
-              </ul>
+              </div>
             </section>
           )}
 
@@ -131,26 +184,6 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                   className="text-sm font-medium text-text-muted underline underline-offset-4 decoration-border hover:text-text hover:decoration-accent transition-colors"
                 >
                   View live app ↗
-                </a>
-              )}
-              {post.author?.githubUrl && (
-                <a
-                  href={post.author.githubUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm font-medium text-text-muted underline underline-offset-4 decoration-border hover:text-text hover:decoration-accent transition-colors"
-                >
-                  GitHub ↗
-                </a>
-              )}
-              {post.author?.linkedinUrl && (
-                <a
-                  href={post.author.linkedinUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm font-medium text-text-muted underline underline-offset-4 decoration-border hover:text-text hover:decoration-accent transition-colors"
-                >
-                  LinkedIn ↗
                 </a>
               )}
             </div>
