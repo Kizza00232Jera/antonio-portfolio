@@ -83,8 +83,7 @@ export interface BlogPost {
   appUrl?: string
   heroImage?: SanityImage
   author?: { name: string; githubUrl?: string; linkedinUrl?: string } | null
-  tags?: string[]
-  relatedPosts?: Pick<BlogPost, '_id' | 'title' | 'slug'>[]
+  tags?: Array<{ _id: string; name: string; slug: string }> | null
 }
 
 export interface Author {

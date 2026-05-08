@@ -125,13 +125,23 @@ export function BlogListClient({ posts, showFilter = true, mobileLimit }: BlogLi
 
   const [activeTag, setActiveTag] = useState<string | null>(null)
 
-  const allTags = useMemo(
-    () => Array.from(new Set(posts.flatMap((p) => p.tags ?? []))).sort(),
-    [posts],
-  )
+  const allTags = useMemo<Array<{ name: string; slug: string }>>(() => {
+    const seen = new Set<string>()
+    const result: Array<{ name: string; slug: string }> = []
+    for (const post of posts) {
+      for (const tag of post.tags ?? []) {
+        if (!tag) continue
+        if (!seen.has(tag.slug)) {
+          seen.add(tag.slug)
+          result.push({ name: tag.name, slug: tag.slug })
+        }
+      }
+    }
+    return result.sort((a, b) => a.name.localeCompare(b.name))
+  }, [posts])
 
   const filtered = useMemo(
-    () => filterByTag(posts, activeTag, (p) => p.tags ?? []),
+    () => filterByTag(posts, activeTag, (p) => p.tags?.filter(Boolean).map((t) => t.slug) ?? []),
     [posts, activeTag],
   )
 
@@ -278,7 +288,7 @@ export function BlogListClient({ posts, showFilter = true, mobileLimit }: BlogLi
                   )}
                 </span>
                 <span />{/* center gap column */}
-                <span className="blog-cell">{post.tags?.join(', ') ?? ''}</span>
+                <span className="blog-cell">{post.tags?.filter(Boolean).map((t) => t.name).join(', ') ?? ''}</span>
                 <span className="blog-cell blog-cell--end">{formatDateMedium(post.publishedAt)}</span>
               </Link>
             </li>
@@ -335,8 +345,8 @@ export function BlogListClient({ posts, showFilter = true, mobileLimit }: BlogLi
                 <p className="font-ui text-xs text-text-muted mt-0.5">By {post.author.name}</p>
               )}
               <div className="blog-mobile-meta">
-                {post.tags && post.tags.length > 0 && (
-                  <TagRotator tags={post.tags} />
+                {post.tags && post.tags.filter(Boolean).length > 0 && (
+                  <TagRotator tags={post.tags.filter(Boolean).map((t) => t.name)} />
                 )}
                 <span className="blog-mobile-date">{formatDateMedium(post.publishedAt)}</span>
               </div>

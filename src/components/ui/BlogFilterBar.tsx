@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { cn } from '@/utils/cn'
 
 interface BlogFilterBarProps {
-  tags: string[]
+  tags: Array<{ name: string; slug: string }>
   activeTag: string | null
   onTagChange: (tag: string | null) => void
   totalCount: number
@@ -79,18 +79,18 @@ export function BlogFilterBar({
             </button>
             {tags.map((tag) => (
               <button
-                key={tag}
+                key={tag.slug}
                 type="button"
-                onClick={() => handleSelect(tag)}
+                onClick={() => handleSelect(tag.slug)}
                 className="flex items-center gap-3 py-1.5 font-ui text-xs uppercase tracking-wider text-text-muted transition-colors hover:text-text"
               >
                 <span
                   className={cn(
                     'h-2.5 w-2.5 rounded-full border transition-colors',
-                    activeTag === tag ? 'border-text bg-text' : 'border-text-muted',
+                    activeTag === tag.slug ? 'border-text bg-text' : 'border-text-muted',
                   )}
                 />
-                {tag}
+                {tag.name}
               </button>
             ))}
           </div>
@@ -118,15 +118,15 @@ export function BlogFilterBar({
 
             {tags.map((tag) => (
               <button
-                key={tag}
+                key={tag.slug}
                 type="button"
-                onClick={() => onTagChange(tag)}
+                onClick={() => onTagChange(tag.slug)}
                 className={cn(
                   'font-ui text-xs uppercase tracking-wider transition-colors hover:text-text',
-                  activeTag === tag ? 'text-text' : 'text-text-muted',
+                  activeTag === tag.slug ? 'text-text' : 'text-text-muted',
                 )}
               >
-                {tag}
+                {tag.name}
               </button>
             ))}
           </div>

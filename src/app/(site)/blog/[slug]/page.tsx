@@ -63,14 +63,14 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 <span className="font-ui">By {post.author.name}</span>
               )}
 
-              {post.tags && post.tags.length > 0 && (
+              {post.tags && post.tags.filter(Boolean).length > 0 && (
                 <div className="flex flex-wrap justify-center gap-2">
-                  {post.tags.map((tag) => (
+                  {post.tags.filter(Boolean).map((tag) => (
                     <span
-                      key={tag}
+                      key={tag._id}
                       className="rounded-full border border-border px-3 py-0.5 font-ui text-xs"
                     >
-                      {tag}
+                      {tag.name}
                     </span>
                   ))}
                 </div>
@@ -133,31 +133,6 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 </a>
               )}
             </div>
-
-            {post.relatedPosts && post.relatedPosts.length > 0 && (
-              <div className="mt-6">
-                <p className="text-xs font-ui text-text-muted uppercase tracking-widest mb-2">
-                  Related posts
-                </p>
-                <ul className="list-none m-0 p-0 flex flex-col gap-2">
-                  {post.relatedPosts.map((related) => (
-                    <li key={related._id}>
-                      <Link
-                        href={`/blog/${related.slug.current}`}
-                        className="group inline-flex items-center gap-2 text-text hover:text-accent transition-colors"
-                      >
-                        <span className="font-heading font-semibold">
-                          {related.title}
-                        </span>
-                        <span className="text-text-muted transition-transform group-hover:translate-x-1 group-hover:-translate-y-1">
-                          ↗
-                        </span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
 
             <Link
               href="/blog"
