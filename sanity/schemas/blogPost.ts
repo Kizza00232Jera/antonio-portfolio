@@ -41,9 +41,8 @@ export const blogPost = defineType({
     defineField({
       name: 'author',
       title: 'Author',
-      type: 'string',
-      description: 'Author name displayed in the blog list.',
-      initialValue: 'Antonio Jerkovic',
+      type: 'reference',
+      to: [{ type: 'author' }],
     }),
     defineField({
       name: 'body',
@@ -70,15 +69,8 @@ export const blogPost = defineType({
       name: 'tags',
       title: 'Tags',
       type: 'array',
-      of: [{ type: 'string' }],
-      options: { layout: 'tags' },
-    }),
-    defineField({
-      name: 'relatedPosts',
-      title: 'Related Blog Posts',
-      type: 'array',
-      of: [{ type: 'reference', to: [{ type: 'blogPost' }] }],
-      description: 'Other blog posts to suggest at the bottom of this post.',
+      of: [{ type: 'reference', to: [{ type: 'tag' }] }],
+      description: 'Tags for filtering on the blog page.',
     }),
   ],
   orderings: [

@@ -40,5 +40,20 @@ export const author = defineType({
       title: 'LinkedIn URL',
       type: 'url',
     }),
+    defineField({
+      name: 'phoneCroatian',
+      title: 'Phone (Croatian)',
+      type: 'string',
+    }),
+    defineField({
+      name: 'phoneSwedish',
+      title: 'Phone (Swedish)',
+      type: 'string',
+    }),
+    defineField({
+      name: 'email',
+      title: 'Email',
+      type: 'string',
+    }),
   ],
 })
