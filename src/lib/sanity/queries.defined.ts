@@ -45,20 +45,23 @@ export const ALL_TAGS_QUERY = defineQuery(
 
 export const ALL_BLOG_POSTS_QUERY = defineQuery(
   `*[_type == "blogPost"] | order(publishedAt desc) {
-    _id, _type, title, slug, publishedAt, excerpt, tags, heroImage, author
+    _id, _type, title, slug, publishedAt, excerpt, tags, heroImage,
+    author->{ name }
   }`
 )
 
 export const LATEST_BLOG_POSTS_QUERY = defineQuery(
   `*[_type == "blogPost"] | order(publishedAt desc) [0...$count] {
-    _id, _type, title, slug, publishedAt, excerpt, tags, heroImage, author
+    _id, _type, title, slug, publishedAt, excerpt, tags, heroImage,
+    author->{ name }
   }`
 )
 
 export const BLOG_POST_BY_SLUG_QUERY = defineQuery(
   `*[_type == "blogPost" && slug.current == $slug][0] {
     _id, _type, title, slug, publishedAt, excerpt,
-    body, muxVideoId, githubUrl, appUrl, tags, heroImage, author,
+    body, muxVideoId, githubUrl, appUrl, tags, heroImage,
+    author->{ name, githubUrl, linkedinUrl },
     relatedPosts[]->{ _id, title, slug }
   }`
 )
@@ -68,7 +71,7 @@ export const BLOG_POST_BY_SLUG_QUERY = defineQuery(
 export const SITE_SETTINGS_QUERY = defineQuery(
   `*[_type == "siteSettings"][0] {
     _id, _type, title, description,
-    author->{ _id, name, bio, githubUrl, linkedinUrl },
-    ogImage
+    author->{ _id, name, bio, githubUrl, linkedinUrl, phoneCroatian, phoneSwedish, email },
+    "ogImageUrl": ogImage.asset->url
   }`
 )

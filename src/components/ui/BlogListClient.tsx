@@ -271,7 +271,12 @@ export function BlogListClient({ posts, showFilter = true, mobileLimit }: BlogLi
                 className="blog-row"
                 onMouseEnter={() => handleEnter(i)}
               >
-                <span className="blog-cell">{post.title}</span>
+                <span className="flex flex-col gap-0.5">
+                  <span className="blog-cell">{post.title}</span>
+                  {post.author && (
+                    <span className="font-ui text-xs text-text-muted">By {post.author.name}</span>
+                  )}
+                </span>
                 <span />{/* center gap column */}
                 <span className="blog-cell">{post.tags?.join(', ') ?? ''}</span>
                 <span className="blog-cell blog-cell--end">{formatDateMedium(post.publishedAt)}</span>
@@ -326,6 +331,9 @@ export function BlogListClient({ posts, showFilter = true, mobileLimit }: BlogLi
             )}
             <div className="blog-mobile-info">
               <h3 className="blog-mobile-title">{post.title}</h3>
+              {post.author && (
+                <p className="font-ui text-xs text-text-muted mt-0.5">By {post.author.name}</p>
+              )}
               <div className="blog-mobile-meta">
                 {post.tags && post.tags.length > 0 && (
                   <TagRotator tags={post.tags} />

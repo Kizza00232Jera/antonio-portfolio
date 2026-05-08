@@ -59,6 +59,10 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 </time>
               )}
 
+              {post.author && (
+                <span className="font-ui">By {post.author.name}</span>
+              )}
+
               {post.tags && post.tags.length > 0 && (
                 <div className="flex flex-wrap justify-center gap-2">
                   {post.tags.map((tag) => (
@@ -106,6 +110,26 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                   className="text-sm font-medium text-text-muted underline underline-offset-4 decoration-border hover:text-text hover:decoration-accent transition-colors"
                 >
                   View live app ↗
+                </a>
+              )}
+              {post.author?.githubUrl && (
+                <a
+                  href={post.author.githubUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm font-medium text-text-muted underline underline-offset-4 decoration-border hover:text-text hover:decoration-accent transition-colors"
+                >
+                  GitHub ↗
+                </a>
+              )}
+              {post.author?.linkedinUrl && (
+                <a
+                  href={post.author.linkedinUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm font-medium text-text-muted underline underline-offset-4 decoration-border hover:text-text hover:decoration-accent transition-colors"
+                >
+                  LinkedIn ↗
                 </a>
               )}
             </div>

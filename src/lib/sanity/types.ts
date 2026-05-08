@@ -82,7 +82,7 @@ export interface BlogPost {
   githubUrl?: string
   appUrl?: string
   heroImage?: SanityImage
-  author?: string
+  author?: { name: string; githubUrl?: string; linkedinUrl?: string } | null
   tags?: string[]
   relatedPosts?: Pick<BlogPost, '_id' | 'title' | 'slug'>[]
 }
@@ -96,6 +96,9 @@ export interface Author {
   bio?: string
   githubUrl?: string
   linkedinUrl?: string
+  phoneCroatian?: string
+  phoneSwedish?: string
+  email?: string
 }
 
 export interface SiteSettings {
@@ -104,5 +107,5 @@ export interface SiteSettings {
   title?: string
   description?: string
   author?: Author
-  ogImage?: SanityImage
+  ogImageUrl?: string
 }
