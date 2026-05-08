@@ -44,7 +44,21 @@ function StockholmClock() {
 
 /* ── Component ────────────────────────────────────── */
 
-export default function FooterSection() {
+interface ContactSectionProps {
+  phoneCroatian?: string
+  phoneSwedish?: string
+  email?: string
+  linkedinUrl?: string
+  githubUrl?: string
+}
+
+export default function FooterSection({
+  phoneCroatian,
+  phoneSwedish,
+  email,
+  linkedinUrl,
+  githubUrl,
+}: ContactSectionProps) {
   const nameRef = useRef<HTMLDivElement>(null)
 
   /* Clip-path slide-up reveal on the big name */
@@ -93,23 +107,44 @@ export default function FooterSection() {
           {/* Right — contact block */}
           <div className="footer-contact-col">
             <div className="footer-contact-row">
-              <a href="tel:+4544554455" className="footer-contact-item footer-phone">
-                +45 44 55 44 55
-              </a>
-              <a href="mailto:antonio.jera10@gmail.com" className="footer-contact-item footer-email">
-                antonio.jera10@gmail.com
-              </a>
+              {phoneCroatian && (
+                <a href={`tel:${phoneCroatian}`} className="footer-contact-item footer-phone">
+                  {phoneCroatian}
+                </a>
+              )}
+              {phoneSwedish && (
+                <a href={`tel:${phoneSwedish}`} className="footer-contact-item footer-phone">
+                  {phoneSwedish}
+                </a>
+              )}
+              {email && (
+                <a href={`mailto:${email}`} className="footer-contact-item footer-email">
+                  {email}
+                </a>
+              )}
             </div>
 
             <div className="footer-social-row">
-              <a
-                href="https://www.linkedin.com/in/antonio-jerkovic/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="footer-social-link"
-              >
-                LINKEDIN ↗
-              </a>
+              {linkedinUrl && (
+                <a
+                  href={linkedinUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="footer-social-link"
+                >
+                  LINKEDIN ↗
+                </a>
+              )}
+              {githubUrl && (
+                <a
+                  href={githubUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="footer-social-link"
+                >
+                  GITHUB ↗
+                </a>
+              )}
             </div>
 
             <div className="footer-address">
