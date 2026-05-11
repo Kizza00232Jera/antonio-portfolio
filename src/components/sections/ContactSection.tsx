@@ -1,8 +1,8 @@
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
-import Link from 'next/link'
 import { gsap } from 'gsap'
+import { CharRevealLink } from '@/components/ui/CharReveal'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -98,9 +98,7 @@ export default function FooterSection({
           {/* Left — page links */}
           <nav className="footer-nav-col" aria-label="Footer navigation">
             {NAV_LINKS.map(({ label, href }) => (
-              <Link key={label} href={href} className="footer-nav-link">
-                {label}
-              </Link>
+              <CharRevealLink key={label} href={href} label={label} className="footer-nav-link" />
             ))}
           </nav>
 
@@ -147,10 +145,6 @@ export default function FooterSection({
               )}
             </div>
 
-            <div className="footer-address">
-              <span className="footer-address-label">Address:</span>
-              <span>Solna, Stockholm, Sweden</span>
-            </div>
           </div>
         </div>
 
@@ -172,7 +166,6 @@ export default function FooterSection({
         {/* ── Bottom bar ── */}
         <div className="footer-bottom">
           <StockholmClock />
-          <span className="footer-copy">© 2026 All rights reserved Antonio Jerkovic</span>
         </div>
       </div>
     </footer>
