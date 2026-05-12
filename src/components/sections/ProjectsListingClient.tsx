@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { HorizontalProjectCard } from '@/components/ui/HorizontalProjectCard'
 import { MobileProjectCard } from '@/components/ui/MobileProjectCard'
 import { HorizontalScroll } from '@/components/ui/HorizontalScroll'
@@ -10,13 +10,22 @@ import { filterByTag } from '@/utils/tags'
 
 interface ProjectsListingClientProps {
   projects: Project[]
-  tags: Tag[]
 }
 
-export function ProjectsListingClient({
-  projects,
-  tags,
-}: ProjectsListingClientProps) {
+export function ProjectsListingClient({ projects }: ProjectsListingClientProps) {
+  const tags = useMemo<Tag[]>(() => {
+    const seen = new Set<string>()
+    const result: Tag[] = []
+    for (const project of projects) {
+      for (const tag of project.tags ?? []) {
+        if (!seen.has(tag._id)) {
+          seen.add(tag._id)
+          result.push(tag)
+        }
+      }
+    }
+    return result.sort((a, b) => a.name.localeCompare(b.name))
+  }, [projects])
   const [activeTag, setActiveTag] = useState<string | null>(null)
   const [scrollProgress, setScrollProgress] = useState(0)
 

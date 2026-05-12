@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { gsap } from 'gsap'
 import { useMenu } from '@/contexts/MenuContext'
-import { CharRevealLink } from '@/components/ui/CharReveal'
+import { SmartNavLink } from '@/components/ui/SmartNavLink'
 
 const navLinks = [
   { href: '/', label: 'Home' },
@@ -107,12 +107,13 @@ export function NavOverlay() {
               const isActive = href === '/' ? pathname === '/' : pathname.startsWith(href)
               return (
                 <li key={href} className="opacity-0">
-                  <CharRevealLink
+                  <SmartNavLink
                     href={href}
                     label={label}
                     isActive={isActive}
                     tabIndex={isOpen ? 0 : -1}
                     className="text-2xl md:text-3xl font-heading"
+                    onBeforeScroll={close}
                   />
                 </li>
               )

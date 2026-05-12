@@ -32,8 +32,10 @@ export function TechMarquee({ items, className }: TechMarqueeProps) {
 
   if (items.length === 0) return null
 
-  // Duplicate items for seamless infinite loop
-  const doubled = [...items, ...items]
+  // Repeat enough times that one copy always exceeds viewport width
+  const copies = Math.max(4, Math.ceil(20 / items.length))
+  const repeated = Array.from({ length: copies }, () => items).flat()
+  const translateEnd = `${-(100 / copies)}%`
 
   return (
     <div className={cn('overflow-hidden border-y border-border py-4', className)}>
@@ -43,9 +45,10 @@ export function TechMarquee({ items, className }: TechMarqueeProps) {
         style={{
           animation: 'marquee-scroll 25s linear infinite',
           width: 'max-content',
+          ['--marquee-end' as string]: translateEnd,
         }}
       >
-        {doubled.map((item, i) => (
+        {repeated.map((item, i) => (
           <div
             key={`${item._id}-${i}`}
             className="flex items-center gap-3 px-2"

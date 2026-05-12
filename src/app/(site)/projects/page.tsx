@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Header from '@/components/layout/Header'
-import { getAllProjects, getAllTags } from '@/lib/sanity/queries'
+import { getAllProjects } from '@/lib/sanity/queries'
 import { ProjectsListingClient } from '@/components/sections/ProjectsListingClient'
 import { LenisStop } from '@/components/providers/LenisStop'
 
@@ -11,12 +11,12 @@ export const metadata: Metadata = {
 }
 
 export default async function ProjectsPage() {
-  const [projects, tags] = await Promise.all([getAllProjects(), getAllTags()])
+  const projects = await getAllProjects()
 
   return (
     <div className="relative md:h-dvh md:overflow-hidden">
       <LenisStop />
-      <ProjectsListingClient projects={projects} tags={tags} />
+      <ProjectsListingClient projects={projects} />
       <Header />
     </div>
   )

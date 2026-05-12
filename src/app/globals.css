@@ -10,6 +10,14 @@
   --color-border:     #1a2035;
 }
 
+/* ── Hide native scrollbar (custom indicator used instead) ── */
+html {
+  scrollbar-width: none;
+}
+html::-webkit-scrollbar {
+  display: none;
+}
+
 /* ── Font utilities ──────────────────────────────────────── */
 /* @theme inline hooks into Tailwind's --default-font-family chain */
 @theme inline {
@@ -456,7 +464,7 @@
 /* ── Tech stack marquee animation ─────────────────────────── */
 @keyframes marquee-scroll {
   from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
+  to { transform: translateX(var(--marquee-end, -50%)); }
 }
 
 .marquee-track:hover {
@@ -1513,19 +1521,40 @@
 
 .footer-root {
   background-color: #fafaf8;
-  color: #080c18;
+  color: #111111;
   overflow: hidden;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  position: relative;
+  z-index: 2;
+}
+
+/* ── CONTACT ME title ── */
+.footer-contact-title {
+  padding-block: clamp(3rem, 5vw, 5rem);
+  padding-inline: clamp(1rem, 3vw, 3rem);
+  text-align: center;
+}
+
+.footer-contact-title-line {
+  font-family: var(--font-display-alt);
+  font-size: clamp(3rem, 13vw, 17rem);
+  line-height: 0.9;
+  letter-spacing: 0.04em;
+  color: #111111;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0 0.18em;
 }
 
 .footer-inner {
   display: flex;
   flex-direction: column;
+  flex: 1;
   padding-inline: clamp(1rem, 3vw, 3.5rem);
-  padding-top: clamp(4rem, 8vw, 8rem);
+  padding-top: clamp(2rem, 4vw, 4rem);
 }
 
 /* ── Top grid ── */
@@ -1549,13 +1578,13 @@
   font-size: clamp(1.6rem, 3vw, 3rem);
   line-height: 1;
   letter-spacing: 0.01em;
-  color: #080c18;
+  color: #111111;
   text-decoration: none;
 }
 
 .footer-nav-link.char-reveal {
-  --cr-color: #080c18;
-  --cr-hover: #080c18;
+  --cr-color: #111111;
+  --cr-hover: #111111;
 }
 
 /* ── Right contact col ── */
@@ -1576,7 +1605,7 @@
 
 .footer-contact-item {
   font-family: var(--font-body);
-  font-size: clamp(0.85rem, 1.1vw, 1.05rem);
+  font-size: clamp(0.9rem, 1.2vw, 1.1rem);
   color: #080c18;
   text-decoration: none;
   letter-spacing: 0.01em;
@@ -1588,8 +1617,9 @@
 }
 
 .footer-phone {
-  font-size: clamp(1rem, 1.6vw, 1.5rem);
+  font-size: clamp(1.4rem, 2.8vw, 3.2rem);
   font-weight: 500;
+  letter-spacing: -0.01em;
 }
 
 .footer-social-row {
@@ -1649,7 +1679,7 @@
   font-size: clamp(3rem, 13vw, 18rem);
   line-height: 0.88;
   letter-spacing: -0.01em;
-  color: #080c18;
+  color: #111111;
 }
 
 .footer-name-word {
@@ -1671,7 +1701,7 @@
 .footer-bottom {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 1rem;
   border-top: 1px solid #c8c2bb;
   padding-block: clamp(1rem, 1.5vw, 1.25rem);

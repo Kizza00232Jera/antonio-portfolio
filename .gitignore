@@ -57,3 +57,12 @@ TECH-REFERENCE.md
 /sanity/node_modules
 /sanity/.sanity
 /references
+
+# Dev-only files
+/issues
+/docs
+generate_cv.py
+
+# Sanity build artifacts
+/sanity/dist
+/sanity/schema.json

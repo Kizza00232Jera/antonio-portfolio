@@ -2,12 +2,12 @@
 
 import { useEffect, useState, useRef } from 'react'
 import { gsap } from 'gsap'
-import { CharRevealLink } from '@/components/ui/CharReveal'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { SmartNavLink } from '@/components/ui/SmartNavLink'
 
 gsap.registerPlugin(ScrollTrigger)
 
-/* ── Data ─────────────────────────────────────────── */
+/* ── Static data ──────────────────────────────────── */
 
 const NAV_LINKS = [
   { label: 'HOME', href: '/' },
@@ -16,6 +16,15 @@ const NAV_LINKS = [
 ]
 
 const NAME_WORDS = ['ANTONIO', 'JERKOVIC']
+const TITLE_WORDS = ['CONTACT', 'ME']
+
+const DEFAULTS = {
+  phoneCroatian: '+385 91 512 4000',
+  phoneSwedish: '+46764248374',
+  email: 'antonio.jera10@gmail.com',
+  linkedinUrl: 'https://www.linkedin.com/in/antonio00232/',
+  githubUrl: 'https://github.com/Kizza00232Jera',
+}
 
 /* ── Stockholm live clock ─────────────────────────── */
 
@@ -42,6 +51,41 @@ function StockholmClock() {
   return <span className="footer-clock">STOCKHOLM: (GMT+2) {time}</span>
 }
 
+/* ── Scroll-scrub letter animation (matches SectionTitle) ── */
+
+function useScrubLetters(
+  ref: React.RefObject<HTMLElement | null>,
+  selector: string,
+  start = 'top 100%',
+  end = 'bottom 30%',
+) {
+  useEffect(() => {
+    const el = ref.current
+    if (!el || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+
+    const letters = el.querySelectorAll<HTMLElement>(selector)
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        letters,
+        { y: '-120%' },
+        {
+          y: '0%',
+          duration: 1,
+          ease: 'power3.out',
+          stagger: { each: 0.04, from: 'center' },
+          scrollTrigger: {
+            trigger: el,
+            start,
+            end,
+            scrub: 1,
+          },
+        },
+      )
+    })
+    return () => ctx.revert()
+  }, [ref, selector, start, end])
+}
+
 /* ── Component ────────────────────────────────────── */
 
 interface ContactSectionProps {
@@ -52,44 +96,41 @@ interface ContactSectionProps {
   githubUrl?: string
 }
 
-export default function FooterSection({
-  phoneCroatian,
-  phoneSwedish,
-  email,
-  linkedinUrl,
-  githubUrl,
+export default function ContactSection({
+  phoneCroatian = DEFAULTS.phoneCroatian,
+  phoneSwedish = DEFAULTS.phoneSwedish,
+  email = DEFAULTS.email,
+  linkedinUrl = DEFAULTS.linkedinUrl,
+  githubUrl = DEFAULTS.githubUrl,
 }: ContactSectionProps) {
+  const titleRef = useRef<HTMLDivElement>(null)
   const nameRef = useRef<HTMLDivElement>(null)
 
-  /* Clip-path slide-up reveal on the big name */
-  useEffect(() => {
-    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (prefersReduced || !nameRef.current) return
-
-    const chars = nameRef.current.querySelectorAll<HTMLElement>('.fn-char')
-
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        chars,
-        { y: '110%' },
-        {
-          y: '0%',
-          duration: 1.4,
-          ease: 'power4.out',
-          stagger: { each: 0.025, from: 'start' },
-          scrollTrigger: {
-            trigger: nameRef.current,
-            start: 'top 95%',
-          },
-        },
-      )
-    })
-
-    return () => ctx.revert()
-  }, [])
+  useScrubLetters(titleRef, '.ct-letter')
+  useScrubLetters(nameRef, '.fn-char', 'top 95%', 'bottom bottom')
 
   return (
     <footer id="contact" data-theme="light" className="footer-root">
+
+      {/* ── CONTACT ME title ── */}
+      <div ref={titleRef} className="footer-contact-title">
+        <h2 className="footer-contact-title-line">
+          {TITLE_WORDS.map((word, wi) => (
+            <span key={wi} style={{ display: 'inline-flex', overflow: 'hidden' }}>
+              {word.split('').map((char, ci) => (
+                <span
+                  key={ci}
+                  className="ct-letter"
+                  style={{ display: 'inline-block', willChange: 'transform' }}
+                >
+                  {char}
+                </span>
+              ))}
+            </span>
+          ))}
+        </h2>
+      </div>
+
       <div className="footer-inner">
 
         {/* ── Top grid: nav left · contact right ── */}
@@ -98,20 +139,20 @@ export default function FooterSection({
           {/* Left — page links */}
           <nav className="footer-nav-col" aria-label="Footer navigation">
             {NAV_LINKS.map(({ label, href }) => (
-              <CharRevealLink key={label} href={href} label={label} className="footer-nav-link" />
+              <SmartNavLink key={label} href={href} label={label} className="footer-nav-link" />
             ))}
           </nav>
 
-          {/* Right — contact block */}
+          {/* Right — contact info */}
           <div className="footer-contact-col">
             <div className="footer-contact-row">
               {phoneCroatian && (
-                <a href={`tel:${phoneCroatian}`} className="footer-contact-item footer-phone">
+                <a href={`tel:${phoneCroatian.replace(/\s/g, '')}`} className="footer-contact-item footer-phone">
                   {phoneCroatian}
                 </a>
               )}
               {phoneSwedish && (
-                <a href={`tel:${phoneSwedish}`} className="footer-contact-item footer-phone">
+                <a href={`tel:${phoneSwedish.replace(/\s/g, '')}`} className="footer-contact-item footer-phone">
                   {phoneSwedish}
                 </a>
               )}
@@ -123,32 +164,21 @@ export default function FooterSection({
             </div>
 
             <div className="footer-social-row">
-              {linkedinUrl && (
-                <a
-                  href={linkedinUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="footer-social-link"
-                >
-                  LINKEDIN ↗
-                </a>
-              )}
               {githubUrl && (
-                <a
-                  href={githubUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="footer-social-link"
-                >
+                <a href={githubUrl} target="_blank" rel="noopener noreferrer" className="footer-social-link">
                   GITHUB ↗
                 </a>
               )}
+              {linkedinUrl && (
+                <a href={linkedinUrl} target="_blank" rel="noopener noreferrer" className="footer-social-link">
+                  LINKEDIN ↗
+                </a>
+              )}
             </div>
-
           </div>
         </div>
 
-        {/* ── Big name ── */}
+        {/* ── Big name at bottom ── */}
         <div ref={nameRef} className="footer-name" aria-label="ANTONIO JERKOVIC">
           <div className="footer-name-line">
             {NAME_WORDS.map((word, wi) => (
@@ -163,10 +193,11 @@ export default function FooterSection({
           </div>
         </div>
 
-        {/* ── Bottom bar ── */}
+        {/* ── Stockholm clock centered ── */}
         <div className="footer-bottom">
           <StockholmClock />
         </div>
+
       </div>
     </footer>
   )

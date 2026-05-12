@@ -9,7 +9,7 @@ interface CvModalProps {
   onClose: () => void
 }
 
-const PDF_PATH = '/CV_and_Cover_Letter_Telgea_Antonio.pdf'
+const PDF_PATH = '/CV_Antonio_Jerkovic.pdf'
 
 export function CvModal({ isOpen, onClose }: CvModalProps) {
   const [mounted, setMounted] = useState(false)

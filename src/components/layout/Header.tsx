@@ -1,5 +1,6 @@
 import Link from 'next/link'
-import { CharRevealLink, CharRevealText } from '@/components/ui/CharReveal'
+import { CharRevealText } from '@/components/ui/CharReveal'
+import { SmartNavLink } from '@/components/ui/SmartNavLink'
 import { MenuButton } from '@/components/layout/MenuButton'
 import { CvButton } from '@/components/layout/CvButton'
 
@@ -24,7 +25,7 @@ export default function Header() {
         <nav className="header-nav" aria-label="Site navigation">
           {NAV_LINKS.map(({ label, href }) => (
             <span key={label} className="nav-bracket-wrap">
-              <CharRevealLink
+              <SmartNavLink
                 href={href}
                 label={label.toUpperCase()}
                 className="header-nav-link"
