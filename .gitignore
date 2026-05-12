@@ -43,6 +43,7 @@ next-env.d.ts
 # Claude
 CLAUDE.md
 .claude/
+/ralph
 
 #todo and build guide
 TODO.md
@@ -50,3 +51,18 @@ BUILD-GUIDE.md
 DESIGN-SYSTEM.md
 ROADMAP.md
 TECH-REFERENCE.md
+
+/pics
+/landopics
+/sanity/node_modules
+/sanity/.sanity
+/references
+
+# Dev-only files
+/issues
+/docs
+generate_cv.py
+
+# Sanity build artifacts
+/sanity/dist
+/sanity/schema.json

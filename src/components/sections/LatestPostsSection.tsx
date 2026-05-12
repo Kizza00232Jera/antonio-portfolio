@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import BlogPostCard from '@/components/ui/BlogPostCard'
+import { BlogListClient } from '@/components/ui/BlogListClient'
 import type { BlogPost } from '@/lib/sanity/types'
 
 interface LatestPostsSectionProps {
@@ -8,39 +8,24 @@ interface LatestPostsSectionProps {
 
 export default function LatestPostsSection({ posts }: LatestPostsSectionProps) {
   return (
-    <section className="mx-auto max-w-[var(--max-width)] px-6 py-[var(--section-gap)]">
-      <div className="flex items-end justify-between gap-4 mb-2">
-        <div>
-          <p className="mb-3 font-mono text-sm text-text-muted uppercase tracking-widest">
-            Writing
-          </p>
-          <h2
-            className="font-heading font-bold text-text leading-tight"
-            style={{ fontSize: 'var(--text-display)' }}
+    <section data-theme="dark" style={{ backgroundColor: '#0d0d0d' }} className="sticky top-0 min-h-screen md:max-h-screen md:overflow-hidden">
+      <div className="mx-auto max-w-[var(--max-width)] px-6 py-[var(--section-gap)]">
+      <div className="flex items-end justify-end gap-4 mb-6">
+          <Link
+            href="/blog"
+            className="shrink-0 text-sm font-medium text-text-muted underline underline-offset-4 decoration-border hover:text-text hover:decoration-accent transition-colors"
           >
-            Latest posts
-          </h2>
-        </div>
-
-        <Link
-          href="/blog"
-          className="shrink-0 text-sm font-medium text-text-muted underline underline-offset-4 decoration-border hover:text-text hover:decoration-accent transition-colors"
-        >
-          All posts →
-        </Link>
+            <span className="hidden md:inline">All posts</span>
+            <span className="md:hidden">Show all blogs</span>
+          </Link>
       </div>
 
       {posts.length === 0 ? (
         <p className="text-sm text-text-muted pt-6 border-t border-border">Posts coming soon.</p>
       ) : (
-        <ul className="list-none m-0 p-0">
-          {posts.map((post) => (
-            <li key={post._id}>
-              <BlogPostCard post={post} />
-            </li>
-          ))}
-        </ul>
+        <BlogListClient posts={posts} mobileLimit={4} />
       )}
+      </div>
     </section>
   )
 }

@@ -1,174 +1,357 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
-import { useGSAP } from '@gsap/react'
+import { useRef, useEffect } from 'react'
 import { gsap } from 'gsap'
+import { useCarouselState } from '@/components/ui/useCarouselState'
 
-// Cycling phrases for the typewriter — matches Edwin's format
-const PHRASES = ['Designer.', 'Developer.', 'tech enthusiast.']
+/* ── Data ─────────────────────────────────────────── */
 
-const TYPE_SPEED = 80    // ms per char when typing
-const DELETE_SPEED = 50  // ms per char when deleting
-const PAUSE_AFTER = 1800 // ms to hold after fully typed
-const PAUSE_BETWEEN = 300 // ms pause between phrases
+const TECH_ITEMS = [
+  'React', 'Next.js', 'TypeScript', 'TailwindCSS',
+  'GSAP', 'Node.js', 'Vercel', 'Supabase', 'Sanity', 'Figma',
+]
 
-const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms))
+const ROLES = ['/ WEB DEVELOPMENT', '/ WEB DESIGN', '/ CREATIVE TECHNOLOGY']
+
+const ABOUT = 'Half designer, half developer — full attention to detail. Five years across three countries learning how research becomes a system, a system becomes a product, and a product becomes something you actually want to use. Now exploring XR and creative code at Stockholm University.'
+
+/* ── Fibonacci sphere positions (unit sphere) ─────── */
+
+const N = TECH_ITEMS.length
+const GOLDEN_RATIO = (1 + Math.sqrt(5)) / 2
+
+const BASE_POSITIONS = Array.from({ length: N }, (_, i) => {
+  const theta = Math.acos(1 - (2 * (i + 0.5)) / N)
+  const phi = 2 * Math.PI * i / GOLDEN_RATIO
+  return {
+    x: Math.sin(theta) * Math.cos(phi),
+    y: Math.sin(theta) * Math.sin(phi),
+    z: Math.cos(theta),
+  }
+})
+
+/* ── Component ────────────────────────────────────── */
 
 export default function HeroSection() {
-  const containerRef = useRef<HTMLElement>(null)
+  const { activePanel, goToPanel } = useCarouselState(2)
+  const sectionRef = useRef<HTMLElement>(null)
+  const titleRef = useRef<HTMLDivElement>(null)
 
-  // True once the preloader has exited (or on repeat visits)
-  const [ready, setReady] = useState(false)
+  // Desktop ball
+  const ballContainerRef = useRef<HTMLDivElement>(null)
+  const ballItemRefs = useRef<(HTMLSpanElement | null)[]>([])
 
-  // Typewriter state
-  const [typeText, setTypeText] = useState('')
-  const [cursorOn, setCursorOn] = useState(true)
+  // Mobile ball (separate DOM element, same RAF values)
+  const mobileBallContainerRef = useRef<HTMLDivElement>(null)
+  const mobileBallItemRefs = useRef<(HTMLSpanElement | null)[]>([])
 
-  // Preloader always fires 'preloader:done' — wait for it every time
+  const rafIdRef = useRef(0)
+  const radiusRef = useRef(0)
+  const rotYRef = useRef(0)
+  const rotXRef = useRef(0)
+  const speedRef = useRef(0.007)
+  const targetSpeedRef = useRef(0.007)
+  const isDraggingRef = useRef(false)
+  const lastPointerRef = useRef({ x: 0, y: 0 })
+  const isMobilePausedRef = useRef(false)
+  const touchMovedRef = useRef(false)
+  const touchStartPosRef = useRef({ x: 0, y: 0 })
+
+  /* ── Entrance animations ──────────────────────────────────────────── */
   useEffect(() => {
-    const handle = () => setReady(true)
-    window.addEventListener('preloader:done', handle)
-    return () => window.removeEventListener('preloader:done', handle)
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (prefersReduced) return
+
+    const ctx = gsap.context(() => {
+      if (titleRef.current) {
+        gsap.from('.hero-title-svg', {
+          yPercent: 105,
+          duration: 1.5,
+          ease: 'power4.out',
+          delay: 0.1,
+        })
+      }
+      gsap.from('.hero-main .hero-eyebrow', {
+        opacity: 0, y: 8, duration: 0.7, ease: 'power3.out', stagger: 0.15, delay: 0.55,
+      })
+      gsap.from('.hero-main .hero-role', {
+        opacity: 0, x: -10, duration: 0.6, ease: 'power3.out', stagger: 0.08, delay: 0.7,
+      })
+      gsap.from('.hero-main .hero-about', {
+        opacity: 0, y: 10, duration: 0.8, ease: 'power3.out', delay: 0.8,
+      })
+    })
+
+    return () => ctx.revert()
   }, [])
 
-  // GSAP entry animation — fires once when ready
-  useGSAP(
-    () => {
-      if (!ready) return
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-
-      const line1 = containerRef.current?.querySelector<HTMLElement>('[data-line1]')
-      const line2 = containerRef.current?.querySelector<HTMLElement>('[data-line2]')
-      const para = containerRef.current?.querySelector<HTMLElement>('[data-para]')
-      const cue = containerRef.current?.querySelector<HTMLElement>('[data-cue]')
-
-      // All three content elements animate in simultaneously at t=0
-      const tl = gsap.timeline({ defaults: { ease: 'power3.out', duration: 0.85 } })
-
-      // Line 1: same fade + slide as the others
-      if (line1) tl.fromTo(line1, { opacity: 0, y: 20 }, { opacity: 1, y: 0 }, 0)
-      // Line 2: fade + slide — starts at same time as line 1
-      if (line2) tl.fromTo(line2, { opacity: 0, y: 14 }, { opacity: 1, y: 0 }, 0)
-      // Paragraph: fade + slight slide — same time
-      if (para) tl.fromTo(para, { opacity: 0, y: 10 }, { opacity: 1, y: 0 }, 0)
-      // Scroll cue fades after content is visible
-      if (cue) tl.fromTo(cue, { opacity: 0 }, { opacity: 1, duration: 0.5 }, 0.6)
-    },
-    { scope: containerRef, dependencies: [ready] },
-  )
-
-  // Typewriter cycling — starts when ready
+  /* ── Ball rAF spin — updates both desktop and mobile item refs ─── */
   useEffect(() => {
-    if (!ready) return
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (prefersReduced) return
 
-    // Reduced motion: just show first phrase statically
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      setTypeText(PHRASES[0])
-      return
+    radiusRef.current = window.innerWidth < 768 ? 110 : 160
+    const FOCAL = 380
+
+    function animate() {
+      speedRef.current += (targetSpeedRef.current - speedRef.current) * 0.05
+
+      if (!isDraggingRef.current && !isMobilePausedRef.current) {
+        rotYRef.current += speedRef.current
+      }
+
+      const cosX = Math.cos(rotXRef.current)
+      const sinX = Math.sin(rotXRef.current)
+      const cosY = Math.cos(rotYRef.current)
+      const sinY = Math.sin(rotYRef.current)
+      const R = radiusRef.current
+
+      BASE_POSITIONS.forEach((pos, i) => {
+        const rx = pos.x * cosY - pos.z * sinY
+        const ry = pos.y
+        const rz = pos.x * sinY + pos.z * cosY
+
+        const finalX = rx
+        const finalY = ry * cosX - rz * sinX
+        const finalZ = ry * sinX + rz * cosX
+
+        const scale = FOCAL / (FOCAL + finalZ * R)
+        const sx = finalX * R * scale
+        const sy = finalY * R * scale
+        const depth = (finalZ + 1) / 2
+
+        const transform = `translate(-50%, -50%) translate3d(${sx.toFixed(1)}px, ${sy.toFixed(1)}px, 0)`
+        const opacity = (0.2 + depth * 0.8).toFixed(3)
+        const fontSize = `${(0.65 + depth * 0.45).toFixed(3)}rem`
+        const zIndex = String(Math.round(depth * 100))
+
+        const el = ballItemRefs.current[i]
+        if (el) {
+          el.style.transform = transform
+          el.style.opacity = opacity
+          el.style.fontSize = fontSize
+          el.style.zIndex = zIndex
+        }
+
+        const mEl = mobileBallItemRefs.current[i]
+        if (mEl) {
+          mEl.style.transform = transform
+          mEl.style.opacity = opacity
+          mEl.style.fontSize = fontSize
+          mEl.style.zIndex = zIndex
+        }
+      })
+
+      rafIdRef.current = requestAnimationFrame(animate)
     }
 
-    let phraseIdx = 0
-    let cancelled = false
+    rafIdRef.current = requestAnimationFrame(animate)
+    return () => cancelAnimationFrame(rafIdRef.current)
+  }, [])
 
-    const blinkInterval = setInterval(() => setCursorOn((v) => !v), 530)
+  /* ── Recompute orbit radius on resize ────────── */
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout>
+    const onResize = () => {
+      clearTimeout(timer)
+      timer = setTimeout(() => {
+        radiusRef.current = window.innerWidth < 768 ? 110 : 160
+      }, 150)
+    }
+    window.addEventListener('resize', onResize)
+    return () => {
+      clearTimeout(timer)
+      window.removeEventListener('resize', onResize)
+    }
+  }, [])
 
-    async function cycle() {
-      // All lines animate in together at 0.85s — wait just past that before typing
-      await wait(950)
-      if (cancelled) return
+  /* ── Desktop globe interaction (hover + drag) ─────────────────── */
+  useEffect(() => {
+    const container = ballContainerRef.current
+    if (!container) return
 
-      while (!cancelled) {
-        const phrase = PHRASES[phraseIdx % PHRASES.length]
+    const onEnter = () => { targetSpeedRef.current = 0.001 }
+    const onLeave = () => {
+      targetSpeedRef.current = 0.007
+      isDraggingRef.current = false
+      container.classList.remove('is-dragging')
+    }
+    const onDown = (e: MouseEvent) => {
+      isDraggingRef.current = true
+      container.classList.add('is-dragging')
+      lastPointerRef.current = { x: e.clientX, y: e.clientY }
+    }
+    const onMove = (e: MouseEvent) => {
+      if (!isDraggingRef.current) return
+      const dx = e.clientX - lastPointerRef.current.x
+      const dy = e.clientY - lastPointerRef.current.y
+      rotYRef.current += dx * 0.008
+      rotXRef.current += dy * 0.008
+      lastPointerRef.current = { x: e.clientX, y: e.clientY }
+    }
+    const onUp = () => {
+      isDraggingRef.current = false
+      container.classList.remove('is-dragging')
+    }
 
-        // Type out
-        for (let i = 1; i <= phrase.length; i++) {
-          if (cancelled) return
-          setTypeText(phrase.slice(0, i))
-          await wait(TYPE_SPEED)
-        }
+    container.addEventListener('mouseenter', onEnter)
+    container.addEventListener('mouseleave', onLeave)
+    container.addEventListener('mousedown', onDown)
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mouseup', onUp)
 
-        // Hold
-        await wait(PAUSE_AFTER)
-        if (cancelled) return
+    return () => {
+      container.removeEventListener('mouseenter', onEnter)
+      container.removeEventListener('mouseleave', onLeave)
+      container.removeEventListener('mousedown', onDown)
+      window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('mouseup', onUp)
+    }
+  }, [])
 
-        // Delete
-        for (let i = phrase.length - 1; i >= 0; i--) {
-          if (cancelled) return
-          setTypeText(phrase.slice(0, i))
-          await wait(DELETE_SPEED)
-        }
+  /* ── Mobile globe interaction (drag + tap-to-pause) ───────────── */
+  useEffect(() => {
+    const container = mobileBallContainerRef.current
+    if (!container) return
 
-        await wait(PAUSE_BETWEEN)
-        phraseIdx++
+    const onTouchStart = (e: TouchEvent) => {
+      const t = e.touches[0]
+      isDraggingRef.current = true
+      lastPointerRef.current = { x: t.clientX, y: t.clientY }
+      touchStartPosRef.current = { x: t.clientX, y: t.clientY }
+      touchMovedRef.current = false
+    }
+    const onTouchMove = (e: TouchEvent) => {
+      if (!isDraggingRef.current) return
+      e.preventDefault()
+      const t = e.touches[0]
+      const dx = t.clientX - lastPointerRef.current.x
+      const dy = t.clientY - lastPointerRef.current.y
+      const totalDx = t.clientX - touchStartPosRef.current.x
+      const totalDy = t.clientY - touchStartPosRef.current.y
+      if (Math.abs(totalDx) > 6 || Math.abs(totalDy) > 6) touchMovedRef.current = true
+      rotYRef.current += dx * 0.008
+      rotXRef.current += dy * 0.008
+      lastPointerRef.current = { x: t.clientX, y: t.clientY }
+    }
+    const onTouchEnd = () => {
+      isDraggingRef.current = false
+      if (!touchMovedRef.current) {
+        // Tap — toggle pause
+        isMobilePausedRef.current = !isMobilePausedRef.current
       }
     }
 
-    cycle()
+    container.addEventListener('touchstart', onTouchStart, { passive: true })
+    container.addEventListener('touchmove', onTouchMove, { passive: false })
+    container.addEventListener('touchend', onTouchEnd)
 
     return () => {
-      cancelled = true
-      clearInterval(blinkInterval)
+      container.removeEventListener('touchstart', onTouchStart)
+      container.removeEventListener('touchmove', onTouchMove)
+      container.removeEventListener('touchend', onTouchEnd)
     }
-  }, [ready])
+  }, [])
+
+  /* ── Render ───────────────────────────────────── */
 
   return (
     <section
-      ref={containerRef}
-      className="relative flex min-h-screen flex-col justify-center bg-[#010101] px-6"
+      ref={sectionRef}
+      data-theme="dark"
+      className="hero-section"
     >
-      <div className="mx-auto w-full max-w-[var(--max-width)]">
+      <div className="hero-body">
 
-        {/* Line 1 — "Sup, I'm Antonio." */}
-        <h1
-          data-line1
-          className="font-heading font-bold text-white opacity-0"
-          style={{ fontSize: 'var(--text-hero)', lineHeight: 1.05 }}
-        >
-          Sup, I&apos;m Antonio.
-        </h1>
+        {/* ── Main: left-text | globe | right-text (desktop) ─ */}
+        <div className="hero-main">
+          <div className="hero-intro-left">
+            <span className="hero-eyebrow">/ 01 — ROLES</span>
+            <div className="hero-roles">
+              {ROLES.map((r) => (
+                <span key={r} className="hero-role">{r}</span>
+              ))}
+            </div>
+          </div>
 
-        {/* Line 2 — "I'm a [typewriter]" — fades in, typewriter cycles */}
-        <p
-          data-line2
-          className="font-heading font-bold text-white opacity-0"
-          style={{ fontSize: 'var(--text-hero)', lineHeight: 1.05 }}
-        >
-          I&apos;m a{' '}
-          <span className="text-accent">
-            {typeText}
-            {/* Blinking cursor */}
-            <span
-              className="relative inline-block bg-accent align-middle"
-              style={{
-                width: '2px',
-                height: '0.82em',
-                marginLeft: '3px',
-                top: '-0.05em',
-                opacity: cursorOn ? 1 : 0,
-                transition: 'opacity 0.08s',
-              }}
-            />
-          </span>
-        </p>
+          <div className="hero-globe-wrap">
+            <div ref={ballContainerRef} className="hero-ball">
+              {TECH_ITEMS.map((item, i) => (
+                <span
+                  key={item}
+                  ref={el => { ballItemRefs.current[i] = el }}
+                  className="hero-ball-item"
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          </div>
 
-        {/* Body paragraph */}
-        <p
-          data-para
-          className="mt-8 max-w-md font-body text-white/50 opacity-0"
-          style={{ fontSize: 'var(--text-body)', lineHeight: 1.7 }}
-        >
-          Passionately building web experiences rooted in design, grounded in code — from Croatia to the world.
-        </p>
-      </div>
+          <div className="hero-intro-right">
+            <span className="hero-eyebrow">/ 02 — ABOUT ME</span>
+            <p className="hero-about">{ABOUT}</p>
+          </div>
+        </div>
 
-      {/* Scroll cue */}
-      <div
-        data-cue
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-0"
-        aria-hidden="true"
-      >
-        <span className="font-mono text-[10px] text-white/30 uppercase tracking-widest">Scroll</span>
-        <div className="h-10 w-px bg-gradient-to-b from-white/30 to-transparent" />
+        {/* ── Mobile: carousel panels ─────────────── */}
+        <div className="hero-mobile-carousel">
+          <div className={`hero-carousel-panel${activePanel === 0 ? ' is-active' : ''}`}>
+            <span className="hero-eyebrow">/ 02 — ABOUT ME</span>
+            <p className="hero-about">{ABOUT}</p>
+          </div>
+          <div className={`hero-carousel-panel${activePanel === 1 ? ' is-active' : ''}`}>
+            <span className="hero-eyebrow">/ 01 — ROLES</span>
+            <div className="hero-roles">
+              {ROLES.map((r) => (
+                <span key={r} className="hero-role">{r}</span>
+              ))}
+            </div>
+          </div>
+          <div className="hero-carousel-dots">
+            {[0, 1].map((i) => (
+              <button
+                key={i}
+                className={`hero-carousel-dot${activePanel === i ? ' is-active' : ''}`}
+                onClick={() => goToPanel(i)}
+                aria-label={`Panel ${i + 1}`}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* ── Mobile globe — centered, tap to pause ─ */}
+        <div className="hero-mobile-globe" aria-label="Interactive tech sphere, tap to pause">
+          <div ref={mobileBallContainerRef} className="hero-ball">
+            {TECH_ITEMS.map((item, i) => (
+              <span
+                key={`m-${item}`}
+                ref={el => { mobileBallItemRefs.current[i] = el }}
+                className="hero-ball-item"
+              >
+                {item}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Wordmark ─────────────────────────────── */}
+        <div ref={titleRef} className="hero-title" aria-label="ANTONIO JERKOVIC">
+          <svg viewBox="0 0 1000 180" className="hero-title-svg" aria-hidden>
+            <text
+              x="500"
+              y="158"
+              fontSize={200}
+              textAnchor="middle"
+              textLength="1000"
+              lengthAdjust="spacingAndGlyphs"
+              className="hero-title-text"
+            >
+              ANTONIO JERKOVIC
+            </text>
+          </svg>
+        </div>
+
       </div>
     </section>
   )

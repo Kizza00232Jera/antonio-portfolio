@@ -1,21 +1,48 @@
 import Link from 'next/link'
-import Nav from './Nav'
+import { CharRevealText } from '@/components/ui/CharReveal'
+import { SmartNavLink } from '@/components/ui/SmartNavLink'
+import { MenuButton } from '@/components/layout/MenuButton'
+import { CvButton } from '@/components/layout/CvButton'
+
+const NAV_LINKS = [
+  { label: 'Home', href: '/' },
+  { label: 'Projects', href: '/projects' },
+  { label: 'Blog', href: '/blog' },
+  { label: 'Contact', href: '/#contact' },
+]
 
 export default function Header() {
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-bg/80 backdrop-blur-sm">
-      <div
-        className="mx-auto flex h-16 max-w-[var(--max-width)] items-center justify-between px-6"
-      >
-        <Link
-          href="/"
-          className="font-heading text-lg font-bold tracking-tight text-text hover:text-accent transition-colors duration-200"
-          aria-label="Antonio — home"
-        >
-          Antonio
+    <header className="header-root">
+      <div className="header-inner">
+        {/* Logo — left, two stacked rows */}
+        <Link href="/" className="header-logo-wrap group">
+          <CharRevealText text="ANTONIO" className="header-logo" />
+          <CharRevealText text="JERKOVIC" className="header-logo" />
         </Link>
 
-        <Nav />
+        {/* Nav — center (desktop only) */}
+        <nav className="header-nav" aria-label="Site navigation">
+          {NAV_LINKS.map(({ label, href }) => (
+            <span key={label} className="nav-bracket-wrap">
+              <SmartNavLink
+                href={href}
+                label={label.toUpperCase()}
+                className="header-nav-link"
+              />
+            </span>
+          ))}
+        </nav>
+
+        {/* Right side: hamburger on mobile, Contact link on desktop */}
+        <div className="header-right">
+          <div className="md:hidden">
+            <MenuButton />
+          </div>
+          <div className="hidden md:flex">
+            <CvButton />
+          </div>
+        </div>
       </div>
     </header>
   )

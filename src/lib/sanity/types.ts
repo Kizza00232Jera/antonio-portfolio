@@ -19,6 +19,35 @@ export interface SanitySlug {
   current: string
 }
 
+export interface TechStackItem {
+  _id: string
+  _type: 'techStackItem'
+  name: string
+  slug: SanitySlug
+  icon?: SanityImage
+}
+
+export interface Tag {
+  _id: string
+  _type: 'tag'
+  name: string
+  slug: SanitySlug
+}
+
+export interface ProjectSectionLink {
+  _key: string
+  label?: string
+  url?: string
+}
+
+export interface ProjectSection {
+  _key: string
+  title: string
+  content?: PortableTextBlock[]
+  images?: SanityImage[]
+  links?: ProjectSectionLink[]
+}
+
 export interface Project {
   _id: string
   _type: 'project'
@@ -27,9 +56,13 @@ export interface Project {
   tagline?: string
   description?: PortableTextBlock[]
   coverImage?: SanityImage
+  thumbnailImage?: SanityImage
   muxVideoId?: string
   focusAreas?: string[]
   techStack?: string[]
+  techStackRefs?: TechStackItem[]
+  tags?: Tag[]
+  sections?: ProjectSection[]
   githubUrl?: string
   liveUrl?: string
   featured: boolean
@@ -48,8 +81,9 @@ export interface BlogPost {
   muxVideoId?: string
   githubUrl?: string
   appUrl?: string
-  tags?: string[]
-  relatedProject?: Project
+  heroImage?: SanityImage
+  author?: { name: string; githubUrl?: string; linkedinUrl?: string } | null
+  tags?: Array<{ _id: string; name: string; slug: string }> | null
 }
 
 export interface Author {
@@ -61,6 +95,9 @@ export interface Author {
   bio?: string
   githubUrl?: string
   linkedinUrl?: string
+  phoneCroatian?: string
+  phoneSwedish?: string
+  email?: string
 }
 
 export interface SiteSettings {
@@ -69,5 +106,5 @@ export interface SiteSettings {
   title?: string
   description?: string
   author?: Author
-  ogImage?: SanityImage
+  ogImageUrl?: string
 }
