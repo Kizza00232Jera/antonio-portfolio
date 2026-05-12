@@ -386,10 +386,31 @@ html::-webkit-scrollbar {
   display: none;
 }
 
+/* Mobile globe — hidden on desktop */
+.hero-mobile-globe {
+  display: none;
+}
+
 @media (max-width: 767px) {
-  /* Hide desktop 3-col layout and globe */
+  /* Hide desktop 3-col layout */
   .hero-main {
     display: none;
+  }
+
+  /* hero-body needs relative positioning for the absolutely-centred globe */
+  .hero-body {
+    position: relative;
+  }
+
+  /* Mobile globe — absolutely centred in the hero body */
+  .hero-mobile-globe {
+    display: flex;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    pointer-events: auto;
   }
 
   /* Show carousel */
@@ -408,13 +429,19 @@ html::-webkit-scrollbar {
     gap: 0.75rem;
     padding: 1.5rem;
     opacity: 0;
-    transition: opacity 0.4s ease;
+    transition: opacity 0.7s ease;
     pointer-events: none;
   }
 
   .hero-carousel-panel.is-active {
     opacity: 1;
     pointer-events: auto;
+    animation: panel-enter 0.75s ease forwards;
+  }
+
+  @keyframes panel-enter {
+    from { transform: translateY(10px); }
+    to   { transform: translateY(0); }
   }
 
   .hero-carousel-panel .hero-eyebrow {
@@ -1723,9 +1750,14 @@ html::-webkit-scrollbar {
 
 /* ── Footer responsive ── */
 @media (max-width: 768px) {
+  /* Three-block layout: nav top · contact middle · name+clock bottom */
+  .footer-inner {
+    justify-content: space-between;
+  }
+
+  /* Unwrap footer-top so nav-col and contact-col become direct footer-inner flex children */
   .footer-top {
-    grid-template-columns: 1fr;
-    gap: 2.5rem;
+    display: contents;
   }
 
   .footer-contact-col {

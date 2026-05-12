@@ -36,8 +36,15 @@ export default function HeroSection() {
   const { activePanel, goToPanel } = useCarouselState(2)
   const sectionRef = useRef<HTMLElement>(null)
   const titleRef = useRef<HTMLDivElement>(null)
+
+  // Desktop ball
   const ballContainerRef = useRef<HTMLDivElement>(null)
   const ballItemRefs = useRef<(HTMLSpanElement | null)[]>([])
+
+  // Mobile ball (separate DOM element, same RAF values)
+  const mobileBallContainerRef = useRef<HTMLDivElement>(null)
+  const mobileBallItemRefs = useRef<(HTMLSpanElement | null)[]>([])
+
   const rafIdRef = useRef(0)
   const radiusRef = useRef(0)
   const rotYRef = useRef(0)
@@ -46,14 +53,16 @@ export default function HeroSection() {
   const targetSpeedRef = useRef(0.007)
   const isDraggingRef = useRef(false)
   const lastPointerRef = useRef({ x: 0, y: 0 })
+  const isMobilePausedRef = useRef(false)
+  const touchMovedRef = useRef(false)
+  const touchStartPosRef = useRef({ x: 0, y: 0 })
 
-  /* ── Entrance animations ──────────────────────── */
+  /* ── Entrance animations ──────────────────────────────────────────── */
   useEffect(() => {
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (prefersReduced) return
 
     const ctx = gsap.context(() => {
-      // Wordmark: wipe up from below
       if (titleRef.current) {
         gsap.from('.hero-title-svg', {
           yPercent: 105,
@@ -62,37 +71,21 @@ export default function HeroSection() {
           delay: 0.1,
         })
       }
-
-      // Intro panels
       gsap.from('.hero-main .hero-eyebrow', {
-        opacity: 0,
-        y: 8,
-        duration: 0.7,
-        ease: 'power3.out',
-        stagger: 0.15,
-        delay: 0.55,
+        opacity: 0, y: 8, duration: 0.7, ease: 'power3.out', stagger: 0.15, delay: 0.55,
       })
       gsap.from('.hero-main .hero-role', {
-        opacity: 0,
-        x: -10,
-        duration: 0.6,
-        ease: 'power3.out',
-        stagger: 0.08,
-        delay: 0.7,
+        opacity: 0, x: -10, duration: 0.6, ease: 'power3.out', stagger: 0.08, delay: 0.7,
       })
       gsap.from('.hero-main .hero-about', {
-        opacity: 0,
-        y: 10,
-        duration: 0.8,
-        ease: 'power3.out',
-        delay: 0.8,
+        opacity: 0, y: 10, duration: 0.8, ease: 'power3.out', delay: 0.8,
       })
     })
 
     return () => ctx.revert()
   }, [])
 
-  /* ── Ball rAF spin ────────────────────────────── */
+  /* ── Ball rAF spin — updates both desktop and mobile item refs ─── */
   useEffect(() => {
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (prefersReduced) return
@@ -103,7 +96,7 @@ export default function HeroSection() {
     function animate() {
       speedRef.current += (targetSpeedRef.current - speedRef.current) * 0.05
 
-      if (!isDraggingRef.current) {
+      if (!isDraggingRef.current && !isMobilePausedRef.current) {
         rotYRef.current += speedRef.current
       }
 
@@ -114,9 +107,6 @@ export default function HeroSection() {
       const R = radiusRef.current
 
       BASE_POSITIONS.forEach((pos, i) => {
-        const el = ballItemRefs.current[i]
-        if (!el) return
-
         const rx = pos.x * cosY - pos.z * sinY
         const ry = pos.y
         const rz = pos.x * sinY + pos.z * cosY
@@ -130,10 +120,26 @@ export default function HeroSection() {
         const sy = finalY * R * scale
         const depth = (finalZ + 1) / 2
 
-        el.style.transform = `translate(-50%, -50%) translate3d(${sx.toFixed(1)}px, ${sy.toFixed(1)}px, 0)`
-        el.style.opacity = (0.2 + depth * 0.8).toFixed(3)
-        el.style.fontSize = `${(0.65 + depth * 0.45).toFixed(3)}rem`
-        el.style.zIndex = String(Math.round(depth * 100))
+        const transform = `translate(-50%, -50%) translate3d(${sx.toFixed(1)}px, ${sy.toFixed(1)}px, 0)`
+        const opacity = (0.2 + depth * 0.8).toFixed(3)
+        const fontSize = `${(0.65 + depth * 0.45).toFixed(3)}rem`
+        const zIndex = String(Math.round(depth * 100))
+
+        const el = ballItemRefs.current[i]
+        if (el) {
+          el.style.transform = transform
+          el.style.opacity = opacity
+          el.style.fontSize = fontSize
+          el.style.zIndex = zIndex
+        }
+
+        const mEl = mobileBallItemRefs.current[i]
+        if (mEl) {
+          mEl.style.transform = transform
+          mEl.style.opacity = opacity
+          mEl.style.fontSize = fontSize
+          mEl.style.zIndex = zIndex
+        }
       })
 
       rafIdRef.current = requestAnimationFrame(animate)
@@ -159,7 +165,7 @@ export default function HeroSection() {
     }
   }, [])
 
-  /* ── Globe interaction (hover + drag) ────────── */
+  /* ── Desktop globe interaction (hover + drag) ─────────────────── */
   useEffect(() => {
     const container = ballContainerRef.current
     if (!container) return
@@ -187,31 +193,12 @@ export default function HeroSection() {
       isDraggingRef.current = false
       container.classList.remove('is-dragging')
     }
-    const onTouchStart = (e: TouchEvent) => {
-      const t = e.touches[0]
-      isDraggingRef.current = true
-      lastPointerRef.current = { x: t.clientX, y: t.clientY }
-    }
-    const onTouchMove = (e: TouchEvent) => {
-      if (!isDraggingRef.current) return
-      e.preventDefault()
-      const t = e.touches[0]
-      const dx = t.clientX - lastPointerRef.current.x
-      const dy = t.clientY - lastPointerRef.current.y
-      rotYRef.current += dx * 0.008
-      rotXRef.current += dy * 0.008
-      lastPointerRef.current = { x: t.clientX, y: t.clientY }
-    }
-    const onTouchEnd = () => { isDraggingRef.current = false }
 
     container.addEventListener('mouseenter', onEnter)
     container.addEventListener('mouseleave', onLeave)
     container.addEventListener('mousedown', onDown)
     window.addEventListener('mousemove', onMove)
     window.addEventListener('mouseup', onUp)
-    container.addEventListener('touchstart', onTouchStart, { passive: false })
-    container.addEventListener('touchmove', onTouchMove, { passive: false })
-    container.addEventListener('touchend', onTouchEnd)
 
     return () => {
       container.removeEventListener('mouseenter', onEnter)
@@ -219,6 +206,47 @@ export default function HeroSection() {
       container.removeEventListener('mousedown', onDown)
       window.removeEventListener('mousemove', onMove)
       window.removeEventListener('mouseup', onUp)
+    }
+  }, [])
+
+  /* ── Mobile globe interaction (drag + tap-to-pause) ───────────── */
+  useEffect(() => {
+    const container = mobileBallContainerRef.current
+    if (!container) return
+
+    const onTouchStart = (e: TouchEvent) => {
+      const t = e.touches[0]
+      isDraggingRef.current = true
+      lastPointerRef.current = { x: t.clientX, y: t.clientY }
+      touchStartPosRef.current = { x: t.clientX, y: t.clientY }
+      touchMovedRef.current = false
+    }
+    const onTouchMove = (e: TouchEvent) => {
+      if (!isDraggingRef.current) return
+      e.preventDefault()
+      const t = e.touches[0]
+      const dx = t.clientX - lastPointerRef.current.x
+      const dy = t.clientY - lastPointerRef.current.y
+      const totalDx = t.clientX - touchStartPosRef.current.x
+      const totalDy = t.clientY - touchStartPosRef.current.y
+      if (Math.abs(totalDx) > 6 || Math.abs(totalDy) > 6) touchMovedRef.current = true
+      rotYRef.current += dx * 0.008
+      rotXRef.current += dy * 0.008
+      lastPointerRef.current = { x: t.clientX, y: t.clientY }
+    }
+    const onTouchEnd = () => {
+      isDraggingRef.current = false
+      if (!touchMovedRef.current) {
+        // Tap — toggle pause
+        isMobilePausedRef.current = !isMobilePausedRef.current
+      }
+    }
+
+    container.addEventListener('touchstart', onTouchStart, { passive: true })
+    container.addEventListener('touchmove', onTouchMove, { passive: false })
+    container.addEventListener('touchend', onTouchEnd)
+
+    return () => {
       container.removeEventListener('touchstart', onTouchStart)
       container.removeEventListener('touchmove', onTouchMove)
       container.removeEventListener('touchend', onTouchEnd)
@@ -235,9 +263,8 @@ export default function HeroSection() {
     >
       <div className="hero-body">
 
-        {/* ── Main: left-text | globe | right-text ─ */}
+        {/* ── Main: left-text | globe | right-text (desktop) ─ */}
         <div className="hero-main">
-
           <div className="hero-intro-left">
             <span className="hero-eyebrow">/ 01 — ROLES</span>
             <div className="hero-roles">
@@ -265,10 +292,9 @@ export default function HeroSection() {
             <span className="hero-eyebrow">/ 02 — ABOUT ME</span>
             <p className="hero-about">{ABOUT}</p>
           </div>
-
         </div>
 
-        {/* ── Mobile: 2-panel carousel ─────────── */}
+        {/* ── Mobile: carousel panels ─────────────── */}
         <div className="hero-mobile-carousel">
           <div className={`hero-carousel-panel${activePanel === 0 ? ' is-active' : ''}`}>
             <span className="hero-eyebrow">/ 02 — ABOUT ME</span>
@@ -294,13 +320,24 @@ export default function HeroSection() {
           </div>
         </div>
 
-        {/* ── Wordmark — SVG, fills 100% width ──── */}
+        {/* ── Mobile globe — centered, tap to pause ─ */}
+        <div className="hero-mobile-globe" aria-label="Interactive tech sphere, tap to pause">
+          <div ref={mobileBallContainerRef} className="hero-ball">
+            {TECH_ITEMS.map((item, i) => (
+              <span
+                key={`m-${item}`}
+                ref={el => { mobileBallItemRefs.current[i] = el }}
+                className="hero-ball-item"
+              >
+                {item}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Wordmark ─────────────────────────────── */}
         <div ref={titleRef} className="hero-title" aria-label="ANTONIO JERKOVIC">
-          <svg
-            viewBox="0 0 1000 180"
-            className="hero-title-svg"
-            aria-hidden
-          >
+          <svg viewBox="0 0 1000 180" className="hero-title-svg" aria-hidden>
             <text
               x="500"
               y="158"

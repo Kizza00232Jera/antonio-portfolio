@@ -55,7 +55,7 @@ export function CvModal({ isOpen, onClose }: CvModalProps) {
   return createPortal(
     <div
       ref={backdropRef}
-      className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 px-4"
+      className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 px-4 py-6"
       style={{ display: 'none' }}
       onClick={onClose}
       role="dialog"
@@ -64,7 +64,7 @@ export function CvModal({ isOpen, onClose }: CvModalProps) {
     >
       <div
         ref={panelRef}
-        className="relative w-full max-w-5xl bg-white flex flex-col shadow-2xl"
+        className="relative w-full max-w-5xl bg-white flex flex-col shadow-2xl overflow-hidden"
         style={{ maxHeight: 'calc(100vh - 3rem)' }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -103,12 +103,17 @@ export function CvModal({ isOpen, onClose }: CvModalProps) {
           </button>
         </div>
 
-        {/* PDF — clipped to page 1 */}
-        <div className="flex-1 overflow-hidden min-h-0">
+        {/* PDF — A4 ratio on mobile (no white gap), tall+clipped on desktop */}
+        <div className="min-h-0 overflow-hidden md:flex-1">
           <iframe
             src={`${PDF_PATH}#page=1&toolbar=0&navpanes=0&scrollbar=0`}
             title="Antonio Jerkovic — Curriculum Vitae"
-            style={{ width: '100%', height: '300vh', border: 'none', display: 'block' }}
+            style={{
+              width: '100%',
+              height: 'min(calc(100vw * 297 / 210), 300vh)',
+              border: 'none',
+              display: 'block',
+            }}
           />
         </div>
 

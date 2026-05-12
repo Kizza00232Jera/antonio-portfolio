@@ -178,24 +178,26 @@ export default function ContactSection({
           </div>
         </div>
 
-        {/* ── Big name at bottom ── */}
-        <div ref={nameRef} className="footer-name" aria-label="ANTONIO JERKOVIC">
-          <div className="footer-name-line">
-            {NAME_WORDS.map((word, wi) => (
-              <span key={wi} className="footer-name-word">
-                {word.split('').map((char, ci) => (
-                  <span key={ci} className="fn-char-clip">
-                    <span className="fn-char">{char}</span>
-                  </span>
-                ))}
-              </span>
-            ))}
+        {/* ── Big name + clock pinned to bottom on mobile ── */}
+        <div className="footer-bottom-group">
+          <div ref={nameRef} className="footer-name" aria-label="ANTONIO JERKOVIC">
+            <div className="footer-name-line">
+              {NAME_WORDS.map((word, wi) => (
+                <span key={wi} className="footer-name-word">
+                  {word.split('').map((char, ci) => (
+                    <span key={ci} className="fn-char-clip">
+                      <span className="fn-char">{char}</span>
+                    </span>
+                  ))}
+                </span>
+              ))}
+            </div>
           </div>
-        </div>
 
-        {/* ── Stockholm clock centered ── */}
-        <div className="footer-bottom">
-          <StockholmClock />
+          {/* ── Stockholm clock centered ── */}
+          <div className="footer-bottom">
+            <StockholmClock />
+          </div>
         </div>
 
       </div>

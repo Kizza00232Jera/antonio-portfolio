@@ -1,7 +1,6 @@
 'use client'
 
 import { useMenu } from '@/contexts/MenuContext'
-import { CharRevealText } from '@/components/ui/CharReveal'
 
 export function MenuButton() {
   const { isOpen, toggle } = useMenu()
@@ -11,10 +10,22 @@ export function MenuButton() {
       onClick={toggle}
       aria-label={isOpen ? 'Close navigation menu' : 'Open navigation menu'}
       aria-expanded={isOpen}
-      className="char-reveal flex cursor-pointer items-center gap-2 text-base tracking-wide"
-      style={{ fontFamily: 'var(--font-satoshi), sans-serif' }}
+      className="cursor-pointer p-1"
     >
-      <CharRevealText text={isOpen ? '× Close' : '≡ Menu'} />
+      <div className="flex h-5 w-6 flex-col justify-between">
+        <span
+          className="block h-px w-full origin-center bg-current transition-all duration-300 ease-in-out"
+          style={{ transform: isOpen ? 'translateY(10px) rotate(45deg)' : 'none' }}
+        />
+        <span
+          className="block h-px w-4 bg-current transition-all duration-300 ease-in-out"
+          style={{ opacity: isOpen ? 0 : 1, transform: isOpen ? 'scaleX(0)' : 'none' }}
+        />
+        <span
+          className="block h-px w-full origin-center bg-current transition-all duration-300 ease-in-out"
+          style={{ transform: isOpen ? 'translateY(-10px) rotate(-45deg)' : 'none' }}
+        />
+      </div>
     </button>
   )
 }

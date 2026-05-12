@@ -1,11 +1,11 @@
 'use client'
 
-import { useRef, useEffect, useCallback } from 'react'
-import Image from 'next/image'
+import { useRef, useEffect, useCallback, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { gsap } from 'gsap'
 import { useMenu } from '@/contexts/MenuContext'
 import { SmartNavLink } from '@/components/ui/SmartNavLink'
+import { CvModal } from '@/components/ui/CvModal'
 
 const navLinks = [
   { href: '/', label: 'Home' },
@@ -19,18 +19,22 @@ export function NavOverlay() {
   const pathname = usePathname()
   const overlayRef = useRef<HTMLDivElement>(null)
   const linksRef = useRef<HTMLUListElement>(null)
-  const imageRef = useRef<HTMLDivElement>(null)
+  const footerRef = useRef<HTMLDivElement>(null)
+  const [cvOpen, setCvOpen] = useState(false)
 
-  // Close menu on route change (browser back/forward, link click)
+  // Freeze the active-state snapshot to when the menu opened.
+  // This prevents brackets from jumping to the new page during the close animation.
+  const pathnameRef = useRef(pathname)
+  pathnameRef.current = pathname
+  const [displayPathname, setDisplayPathname] = useState(pathname)
   useEffect(() => {
-    close()
-  }, [pathname, close])
+    if (isOpen) setDisplayPathname(pathnameRef.current)
+  }, [isOpen]) // intentionally only isOpen — captures pathname at open time
 
-  // Escape key closes menu
+  useEffect(() => { close() }, [pathname, close])
+
   const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) close()
-    },
+    (e: KeyboardEvent) => { if (e.key === 'Escape' && isOpen) close() },
     [isOpen, close],
   )
 
@@ -39,11 +43,9 @@ export function NavOverlay() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [handleKeyDown])
 
-  // GSAP entry/exit animations for overlay contents
   useEffect(() => {
     const overlay = overlayRef.current
     if (!overlay) return
-
     const links = linksRef.current?.querySelectorAll('li')
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
@@ -51,96 +53,131 @@ export function NavOverlay() {
       gsap.set(overlay, { visibility: 'visible' })
 
       if (prefersReduced) {
-        gsap.set([links, imageRef.current], { opacity: 1 })
-        if (links) gsap.set(links, { x: 0 })
+        if (links) gsap.set(links, { opacity: 1, x: 0 })
+        gsap.set(footerRef.current, { opacity: 1 })
         return
       }
 
-      // Stagger nav links in from the left
       gsap.fromTo(
         links ?? [],
         { opacity: 0, x: -20 },
         { opacity: 1, x: 0, duration: 0.5, stagger: 0.08, ease: 'power3.out', delay: 0.15 },
       )
-
-      // Image fades in
       gsap.fromTo(
-        imageRef.current,
+        footerRef.current,
         { opacity: 0 },
-        { opacity: 1, duration: 0.7, delay: 0.2, ease: 'power2.out' },
+        { opacity: 1, duration: 0.5, delay: 0.55, ease: 'power2.out' },
       )
     } else {
       if (prefersReduced) {
         gsap.set(overlay, { visibility: 'hidden' })
-        gsap.set([links, imageRef.current], { opacity: 0 })
+        if (links) gsap.set(links, { opacity: 0 })
+        gsap.set(footerRef.current, { opacity: 0 })
         return
       }
 
-      // Fade everything out, then hide the overlay
-      gsap.to([links ? Array.from(links) : [], imageRef.current].flat(), {
+      const targets = [
+        ...(links ? Array.from(links) : []),
+        footerRef.current,
+      ].filter(Boolean)
+
+      gsap.to(targets, {
         opacity: 0,
         duration: 0.25,
         ease: 'power2.in',
-        onComplete: () => {
-          gsap.set(overlay, { visibility: 'hidden' })
-        },
+        onComplete: () => gsap.set(overlay, { visibility: 'hidden' }),
       })
     }
   }, [isOpen])
 
   return (
-    <div
-      ref={overlayRef}
-      className="fixed inset-0 bg-[#080c18]"
-      style={{ visibility: 'hidden' }}
-      aria-hidden={!isOpen}
-    >
-      {/* Content: links over the image */}
-      <div className="relative flex h-full flex-col">
-        {/* Nav links — positioned over the image */}
+    <>
+      <div
+        ref={overlayRef}
+        className="fixed inset-0 z-40 flex flex-col bg-black"
+        style={{ visibility: 'hidden' }}
+        aria-hidden={!isOpen}
+      >
         <nav
           aria-label="Main navigation"
-          className="relative z-10 px-10 pt-28 md:px-16 md:pt-20"
+          className="px-8 pt-28 md:px-16 md:pt-20"
+          style={{ '--cr-hover': '#eef0f6' } as React.CSSProperties}
         >
-          <ul ref={linksRef} className="m-0 flex list-none flex-col gap-6 p-0 md:gap-4">
-            {navLinks.map(({ href, label }) => {
-              const isActive = href === '/' ? pathname === '/' : pathname.startsWith(href)
+          <ul ref={linksRef} className="m-0 list-none p-0">
+            {navLinks.map(({ href, label }, i) => {
+              const isActive = href === '/' ? displayPathname === '/' : displayPathname.startsWith(href)
               return (
-                <li key={href} className="opacity-0">
-                  <SmartNavLink
-                    href={href}
-                    label={label}
-                    isActive={isActive}
-                    tabIndex={isOpen ? 0 : -1}
-                    className="text-2xl md:text-3xl font-heading"
-                    onBeforeScroll={close}
-                  />
+                <li
+                  key={href}
+                  className="flex items-center justify-between border-t border-white/10 py-5 opacity-0"
+                >
+                  <div className="flex items-center gap-2">
+                    {isActive && (
+                      <span className="font-heading text-3xl tracking-wide text-[#eef0f6] md:text-4xl">[</span>
+                    )}
+                    <SmartNavLink
+                      href={href}
+                      label={label}
+                      tabIndex={isOpen ? 0 : -1}
+                      className="text-3xl font-heading tracking-wide md:text-4xl"
+                      onBeforeScroll={close}
+                    />
+                    {isActive && (
+                      <span className="font-heading text-3xl tracking-wide text-[#eef0f6] md:text-4xl">]</span>
+                    )}
+                  </div>
+                  <span className="font-mono text-xs tracking-widest text-white/20">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
                 </li>
               )
             })}
+
+            <li className="flex items-center justify-between border-b border-t border-white/10 py-5 opacity-0">
+              <button
+                tabIndex={isOpen ? 0 : -1}
+                onClick={() => { close(); setCvOpen(true) }}
+                className="char-reveal text-3xl font-heading tracking-wide md:text-4xl"
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  padding: 0,
+                  cursor: 'pointer',
+                  '--cr-color': '#eef0f6',
+                  '--cr-hover': '#eef0f6',
+                } as React.CSSProperties}
+              >
+                {Array.from('MY  CV  ↗').map((char, i) =>
+                  char === ' ' ? (
+                    <span key={i} style={{ display: 'inline-block', width: '0.3em' }} />
+                  ) : (
+                    <span key={i} data-char={char} style={{ '--index': i } as React.CSSProperties}>
+                      {char}
+                    </span>
+                  )
+                )}
+              </button>
+              <span className="font-mono text-xs tracking-widest text-white/20">
+                {String(navLinks.length + 1).padStart(2, '0')}
+              </span>
+            </li>
           </ul>
         </nav>
 
-        {/* Scenic image — fills the bottom area, blends into dark bg */}
         <div
-          ref={imageRef}
-          className="mt-auto overflow-hidden opacity-0"
+          ref={footerRef}
+          className="mt-auto flex items-end justify-between px-8 pb-10 opacity-0 md:px-16"
         >
-          <Image
-            src="/images/nav-scenic.jpg"
-            alt="Scenic landscape"
-            width={1600}
-            height={900}
-            className="w-full object-cover"
-            style={{
-              maxHeight: '55vh',
-              maskImage: 'linear-gradient(to bottom, transparent 0%, black 30%)',
-              WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 30%)',
-            }}
-            priority={false}
-          />
+          <span className="font-mono text-xs uppercase tracking-widest text-white/30">
+            Based in Stockholm, Sweden
+          </span>
+          <span className="font-mono text-xs tracking-widest text-white/20">
+            © {new Date().getFullYear()}
+          </span>
         </div>
       </div>
-    </div>
+
+      <CvModal isOpen={cvOpen} onClose={() => setCvOpen(false)} />
+    </>
   )
 }
