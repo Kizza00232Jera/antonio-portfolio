@@ -29,7 +29,7 @@ export const PROJECT_BY_SLUG_QUERY = defineQuery(
     techStackRefs[]->{ _id, name, slug, icon },
     tags[]->{ _id, name, slug },
     sections[]{ _key, title, content, images, links },
-    githubUrl, liveUrl, featured, order, publishedAt
+    githubUrl, liveUrl, liveUrl2, featured, order, publishedAt
   }`
 )
 

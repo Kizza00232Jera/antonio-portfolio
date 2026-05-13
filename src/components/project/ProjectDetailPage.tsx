@@ -189,16 +189,28 @@ export function ProjectDetailPage({ project, posterUrl }: ProjectDetailPageProps
             <div className="hidden md:block" />
 
             {/* Row 3, col 2: Live Website */}
-            {project.liveUrl && (
-              <a
-                href={project.liveUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-2 inline-flex items-center gap-2 text-sm text-text underline underline-offset-4 transition-colors hover:text-accent"
-              >
-                Live Website &rarr;
-              </a>
-            )}
+            <div className="mt-2 flex flex-col gap-1">
+              {project.liveUrl && (
+                <a
+                  href={project.liveUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-sm text-text underline underline-offset-4 transition-colors hover:text-accent"
+                >
+                  Live Website &rarr;
+                </a>
+              )}
+              {project.liveUrl2 && (
+                <a
+                  href={project.liveUrl2}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-sm text-text underline underline-offset-4 transition-colors hover:text-accent"
+                >
+                  View Process &rarr;
+                </a>
+              )}
+            </div>
           </div>
 
           {/* Title — pushed to bottom */}
@@ -275,17 +287,29 @@ export function ProjectDetailPage({ project, posterUrl }: ProjectDetailPageProps
                 )}
               </div>
 
-              {/* Live website link on far right */}
-              {project.liveUrl && (
-                <a
-                  href={project.liveUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`${metaValueClass} inline-flex items-center gap-2 underline underline-offset-4 transition-colors hover:text-accent`}
-                >
-                  Live Website &rarr;
-                </a>
-              )}
+              {/* Live website links on far right */}
+              <div className="flex flex-col items-end gap-1">
+                {project.liveUrl && (
+                  <a
+                    href={project.liveUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`${metaValueClass} inline-flex items-center gap-2 underline underline-offset-4 transition-colors hover:text-accent`}
+                  >
+                    Live Website &rarr;
+                  </a>
+                )}
+                {project.liveUrl2 && (
+                  <a
+                    href={project.liveUrl2}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`${metaValueClass} inline-flex items-center gap-2 underline underline-offset-4 transition-colors hover:text-accent`}
+                  >
+                    View Process &rarr;
+                  </a>
+                )}
+              </div>
             </div>
 
             {/* Huge title — pushed to bottom */}

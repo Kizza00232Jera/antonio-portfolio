@@ -65,6 +65,7 @@ export interface Project {
   sections?: ProjectSection[]
   githubUrl?: string
   liveUrl?: string
+  liveUrl2?: string
   featured: boolean
   order?: number
   publishedAt?: string
