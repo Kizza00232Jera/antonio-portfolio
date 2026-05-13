@@ -66,3 +66,17 @@ generate_cv.py
 # Sanity build artifacts
 /sanity/dist
 /sanity/schema.json
+
+# Local upload scripts and source images
+upload_deedu.mjs
+upload_storygo.mjs
+public/images/tripapp/
+public/images/storygo_thumb_*.png
+public/images/storygo_cover_*.png
+public/images/deedu_thumb_*.png
+public/images/deedu_cover_*.png
+public/images/Home page_AFTER CHANGE.png
+public/images/Login.jpg
+public/images/Profile_photos.png
+public/images/Welcome.png
+public/images/Android large screen.png

@@ -88,6 +88,11 @@ export const project = defineType({
       type: 'url',
     }),
     defineField({
+      name: 'liveUrl2',
+      title: 'Live URL 2',
+      type: 'url',
+    }),
+    defineField({
       name: 'featured',
       title: 'Featured',
       type: 'boolean',
