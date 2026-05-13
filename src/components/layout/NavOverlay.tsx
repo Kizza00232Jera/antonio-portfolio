@@ -10,7 +10,7 @@ import { CvModal } from '@/components/ui/CvModal'
 const navLinks = [
   { href: '/', label: 'Home' },
   { href: '/projects', label: 'Projects' },
-  { href: '/blog', label: 'Blog' },
+  { href: '/blog', label: 'Blog', soon: true },
   { href: '/#contact', label: 'Contact' },
 ]
 
@@ -104,28 +104,39 @@ export function NavOverlay() {
           style={{ '--cr-hover': '#eef0f6' } as React.CSSProperties}
         >
           <ul ref={linksRef} className="m-0 list-none p-0">
-            {navLinks.map(({ href, label }, i) => {
-              const isActive = href === '/' ? displayPathname === '/' : displayPathname.startsWith(href)
+            {navLinks.map(({ href, label, soon }, i) => {
+              const isActive = !soon && (href === '/' ? displayPathname === '/' : displayPathname.startsWith(href))
               return (
                 <li
                   key={href}
                   className="flex items-center justify-between border-t border-white/10 py-5 opacity-0"
                 >
-                  <div className="flex items-center gap-2">
-                    {isActive && (
-                      <span className="font-heading text-3xl tracking-wide text-[#eef0f6] md:text-4xl">[</span>
-                    )}
-                    <SmartNavLink
-                      href={href}
-                      label={label}
-                      tabIndex={isOpen ? 0 : -1}
-                      className="text-3xl font-heading tracking-wide md:text-4xl"
-                      onBeforeScroll={close}
-                    />
-                    {isActive && (
-                      <span className="font-heading text-3xl tracking-wide text-[#eef0f6] md:text-4xl">]</span>
-                    )}
-                  </div>
+                  {soon ? (
+                    <div className="group flex items-center gap-3 cursor-not-allowed">
+                      <span className="text-3xl font-heading tracking-wide md:text-4xl text-white/25 select-none">
+                        {label}
+                      </span>
+                      <span className="font-mono text-[10px] tracking-[0.2em] text-white/25 opacity-0 group-hover:opacity-100 transition-opacity">
+                        SOON
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      {isActive && (
+                        <span className="font-heading text-3xl tracking-wide text-[#eef0f6] md:text-4xl">[</span>
+                      )}
+                      <SmartNavLink
+                        href={href}
+                        label={label}
+                        tabIndex={isOpen ? 0 : -1}
+                        className="text-3xl font-heading tracking-wide md:text-4xl"
+                        onBeforeScroll={close}
+                      />
+                      {isActive && (
+                        <span className="font-heading text-3xl tracking-wide text-[#eef0f6] md:text-4xl">]</span>
+                      )}
+                    </div>
+                  )}
                   <span className="font-mono text-xs tracking-widest text-white/20">
                     {String(i + 1).padStart(2, '0')}
                   </span>
