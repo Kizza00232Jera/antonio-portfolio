@@ -85,7 +85,7 @@ export function NavOverlay() {
         opacity: 0,
         duration: 0.25,
         ease: 'power2.in',
-        onComplete: () => gsap.set(overlay, { visibility: 'hidden' }),
+        onComplete: () => { gsap.set(overlay, { visibility: 'hidden' }) },
       })
     }
   }, [isOpen])
