@@ -8,7 +8,7 @@ import { urlFor } from '@/lib/sanity/image'
 import type { ProjectSection, SanityImage } from '@/lib/sanity/types'
 import { cn } from '@/utils/cn'
 
-/* Client-safe portable text (no async shiki highlighting) */
+/* ── Portable text components ───────────────────────── */
 const clientPortableTextComponents: PortableTextComponents = {
   block: {
     h2: ({ children }) => (
@@ -44,106 +44,210 @@ const clientPortableTextComponents: PortableTextComponents = {
   },
 }
 
-interface ProjectAccordionProps {
-  sections: ProjectSection[]
-  className?: string
+/* ── Image cell (fills its parent, which must be relative + sized) ── */
+function ProjectImg({ image, sizes = '(max-width: 768px) 100vw, 800px' }: { image: SanityImage; sizes?: string }) {
+  return (
+    <Image
+      src={urlFor(image).width(1400).quality(85).url()}
+      alt=""
+      fill
+      className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+      sizes={sizes}
+    />
+  )
 }
 
-/* ── Auto-scrolling image gallery (pauses on hover) ── */
-function MarqueeGallery({ images }: { images: SanityImage[] }) {
-  const trackRef = useRef<HTMLDivElement>(null)
-  // Duplicate images for seamless infinite loop
-  const doubled = [...images, ...images]
+/* ── Adaptive editorial image grid ─────────────────── */
+function SectionImageGrid({ images, className }: { images: SanityImage[]; className?: string }) {
+  const imgs = images.filter(img => img?.asset)
+  const n = imgs.length
+  if (n === 0) return null
 
-  const pause = useCallback(() => {
-    if (trackRef.current) trackRef.current.style.animationPlayState = 'paused'
-  }, [])
-
-  const resume = useCallback(() => {
-    if (trackRef.current) trackRef.current.style.animationPlayState = 'running'
-  }, [])
-
-  return (
-    <div
-      className="overflow-hidden"
-      onMouseEnter={pause}
-      onMouseLeave={resume}
-    >
+  /* 1 image */
+  if (n === 1) {
+    return (
       <div
-        ref={trackRef}
-        className="flex gap-4"
-        style={{
-          animation: `marquee-scroll ${images.length * 5}s linear infinite`,
-          width: 'max-content',
-        }}
+        className={cn('group relative w-full overflow-hidden', className)}
+        style={{ aspectRatio: '16/10' }}
       >
-        {doubled.map((img, idx) => {
-          if (!img?.asset) return null
-          return (
-            <div key={idx} className="relative h-[180px] w-[260px] shrink-0 overflow-hidden md:h-[200px] md:w-[300px]">
-              <Image
-                src={urlFor(img).width(640).quality(80).url()}
-                alt=""
-                fill
-                className="object-cover"
-                sizes="300px"
-              />
+        <ProjectImg image={imgs[0]} sizes="(max-width: 768px) 100vw, 60vw" />
+      </div>
+    )
+  }
+
+  /* 2 images — side by side */
+  if (n === 2) {
+    return (
+      <div className={cn('grid grid-cols-1 gap-2 sm:grid-cols-2', className)}>
+        {imgs.map((img, i) => (
+          <div key={i} className="group relative overflow-hidden" style={{ aspectRatio: '16/10' }}>
+            <ProjectImg image={img} sizes="(max-width: 640px) 100vw, 50vw" />
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  /* 3 images — hero 2/3 + two stacked 1/3 (collapses to stacked on mobile) */
+  if (n === 3) {
+    return (
+      <div className={cn('block sm:flex sm:gap-2', className)}>
+        {/* Hero */}
+        <div
+          className="group relative w-full overflow-hidden sm:flex-[2]"
+          style={{ aspectRatio: '16/10' }}
+        >
+          <ProjectImg image={imgs[0]} sizes="(max-width: 640px) 100vw, 65vw" />
+        </div>
+        {/* Side stack */}
+        <div className="mt-2 flex gap-2 sm:mt-0 sm:flex-1 sm:flex-col">
+          {[imgs[1], imgs[2]].map((img, i) => (
+            <div
+              key={i}
+              className="group relative flex-1 overflow-hidden"
+              style={{ aspectRatio: '16/10' }}
+            >
+              <ProjectImg image={img} sizes="(max-width: 640px) 50vw, 33vw" />
             </div>
-          )
-        })}
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  /* 4 images — 2×2 grid */
+  if (n === 4) {
+    return (
+      <div className={cn('grid grid-cols-2 gap-2', className)}>
+        {imgs.map((img, i) => (
+          <div key={i} className="group relative overflow-hidden" style={{ aspectRatio: '16/10' }}>
+            <ProjectImg image={img} sizes="(max-width: 768px) 50vw, 40vw" />
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  /* 5+ images — wide hero + remaining row (max 2 cols mobile, up to 4 desktop) */
+  const [hero, ...rest] = imgs
+  const cols = Math.min(rest.length, 4)
+  const gridCols =
+    cols <= 2 ? 'grid-cols-2' :
+    cols === 3 ? 'grid-cols-2 sm:grid-cols-3' :
+    'grid-cols-2 sm:grid-cols-4'
+  return (
+    <div className={cn('flex flex-col gap-2', className)}>
+      <div className="group relative w-full overflow-hidden" style={{ aspectRatio: '21/9' }}>
+        <ProjectImg image={hero} sizes="100vw" />
+      </div>
+      <div className={cn('grid gap-2', gridCols)}>
+        {rest.map((img, i) => (
+          <div key={i} className="group relative overflow-hidden" style={{ aspectRatio: '4/3' }}>
+            <ProjectImg image={img} sizes="(max-width: 640px) 50vw, 25vw" />
+          </div>
+        ))}
       </div>
     </div>
   )
 }
 
-/* ── Accordion component ────────────────────────────── */
-export function ProjectAccordion({
-  sections,
-  className,
-}: ProjectAccordionProps) {
+/* ── Section content ────────────────────────────────── */
+function SectionContent({ section }: { section: ProjectSection }) {
+  const hasContent = !!(section.content && section.content.length > 0)
+  const hasImages = !!(section.images && section.images.length > 0)
+  const imgCount = section.images?.filter(img => img?.asset).length ?? 0
+
+  const textBlock = hasContent && (
+    <div>
+      <PortableText value={section.content!} components={clientPortableTextComponents} />
+      {section.links && section.links.length > 0 && (
+        <div className="mt-6 flex flex-wrap gap-4">
+          {section.links.map((link) =>
+            link.url ? (
+              <a
+                key={link._key}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-sm text-text-muted transition-colors hover:text-accent"
+              >
+                {link.label ?? link.url}
+                <span aria-hidden>→</span>
+              </a>
+            ) : null,
+          )}
+        </div>
+      )}
+    </div>
+  )
+
+  /* Layout C:
+     - No images   → text at comfortable reading width (max-w-prose)
+     - 1 image     → text left 42% | image right (side by side)
+     - 2+ images   → text full width above, grid below
+  */
+
+  if (!hasImages) {
+    return <div className="max-w-prose">{textBlock}</div>
+  }
+
+  if (imgCount === 1) {
+    return (
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-10">
+        {hasContent && <div className="lg:w-[42%]">{textBlock}</div>}
+        <SectionImageGrid
+          images={section.images!}
+          className={hasContent ? 'lg:flex-1' : 'w-full'}
+        />
+      </div>
+    )
+  }
+
+  /* 2+ images */
+  return (
+    <div className="flex flex-col gap-8">
+      {hasContent && <div className="max-w-prose">{textBlock}</div>}
+      <SectionImageGrid images={section.images!} />
+    </div>
+  )
+}
+
+/* ── Accordion ──────────────────────────────────────── */
+interface ProjectAccordionProps {
+  sections: ProjectSection[]
+  className?: string
+}
+
+export function ProjectAccordion({ sections, className }: ProjectAccordionProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
   const contentRefs = useRef<(HTMLDivElement | null)[]>([])
   const prefersReduced = useRef(false)
 
   useEffect(() => {
-    prefersReduced.current = window.matchMedia(
-      '(prefers-reduced-motion: reduce)',
-    ).matches
+    prefersReduced.current = window.matchMedia('(prefers-reduced-motion: reduce)').matches
   }, [])
 
   const toggle = useCallback(
     (index: number) => {
       const nextOpen = openIndex === index ? null : index
 
-      // Close the currently open section
       if (openIndex !== null && contentRefs.current[openIndex]) {
         const el = contentRefs.current[openIndex]!
         if (prefersReduced.current) {
           el.style.height = '0px'
           el.style.opacity = '0'
         } else {
-          gsap.to(el, {
-            height: 0,
-            opacity: 0,
-            duration: 0.4,
-            ease: 'power2.inOut',
-          })
+          gsap.to(el, { height: 0, opacity: 0, duration: 0.4, ease: 'power2.inOut' })
         }
       }
 
-      // Open the new section
       if (nextOpen !== null && contentRefs.current[nextOpen]) {
         const el = contentRefs.current[nextOpen]!
         if (prefersReduced.current) {
           el.style.height = 'auto'
           el.style.opacity = '1'
         } else {
-          gsap.to(el, {
-            height: 'auto',
-            opacity: 1,
-            duration: 0.4,
-            ease: 'power2.inOut',
-          })
+          gsap.to(el, { height: 'auto', opacity: 1, duration: 0.4, ease: 'power2.inOut' })
         }
       }
 
@@ -158,12 +262,9 @@ export function ProjectAccordion({
     <div className={cn('divide-y divide-border', className)}>
       {sections.map((section, i) => {
         const isOpen = openIndex === i
-        const hasImages = section.images && section.images.length > 0
-        const hasContent = section.content && section.content.length > 0
-
         return (
           <div key={section._key}>
-            {/* Header row */}
+            {/* Header */}
             <button
               type="button"
               onClick={() => toggle(i)}
@@ -173,54 +274,18 @@ export function ProjectAccordion({
                 {section.title}
               </span>
               <span className="ml-4 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border text-lg text-text-muted transition-transform">
-                {isOpen ? '\u00d7' : '+'}
+                {isOpen ? '×' : '+'}
               </span>
             </button>
 
             {/* Expandable content */}
             <div
-              ref={(el) => {
-                contentRefs.current[i] = el
-              }}
+              ref={(el) => { contentRefs.current[i] = el }}
               className="overflow-hidden"
               style={{ height: 0, opacity: 0 }}
             >
-              <div className="pb-8">
-                {/* Two-column layout: text left, images right */}
-                <div className="flex flex-col gap-6 lg:flex-row lg:gap-10">
-                  {/* Left column: text content + links */}
-                  {hasContent && (
-                    <div className={cn(hasImages ? 'lg:w-[45%]' : 'w-full')}>
-                      <PortableText value={section.content!} components={clientPortableTextComponents} />
-
-                      {section.links && section.links.length > 0 && (
-                        <div className="mt-6 flex flex-wrap gap-4">
-                          {section.links.map((link) =>
-                            link.url ? (
-                              <a
-                                key={link._key}
-                                href={link.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 text-sm text-text-muted transition-colors hover:text-accent"
-                              >
-                                {link.label ?? link.url}
-                                <span aria-hidden>→</span>
-                              </a>
-                            ) : null,
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Right column: draggable image gallery */}
-                  {hasImages && (
-                    <div className={cn(hasContent ? 'lg:w-[55%]' : 'w-full')}>
-                      <MarqueeGallery images={section.images!} />
-                    </div>
-                  )}
-                </div>
+              <div className="pb-10">
+                <SectionContent section={section} />
               </div>
             </div>
           </div>
