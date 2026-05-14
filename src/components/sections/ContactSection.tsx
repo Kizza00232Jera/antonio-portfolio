@@ -10,9 +10,9 @@ gsap.registerPlugin(ScrollTrigger)
 /* ── Static data ──────────────────────────────────── */
 
 const NAV_LINKS = [
-  { label: 'HOME', href: '/' },
-  { label: 'PROJECTS', href: '/projects' },
-  // { label: 'BLOGS', href: '/blog' },
+  { label: 'HOME', href: '/', soon: false },
+  { label: 'PROJECTS', href: '/projects', soon: false },
+  { label: 'BLOGS', href: '/blog', soon: true },
 ]
 
 const NAME_WORDS = ['ANTONIO', 'JERKOVIC']
@@ -138,9 +138,16 @@ export default function ContactSection({
 
           {/* Left — page links */}
           <nav className="footer-nav-col" aria-label="Footer navigation">
-            {NAV_LINKS.map(({ label, href }) => (
-              <SmartNavLink key={label} href={href} label={label} className="footer-nav-link" />
-            ))}
+            {NAV_LINKS.map(({ label, href, soon }) =>
+              soon ? (
+                <span key={label} className="group relative cursor-not-allowed inline-flex items-center gap-2">
+                  <span className="footer-nav-link opacity-30 select-none">{label}</span>
+                  <span className="font-mono text-[10px] tracking-[0.18em] text-[#111] opacity-0 group-hover:opacity-40 transition-opacity pointer-events-none">SOON</span>
+                </span>
+              ) : (
+                <SmartNavLink key={label} href={href} label={label} className="footer-nav-link" />
+              )
+            )}
           </nav>
 
           {/* Right — contact info */}

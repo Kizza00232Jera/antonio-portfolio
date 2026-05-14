@@ -86,7 +86,7 @@ export default function Preloader() {
         [c1Ref.current, c2Ref.current, c3Ref.current, c4Ref.current, c5Ref.current],
         {
           yPercent: -100,
-          duration: 0.75,
+          duration: 0.83,
           ease: 'power3.inOut',
           stagger: 0.1,
           delay: 0.15,
@@ -117,11 +117,11 @@ export default function Preloader() {
     >
       {/* 5 full-height vertical columns — the curtain */}
       <div className="absolute inset-0 flex">
-        <div ref={c1Ref} className="flex-1 bg-[#080c18]" />
-        <div ref={c2Ref} className="flex-1 bg-[#080c18]" />
-        <div ref={c3Ref} className="flex-1 bg-[#080c18]" />
-        <div ref={c4Ref} className="flex-1 bg-[#080c18]" />
-        <div ref={c5Ref} className="flex-1 bg-[#080c18]" />
+        <div ref={c1Ref} className="flex-1 bg-[#fafaf8]" />
+        <div ref={c2Ref} className="flex-1 bg-[#fafaf8]" />
+        <div ref={c3Ref} className="flex-1 bg-[#fafaf8]" />
+        <div ref={c4Ref} className="flex-1 bg-[#fafaf8]" />
+        <div ref={c5Ref} className="flex-1 bg-[#fafaf8]" />
       </div>
 
       {/* Typing text — centered on top of columns */}
@@ -130,12 +130,12 @@ export default function Preloader() {
         className="absolute inset-0 z-10 flex items-center justify-center"
       >
         <span
-          className="font-heading font-semibold text-white"
+          className="font-heading font-semibold text-[#111111]"
           style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', letterSpacing: '0.02em' }}
         >
           {text}
           <span
-            className="relative inline-block bg-white align-middle"
+            className="relative inline-block bg-[#111111] align-middle"
             style={{
               width: '2px',
               height: '1em',
