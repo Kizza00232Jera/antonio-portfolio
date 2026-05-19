@@ -402,15 +402,9 @@ html::-webkit-scrollbar {
     position: relative;
   }
 
-  /* Mobile globe — absolutely centred in the hero body */
+  /* Mobile globe — hidden */
   .hero-mobile-globe {
-    display: flex;
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 1;
-    pointer-events: auto;
+    display: none;
   }
 
   /* Show carousel */
@@ -486,6 +480,15 @@ html::-webkit-scrollbar {
   .hero-title {
     padding-bottom: 2rem;
   }
+}
+
+/* ── Carousel slide transition ────────────────────────────── */
+@keyframes carousel-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.carousel-fade-in {
+  animation: carousel-fade 0.35s ease;
 }
 
 /* ── Tech stack marquee animation ─────────────────────────── */

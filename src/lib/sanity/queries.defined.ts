@@ -28,7 +28,7 @@ export const PROJECT_BY_SLUG_QUERY = defineQuery(
     coverImage, thumbnailImage, muxVideoId, focusAreas, techStack,
     techStackRefs[]->{ _id, name, slug, icon },
     tags[]->{ _id, name, slug },
-    sections[]{ _key, title, content, images, links },
+    sections[]{ _key, title, content, images[]{ _type, asset, hotspot, "dimensions": asset->metadata.dimensions }, links },
     githubUrl, liveUrl, liveUrl2, featured, order, publishedAt
   }`
 )
