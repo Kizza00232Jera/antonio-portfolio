@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useState, useCallback, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { gsap } from 'gsap'
 import Image from 'next/image'
 import { PortableText, type PortableTextComponents } from '@portabletext/react'
@@ -44,170 +45,182 @@ const clientPortableTextComponents: PortableTextComponents = {
   },
 }
 
-/* ── Image cell (fills its parent, which must be relative + sized) ── */
-function ProjectImg({ image, sizes = '(max-width: 768px) 100vw, 800px' }: { image: SanityImage; sizes?: string }) {
-  return (
-    <Image
-      src={urlFor(image).width(1400).quality(85).url()}
-      alt=""
-      fill
-      className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
-      sizes={sizes}
-    />
+/* ── Full-screen modal ──────────────────────────────── */
+function ImageModal({ img, onClose }: { img: SanityImage; onClose: () => void }) {
+  useEffect(() => {
+    document.body.style.overflow = 'hidden'
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', onKey)
+    return () => {
+      document.body.style.overflow = ''
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [onClose])
+
+  const dims = img.dimensions
+  const w = dims?.width ?? 1600
+  const h = dims?.height ?? 900
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-8 md:p-16"
+      onClick={onClose}
+    >
+      <div
+        className="relative"
+        onClick={e => e.stopPropagation()}
+      >
+        <button
+          onClick={onClose}
+          aria-label="Close"
+          className="absolute -top-8 right-0 text-white/50 hover:text-white text-xs uppercase tracking-widest transition-colors"
+        >
+          close ×
+        </button>
+        <Image
+          src={urlFor(img).width(2400).quality(90).url()}
+          alt=""
+          width={w}
+          height={h}
+          style={{ maxWidth: 'min(90vw, 1200px)', maxHeight: '80vh', width: 'auto', height: 'auto' }}
+          className="block rounded-sm shadow-2xl"
+        />
+      </div>
+    </div>,
+    document.body,
   )
 }
 
-/* ── Adaptive editorial image grid ─────────────────── */
-function SectionImageGrid({ images, className }: { images: SanityImage[]; className?: string }) {
+/* ── Carousel ───────────────────────────────────────── */
+function SectionCarousel({ images }: { images: SanityImage[] }) {
   const imgs = images.filter(img => img?.asset)
   const n = imgs.length
+  const [current, setCurrent] = useState(0)
+  const [paused, setPaused] = useState(false)
+  const [modalImg, setModalImg] = useState<SanityImage | null>(null)
+  const touchStartX = useRef<number | null>(null)
+
+  useEffect(() => {
+    if (n <= 1 || paused) return
+    const timer = setTimeout(() => {
+      setCurrent(c => (c + 1) % n)
+    }, 5000)
+    return () => clearTimeout(timer)
+  }, [current, paused, n])
+
+  const navigate = (dir: 1 | -1) => {
+    setPaused(true)
+    setCurrent(c => (c + dir + n) % n)
+  }
+
+  const goTo = (i: number) => {
+    setPaused(true)
+    setCurrent(i)
+  }
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX
+  }
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return
+    const dx = e.changedTouches[0].clientX - touchStartX.current
+    if (Math.abs(dx) > 40) navigate(dx < 0 ? 1 : -1)
+    touchStartX.current = null
+  }
+
   if (n === 0) return null
 
-  /* 1 image */
-  if (n === 1) {
-    return (
-      <div
-        className={cn('group relative w-full overflow-hidden', className)}
-        style={{ aspectRatio: '16/10' }}
-      >
-        <ProjectImg image={imgs[0]} sizes="(max-width: 768px) 100vw, 60vw" />
-      </div>
-    )
-  }
+  const img = imgs[current]
 
-  /* 2 images — side by side */
-  if (n === 2) {
-    return (
-      <div className={cn('grid grid-cols-1 gap-2 sm:grid-cols-2', className)}>
-        {imgs.map((img, i) => (
-          <div key={i} className="group relative overflow-hidden" style={{ aspectRatio: '16/10' }}>
-            <ProjectImg image={img} sizes="(max-width: 640px) 100vw, 50vw" />
-          </div>
-        ))}
-      </div>
-    )
-  }
-
-  /* 3 images — hero 2/3 + two stacked 1/3 (collapses to stacked on mobile) */
-  if (n === 3) {
-    return (
-      <div className={cn('block sm:flex sm:gap-2', className)}>
-        {/* Hero */}
-        <div
-          className="group relative w-full overflow-hidden sm:flex-[2]"
-          style={{ aspectRatio: '16/10' }}
-        >
-          <ProjectImg image={imgs[0]} sizes="(max-width: 640px) 100vw, 65vw" />
-        </div>
-        {/* Side stack */}
-        <div className="mt-2 flex gap-2 sm:mt-0 sm:flex-1 sm:flex-col">
-          {[imgs[1], imgs[2]].map((img, i) => (
-            <div
-              key={i}
-              className="group relative flex-1 overflow-hidden"
-              style={{ aspectRatio: '16/10' }}
-            >
-              <ProjectImg image={img} sizes="(max-width: 640px) 50vw, 33vw" />
-            </div>
-          ))}
-        </div>
-      </div>
-    )
-  }
-
-  /* 4 images — 2×2 grid */
-  if (n === 4) {
-    return (
-      <div className={cn('grid grid-cols-2 gap-2', className)}>
-        {imgs.map((img, i) => (
-          <div key={i} className="group relative overflow-hidden" style={{ aspectRatio: '16/10' }}>
-            <ProjectImg image={img} sizes="(max-width: 768px) 50vw, 40vw" />
-          </div>
-        ))}
-      </div>
-    )
-  }
-
-  /* 5+ images — wide hero + remaining row (max 2 cols mobile, up to 4 desktop) */
-  const [hero, ...rest] = imgs
-  const cols = Math.min(rest.length, 4)
-  const gridCols =
-    cols <= 2 ? 'grid-cols-2' :
-    cols === 3 ? 'grid-cols-2 sm:grid-cols-3' :
-    'grid-cols-2 sm:grid-cols-4'
   return (
-    <div className={cn('flex flex-col gap-2', className)}>
-      <div className="group relative w-full overflow-hidden" style={{ aspectRatio: '21/9' }}>
-        <ProjectImg image={hero} sizes="100vw" />
-      </div>
-      <div className={cn('grid gap-2', gridCols)}>
-        {rest.map((img, i) => (
-          <div key={i} className="group relative overflow-hidden" style={{ aspectRatio: '4/3' }}>
-            <ProjectImg image={img} sizes="(max-width: 640px) 50vw, 25vw" />
+    <>
+      {modalImg && <ImageModal img={modalImg} onClose={() => setModalImg(null)} />}
+      <div
+        className="w-full select-none"
+        onTouchStart={n > 1 ? onTouchStart : undefined}
+        onTouchEnd={n > 1 ? onTouchEnd : undefined}
+      >
+        <div
+          className="relative h-[450px] md:h-[600px] overflow-hidden rounded-sm bg-bg cursor-zoom-in"
+          onClick={() => setModalImg(img)}
+        >
+          <Image
+            key={current}
+            src={urlFor(img).width(1600).quality(85).url()}
+            alt=""
+            fill
+            className="carousel-fade-in object-contain"
+            sizes="(max-width: 768px) 100vw, 1200px"
+          />
+        </div>
+
+        {n > 1 && (
+          <div className="mt-3 flex items-center justify-center gap-3">
+            <button
+              onClick={() => navigate(-1)}
+              aria-label="Previous image"
+              className="flex h-7 w-7 items-center justify-center text-text-muted transition-colors hover:text-text"
+            >
+              ←
+            </button>
+            <div className="flex items-center gap-1.5">
+              {imgs.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => goTo(i)}
+                  aria-label={`Image ${i + 1}`}
+                  className={cn(
+                    'h-1.5 rounded-full transition-all duration-300',
+                    i === current ? 'w-5 bg-text' : 'w-1.5 bg-text/30 hover:bg-text/60'
+                  )}
+                />
+              ))}
+            </div>
+            <button
+              onClick={() => navigate(1)}
+              aria-label="Next image"
+              className="flex h-7 w-7 items-center justify-center text-text-muted transition-colors hover:text-text"
+            >
+              →
+            </button>
           </div>
-        ))}
+        )}
       </div>
-    </div>
+    </>
   )
 }
 
 /* ── Section content ────────────────────────────────── */
 function SectionContent({ section }: { section: ProjectSection }) {
   const hasContent = !!(section.content && section.content.length > 0)
-  const hasImages = !!(section.images && section.images.length > 0)
-  const imgCount = section.images?.filter(img => img?.asset).length ?? 0
+  const hasImages = !!(section.images && section.images.filter(img => img?.asset).length > 0)
 
-  const textBlock = hasContent && (
-    <div>
-      <PortableText value={section.content!} components={clientPortableTextComponents} />
-      {section.links && section.links.length > 0 && (
-        <div className="mt-6 flex flex-wrap gap-4">
-          {section.links.map((link) =>
-            link.url ? (
-              <a
-                key={link._key}
-                href={link.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-sm text-text-muted transition-colors hover:text-accent"
-              >
-                {link.label ?? link.url}
-                <span aria-hidden>→</span>
-              </a>
-            ) : null,
+  return (
+    <div className="flex flex-col gap-8">
+      {hasContent && (
+        <div>
+          <PortableText value={section.content!} components={clientPortableTextComponents} />
+          {section.links && section.links.length > 0 && (
+            <div className="mt-6 flex flex-wrap gap-4">
+              {section.links.map((link) =>
+                link.url ? (
+                  <a
+                    key={link._key}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-sm text-text-muted transition-colors hover:text-accent"
+                  >
+                    {link.label ?? link.url}
+                    <span aria-hidden>→</span>
+                  </a>
+                ) : null,
+              )}
+            </div>
           )}
         </div>
       )}
-    </div>
-  )
-
-  /* Layout C:
-     - No images   → text at comfortable reading width (max-w-prose)
-     - 1 image     → text left 42% | image right (side by side)
-     - 2+ images   → text full width above, grid below
-  */
-
-  if (!hasImages) {
-    return <div className="max-w-prose">{textBlock}</div>
-  }
-
-  if (imgCount === 1) {
-    return (
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-10">
-        {hasContent && <div className="lg:w-[42%]">{textBlock}</div>}
-        <SectionImageGrid
-          images={section.images!}
-          className={hasContent ? 'lg:flex-1' : 'w-full'}
-        />
-      </div>
-    )
-  }
-
-  /* 2+ images */
-  return (
-    <div className="flex flex-col gap-8">
-      {hasContent && <div className="max-w-prose">{textBlock}</div>}
-      <SectionImageGrid images={section.images!} />
+      {hasImages && <SectionCarousel images={section.images!} />}
     </div>
   )
 }
@@ -264,7 +277,6 @@ export function ProjectAccordion({ sections, className }: ProjectAccordionProps)
         const isOpen = openIndex === i
         return (
           <div key={section._key}>
-            {/* Header */}
             <button
               type="button"
               onClick={() => toggle(i)}
@@ -278,7 +290,6 @@ export function ProjectAccordion({ sections, className }: ProjectAccordionProps)
               </span>
             </button>
 
-            {/* Expandable content */}
             <div
               ref={(el) => { contentRefs.current[i] = el }}
               className="overflow-hidden"

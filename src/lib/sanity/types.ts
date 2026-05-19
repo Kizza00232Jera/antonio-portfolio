@@ -12,6 +12,10 @@ export interface SanityImage {
     height: number
     width: number
   }
+  dimensions?: {
+    width: number
+    height: number
+  }
 }
 
 export interface SanitySlug {
