@@ -62,6 +62,7 @@ TECH-REFERENCE.md
 /issues
 /docs
 generate_cv.py
+gen_cv.py
 
 # Sanity build artifacts
 /sanity/dist
