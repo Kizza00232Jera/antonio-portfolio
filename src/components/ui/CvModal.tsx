@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
+import Image from 'next/image'
 import { gsap } from 'gsap'
 
 interface CvModalProps {
@@ -27,6 +28,14 @@ export function CvModal({ isOpen, onClose }: CvModalProps) {
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [isOpen, onClose])
+
+  // Lock background scroll while the modal is open
+  useEffect(() => {
+    if (!isOpen) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = prev }
+  }, [isOpen])
 
   useEffect(() => {
     const backdrop = backdropRef.current
@@ -103,17 +112,16 @@ export function CvModal({ isOpen, onClose }: CvModalProps) {
           </button>
         </div>
 
-        {/* PDF — A4 ratio on mobile (no white gap), tall+clipped on desktop */}
-        <div className="min-h-0 overflow-hidden md:flex-1">
-          <iframe
-            src={`${PDF_PATH}#page=1&toolbar=0&navpanes=0&scrollbar=0`}
-            title="Antonio Jerkovic — Curriculum Vitae"
-            style={{
-              width: '100%',
-              height: 'min(calc(100vw * 297 / 210), 300vh)',
-              border: 'none',
-              display: 'block',
-            }}
+        {/* CV preview — rendered image (exact height, no PDF-viewer chrome); scroll to read.
+            data-lenis-prevent lets this area scroll natively instead of Lenis hijacking the wheel. */}
+        <div className="cv-scroll min-h-0 flex-1 overflow-y-auto bg-gray-100" data-lenis-prevent>
+          <Image
+            src="/CV_Antonio_Jerkovic.png"
+            alt="Antonio Jerkovic — Curriculum Vitae"
+            width={1786}
+            height={2526}
+            className="block w-full h-auto"
+            unoptimized
           />
         </div>
 
