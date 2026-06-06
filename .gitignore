@@ -54,6 +54,7 @@ TECH-REFERENCE.md
 
 /pics
 /landopics
+public/images/ref/
 /sanity/node_modules
 /sanity/.sanity
 /references
@@ -62,6 +63,7 @@ TECH-REFERENCE.md
 /issues
 /docs
 generate_cv.py
+gen_cv.py
 
 # Sanity build artifacts
 /sanity/dist
