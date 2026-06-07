@@ -1,7 +1,3 @@
-import { redirect } from 'next/navigation'
-
-// Blog coming soon — remove redirect() and uncomment below to re-enable.
-/*
 import type { Metadata } from 'next'
 import Header from '@/components/layout/Header'
 import ThemeObserver from '@/components/providers/ThemeObserver'
@@ -40,9 +36,4 @@ export default async function BlogPage() {
       </section>
     </div>
   )
-}
-*/
-
-export default function BlogPage() {
-  redirect('/')
 }
