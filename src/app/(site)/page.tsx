@@ -1,18 +1,18 @@
-import { getFeaturedProjects, /* getLatestBlogPosts, */ getSiteSettings } from '@/lib/sanity/queries'
+import { getFeaturedProjects, getLatestBlogPosts, getSiteSettings } from '@/lib/sanity/queries'
 import Header from '@/components/layout/Header'
 import HeroSection from '@/components/sections/HeroSection'
 import JourneyScrollSection from '@/components/sections/JourneyScrollSection'
 import ProjectShowcaseSection from '@/components/sections/ProjectShowcaseSection'
-// import LatestPostsSection from '@/components/sections/LatestPostsSection'
+import LatestPostsSection from '@/components/sections/LatestPostsSection'
 import ContactSection from '@/components/sections/ContactSection'
 import SectionTitle from '@/components/ui/SectionTitle'
 import ThemeObserver from '@/components/providers/ThemeObserver'
 import { HashScrollHandler } from '@/components/providers/HashScrollHandler'
 
 export default async function HomePage() {
-  const [projects, siteSettings] = await Promise.all([
+  const [projects, posts, siteSettings] = await Promise.all([
     getFeaturedProjects(),
-    // getLatestBlogPosts(6),
+    getLatestBlogPosts(6),
     getSiteSettings(),
   ])
 
@@ -28,8 +28,8 @@ export default async function HomePage() {
       <JourneyScrollSection />
       <SectionTitle title="MY PROJECTS" theme="dark" />
       <ProjectShowcaseSection projects={projects} />
-      {/* <SectionTitle title="BLOGS" theme="dark" /> */}
-      {/* <LatestPostsSection posts={posts} /> */}
+      <SectionTitle title="BLOGS" theme="dark" />
+      <LatestPostsSection posts={posts} />
       <ContactSection
         phoneCroatian={author?.phoneCroatian}
         phoneSwedish={author?.phoneSwedish}

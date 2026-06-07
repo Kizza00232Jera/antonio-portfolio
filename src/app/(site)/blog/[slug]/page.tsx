@@ -1,7 +1,3 @@
-import { redirect } from 'next/navigation'
-
-// Blog coming soon — remove redirect() and uncomment below to re-enable.
-/*
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -201,9 +197,4 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       </article>
     </div>
   )
-}
-*/
-
-export default function BlogPostPage() {
-  redirect('/')
 }

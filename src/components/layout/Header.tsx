@@ -4,10 +4,10 @@ import { SmartNavLink } from '@/components/ui/SmartNavLink'
 import { MenuButton } from '@/components/layout/MenuButton'
 import { CvButton } from '@/components/layout/CvButton'
 
-const NAV_LINKS = [
+const NAV_LINKS: Array<{ label: string; href: string; soon?: boolean }> = [
   { label: 'Home', href: '/' },
   { label: 'Projects', href: '/projects' },
-  { label: 'Blog', href: '/blog', soon: true },
+  { label: 'Blog', href: '/blog' },
   { label: 'Contact', href: '/#contact' },
 ]
 

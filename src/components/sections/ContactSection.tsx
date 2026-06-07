@@ -12,7 +12,7 @@ gsap.registerPlugin(ScrollTrigger)
 const NAV_LINKS = [
   { label: 'HOME', href: '/', soon: false },
   { label: 'PROJECTS', href: '/projects', soon: false },
-  { label: 'BLOGS', href: '/blog', soon: true },
+  { label: 'BLOGS', href: '/blog', soon: false },
 ]
 
 const NAME_WORDS = ['ANTONIO', 'JERKOVIC']

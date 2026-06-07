@@ -266,7 +266,6 @@ export function BlogListClient({ posts, showFilter = true, mobileLimit }: BlogLi
         <div className="blog-list-header">
           <span />
           <span>Title</span>
-          <span />
           <span>Tags</span>
           <span>Date</span>
         </div>
@@ -281,22 +280,21 @@ export function BlogListClient({ posts, showFilter = true, mobileLimit }: BlogLi
                 className="blog-row"
                 onMouseEnter={() => handleEnter(i)}
               >
-                <span className="flex flex-col gap-0.5">
-                  <span className="blog-cell">{post.title}</span>
+                <span className="flex flex-col gap-1">
+                  <span className="blog-cell blog-cell--title">{post.title}</span>
                   {post.author && (
                     <span className="font-ui text-xs text-text-muted">By {post.author.name}</span>
                   )}
                 </span>
-                <span />{/* center gap column */}
-                <span className="blog-cell">{post.tags?.filter(Boolean).map((t) => t.name).join(', ') ?? ''}</span>
+                <span className="blog-cell blog-cell--tags">{post.tags?.filter(Boolean).map((t) => t.name).join(', ') ?? ''}</span>
                 <span className="blog-cell blog-cell--end">{formatDateMedium(post.publishedAt)}</span>
               </Link>
             </li>
           ))}
         </ol>
 
-        {/* Hover images — float in the center gap */}
-        <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+        {/* Hover images — float over the active row, anchored to the right edge */}
+        <div className="pointer-events-none absolute inset-y-0 right-[8%] flex items-center justify-end z-10">
           {filtered.map((post, i) =>
             post.heroImage ? (
               <div
@@ -305,11 +303,11 @@ export function BlogListClient({ posts, showFilter = true, mobileLimit }: BlogLi
                 className="absolute opacity-0"
               >
                 <Image
-                  src={urlFor(post.heroImage).width(400).height(260).quality(80).url()}
+                  src={urlFor(post.heroImage).width(320).height(200).quality(80).url()}
                   alt=""
-                  width={400}
-                  height={260}
-                  className="object-cover rounded"
+                  width={320}
+                  height={200}
+                  className="object-cover rounded-sm shadow-2xl"
                   sizes="280px"
                   loading={i < 3 ? 'eager' : 'lazy'}
                 />

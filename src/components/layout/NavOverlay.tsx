@@ -7,10 +7,10 @@ import { useMenu } from '@/contexts/MenuContext'
 import { SmartNavLink } from '@/components/ui/SmartNavLink'
 import { CvModal } from '@/components/ui/CvModal'
 
-const navLinks = [
+const navLinks: Array<{ href: string; label: string; soon?: boolean }> = [
   { href: '/', label: 'Home' },
   { href: '/projects', label: 'Projects' },
-  { href: '/blog', label: 'Blog', soon: true },
+  { href: '/blog', label: 'Blog' },
   { href: '/#contact', label: 'Contact' },
 ]
 
