@@ -93,14 +93,14 @@ function scrambleChars(data: CellData) {
     const orig = data.originals[pos]
     const rnd = () => CHARS[Math.floor(Math.random() * CHARS.length)]
     gsap.fromTo(char, { opacity: 0 }, {
-      duration: 0.03,
+      duration: 0.025,
       opacity: 1,
       repeat: 2,
-      repeatDelay: 0.05,
-      delay: (pos + 1) * 0.06,
+      repeatDelay: 0.043,
+      delay: (pos + 1) * 0.051,
       onStart: () => { char.textContent = rnd() },
       onRepeat: () => { char.textContent = rnd() },
-      onComplete: () => { gsap.delayedCall(0.1, () => { char.textContent = orig }) },
+      onComplete: () => { gsap.delayedCall(0.085, () => { char.textContent = orig }) },
     })
   })
 }
@@ -121,7 +121,7 @@ export function BlogListClient({ posts, showFilter = true, mobileLimit }: BlogLi
   const imageRefs = useRef<(HTMLDivElement | null)[]>([])
   const activeRef = useRef(-1)
   const cellMapRef = useRef(new Map<Element, CellData>())
-  const splitKeyRef = useRef('')
+  const followerRef = useRef<HTMLDivElement>(null)
 
   const [activeTag, setActiveTag] = useState<string | null>(null)
 
@@ -147,10 +147,8 @@ export function BlogListClient({ posts, showFilter = true, mobileLimit }: BlogLi
 
   const filterKey = filtered.map((p) => p._id).join(',')
 
-  // Split text into chars after DOM paints
+  // Eager-split cells after paint. handleEnter has a lazy fallback if this races.
   useEffect(() => {
-    if (splitKeyRef.current === filterKey) return
-    splitKeyRef.current = filterKey
     cellMapRef.current.clear()
     activeRef.current = -1
 
@@ -166,8 +164,31 @@ export function BlogListClient({ posts, showFilter = true, mobileLimit }: BlogLi
     return () => cancelAnimationFrame(raf)
   }, [filterKey])
 
+  // Cursor-follow the Hover Preview Image
+  useEffect(() => {
+    const el = followerRef.current
+    if (!el) return
+    if (!window.matchMedia('(pointer: fine)').matches) return
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const duration = reduced ? 0 : 0.25
+
+    const xTo = gsap.quickTo(el, 'x', { duration, ease: 'power3.out' })
+    const yTo = gsap.quickTo(el, 'y', { duration, ease: 'power3.out' })
+
+    const OFFSET_X = 24
+    const HALF_H = 100
+
+    const onMove = (e: MouseEvent) => {
+      xTo(e.clientX + OFFSET_X)
+      yTo(e.clientY - HALF_H)
+    }
+
+    document.addEventListener('mousemove', onMove)
+    return () => document.removeEventListener('mousemove', onMove)
+  }, [])
+
   const handleEnter = useCallback((index: number) => {
-    if (activeRef.current === index) return
     activeRef.current = index
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
@@ -192,32 +213,31 @@ export function BlogListClient({ posts, showFilter = true, mobileLimit }: BlogLi
       }
     })
 
-    // Animate active
+    // Animate active — lazy-split cells if eager split was missed (router cache, strict mode, etc.)
     const activeRow = rowRefs.current[index]
     if (activeRow) {
       activeRow.querySelectorAll<HTMLElement>('.blog-cell').forEach((cell) => {
+        if (!cellMapRef.current.has(cell)) {
+          cellMapRef.current.set(cell, splitIntoChars(cell))
+        }
         if (reduced) {
           gsap.set(cell, { '--anim': 1 })
         } else {
           gsap.fromTo(cell, { '--anim': 0 }, { '--anim': 1, duration: 1, ease: 'expo.out' })
-        }
-        if (!reduced) {
           const d = cellMapRef.current.get(cell)
           if (d) scrambleChars(d)
         }
       })
     }
 
-    // Show hover image
+    // Crossfade Hover Preview Image
     imageRefs.current.forEach((im, i) => {
       if (!im) return
-      if (i === index) {
-        if (reduced) { im.style.opacity = '1' } else {
-          gsap.set(im, { scale: 1.05 })
-          gsap.to(im, { opacity: 1, scale: 1, duration: 0.5, ease: 'power2.out', overwrite: true })
-        }
+      const target = i === index ? 1 : 0
+      if (reduced) {
+        im.style.opacity = String(target)
       } else {
-        gsap.set(im, { opacity: 0 })
+        gsap.to(im, { opacity: target, duration: 0.3, ease: 'power2.out', overwrite: true })
       }
     })
   }, [])
@@ -293,28 +313,33 @@ export function BlogListClient({ posts, showFilter = true, mobileLimit }: BlogLi
           ))}
         </ol>
 
-        {/* Hover images — float over the active row, anchored to the right edge */}
-        <div className="pointer-events-none absolute inset-y-0 right-[8%] flex items-center justify-end z-10">
-          {filtered.map((post, i) =>
-            post.heroImage ? (
-              <div
-                key={`img-${post._id}`}
-                ref={(el) => { imageRefs.current[i] = el }}
-                className="absolute opacity-0"
-              >
-                <Image
-                  src={urlFor(post.heroImage).width(320).height(200).quality(80).url()}
-                  alt=""
-                  width={320}
-                  height={200}
-                  className="object-cover rounded-sm shadow-2xl"
-                  sizes="280px"
-                  loading={i < 3 ? 'eager' : 'lazy'}
-                />
-              </div>
-            ) : null,
-          )}
-        </div>
+      </div>
+
+      {/* Hover Preview Image — fixed follower, anchored to cursor */}
+      <div
+        ref={followerRef}
+        className="pointer-events-none fixed top-0 left-0 z-40 hidden md:block"
+        style={{ width: 320, height: 200, willChange: 'transform' }}
+      >
+        {filtered.map((post, i) =>
+          post.heroImage ? (
+            <div
+              key={`img-${post._id}`}
+              ref={(el) => { imageRefs.current[i] = el }}
+              className="absolute inset-0 opacity-0"
+            >
+              <Image
+                src={urlFor(post.heroImage).width(320).height(200).quality(80).url()}
+                alt=""
+                width={320}
+                height={200}
+                className="object-cover rounded-sm shadow-2xl"
+                sizes="320px"
+                loading={i < 3 ? 'eager' : 'lazy'}
+              />
+            </div>
+          ) : null,
+        )}
       </div>
 
       {/* ── Mobile cards ── */}

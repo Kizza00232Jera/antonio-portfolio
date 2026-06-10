@@ -38,6 +38,9 @@ The home page is composed of named sections in this order:
 - **Journey Stop** — one entry in the career timeline. There are five stops (Multimedia Design, Mono, Web Dev, Decode, Stockholm).
 - **Horizontal Project Card** — a portrait-aspect-ratio card used in the Projects listing horizontal scroll on desktop/tablet.
 - **Mobile Project Card** — a landscape-aspect-ratio (4:3) card used in the Projects listing vertical scroll on mobile. Shows image, title, tagline, and tags. Tapping triggers the project transition animation.
+- **Blog Row** — one entry in the blog list. Composed of three Blog Cells (title, tags, date) on desktop. Used identically in the home Latest Posts section and on `/blog`.
+- **Cell Scramble** — the GSAP char-by-char scramble that runs on Blog Row hover. Distinct from the CSS-only char-reveal used in NavOverlay/Header — different mechanism, different timing. Lives in `BlogListClient.tsx`.
+- **Hover Preview Image** — the cursor-following image that shows the active Blog Row's heroImage. Position is driven by a global `mousemove` listener via `gsap.quickTo` (matches the CustomCursor follow pattern). Desktop and pointer-fine only. Crossfades opacity when the active row changes; fades out on list mouseleave.
 
 ## Shared Utilities
 
