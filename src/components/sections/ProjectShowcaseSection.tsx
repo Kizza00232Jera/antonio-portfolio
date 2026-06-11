@@ -247,7 +247,9 @@ export default function ProjectShowcaseSection({
       ref={sectionRef}
       data-theme="dark"
       className="project-showcase"
-      style={{ '--showcase-h': `${projects.length * 100}vh` } as React.CSSProperties}
+      // +1 viewport: after the last project the sticky panel stays frozen
+      // while the next section slides up over it (curtain effect)
+      style={{ '--showcase-h': `${(projects.length + 1) * 100}vh` } as React.CSSProperties}
     >
       <div ref={stickyRef} className="project-showcase-sticky">
         {/* ── Left Panel ── */}

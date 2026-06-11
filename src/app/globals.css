@@ -261,203 +261,150 @@ html::-webkit-scrollbar {
   background-color: #f2ede8;
 }
 
-/* ── Hero section ──────────────────────────────────────────── */
+/* ── Curtain-stack overlap ─────────────────────────────────────
+   Sections that consume scroll (journey pin, project showcase wrapper)
+   end with one frozen viewport; the section after them is pulled up by
+   100vh so it slides over that frozen viewport instead of arriving
+   exactly when the freeze releases. Desktop-only — each breakpoint
+   matches the freeze's own breakpoint. */
+@media (min-width: 769px) {
+  .st-overlap-md { margin-top: -100vh; }
+}
+@media (min-width: 1024px) {
+  .st-overlap-lg { margin-top: -100vh; }
+}
+
+/* ── Hero section — creative field ─────────────────────────── */
 
 .hero-section {
+  /* sticky + z-index: 0 — hero freezes at top while later sections slide over;
+     z-index creates a stacking context so the canvas/wordmark stay beneath them */
+  position: sticky;
+  top: 0;
+  z-index: 0;
   height: 100vh;
+  height: 100dvh;
   min-height: 600px;
   overflow: hidden;
   background: #0d0d0d;
   color: #f7f7f7;
 }
 
-.hero-body {
-  display: flex;
-  flex-direction: column;
+/* particle field canvas */
+.hero-field {
+  position: absolute;
+  inset: 0;
+  width: 100%;
   height: 100%;
-  padding-top: var(--header-h);
-  padding-bottom: 0;
-}
-
-/* ── Main: row — left-text | right-text ─── */
-.hero-main {
-  flex: 1;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 0;
-  padding-inline: clamp(2.5rem, 5vw, 6rem);
-  gap: clamp(1rem, 2.5vw, 3rem);
-}
-
-.hero-intro-left {
-  flex-shrink: 0;
-  width: clamp(130px, 13vw, 210px);
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
-
-.hero-intro-right {
-  flex-shrink: 0;
-  width: clamp(155px, 17vw, 270px);
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  text-align: right;
-}
-
-.hero-eyebrow {
-  font-family: var(--font-mono);
-  font-size: 0.625rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: rgba(247, 247, 247, 0.35);
-}
-
-.hero-roles {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-}
-
-.hero-role {
-  font-family: var(--font-mono);
-  font-size: clamp(0.65rem, 0.8vw, 0.85rem);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: #f7f7f7;
-}
-
-.hero-about {
-  font-family: var(--font-body);
-  font-size: clamp(0.72rem, 0.82vw, 0.875rem);
-  line-height: 1.65;
-  color: rgba(247, 247, 247, 0.55);
-}
-
-/* ── Wordmark — SVG, fills 100% viewport width ── */
-.hero-title {
-  flex-shrink: 0;
-  width: 100%;
-  overflow: hidden;
-  user-select: none;
-  line-height: 0;
-  margin-top: clamp(0.5rem, 1.5vw, 2rem);
-}
-
-.hero-title-svg {
   display: block;
-  width: 100%;
-  height: auto;
-  overflow: visible;
+  z-index: 1;
+  touch-action: none;
 }
 
-.hero-title-text {
+/* centered wordmark */
+.hero-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  pointer-events: none;
+  padding: 0 1.5rem;
+}
+
+.hero-name {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   font-family: var(--font-display-alt);
-  fill: #f7f7f7;
+  font-weight: 400;
+  text-transform: uppercase;
+  color: #f7f7f7;
+  mix-blend-mode: difference;
+  text-align: center;
 }
 
-/* ── Hero responsive ─────────────────────────── */
-@media (max-width: 900px) {
-  .hero-main {
-    padding-inline: clamp(1.5rem, 3vw, 3rem);
-    gap: 1rem;
-  }
-  .hero-intro-left { width: clamp(110px, 12vw, 170px); }
-  .hero-intro-right { width: clamp(130px, 15vw, 220px); }
+.hero-name span {
+  display: block;
+  font-size: clamp(64px, 12vw, 168px);
+  line-height: 0.96;
+  letter-spacing: 0.06em;
 }
 
-/* Mobile — two-panel carousel replaces the desktop two-column layout */
-
-/* Carousel container — hidden on desktop */
-.hero-mobile-carousel {
-  display: none;
+.hero-sub {
+  margin-top: 18px;
+  font-family: var(--font-body);
+  font-size: clamp(10px, 1.1vw, 13px);
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: rgba(247, 247, 247, 0.55);
+  text-align: center;
 }
 
-@media (max-width: 767px) {
-  /* Hide desktop two-column layout */
-  .hero-main {
-    display: none;
+/* corner metadata */
+.hero-corners {
+  position: absolute;
+  inset: auto 0 0 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 2rem 1.75rem;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.hero-corner {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
+  font-family: var(--font-body);
+  font-size: clamp(10px, 1vw, 12px);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: rgba(247, 247, 247, 0.45);
+}
+
+.hero-clock {
+  font-variant-numeric: tabular-nums;
+}
+
+.hero-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.5);
+  animation: hero-status-pulse 2.4s ease-out infinite;
+}
+
+@keyframes hero-status-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.5); }
+  70% { box-shadow: 0 0 0 7px rgba(74, 222, 128, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-status-dot {
+    animation: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero-name span {
+    letter-spacing: 0.04em;
   }
 
-  .hero-body {
-    position: relative;
+  .hero-corners {
+    padding: 0 1.25rem 1.1rem;
   }
 
-  /* Show carousel */
-  .hero-mobile-carousel {
-    flex: 1;
-    position: relative;
-    display: flex;
-    min-height: 0;
-  }
-
-  .hero-carousel-panel {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    padding: 1.5rem;
-    opacity: 0;
-    transition: opacity 0.7s ease;
-    pointer-events: none;
-  }
-
-  .hero-carousel-panel.is-active {
-    opacity: 1;
-    pointer-events: auto;
-    animation: panel-enter 0.75s ease forwards;
-  }
-
-  @keyframes panel-enter {
-    from { transform: translateY(10px); }
-    to   { transform: translateY(0); }
-  }
-
-  .hero-carousel-panel .hero-eyebrow {
-    font-size: 0.75rem;
-  }
-
-  .hero-carousel-panel .hero-role {
-    font-size: 0.875rem;
-  }
-
-  .hero-carousel-panel .hero-about {
-    font-size: 0.875rem;
-  }
-
-  /* Dot indicators — bottom-right of carousel */
-  .hero-carousel-dots {
-    position: absolute;
-    bottom: 1.5rem;
-    right: 1.5rem;
-    display: flex;
-    gap: 0.5rem;
-    z-index: 1;
-  }
-
-  .hero-carousel-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: rgba(247, 247, 247, 0.3);
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    transition: background-color 0.3s ease;
-    touch-action: manipulation;
-  }
-
-  .hero-carousel-dot.is-active {
-    background: rgba(247, 247, 247, 0.9);
-  }
-
-  /* Wordmark bottom padding */
-  .hero-title {
-    padding-bottom: 2rem;
+  .hero-corner {
+    letter-spacing: 0.16em;
   }
 }
 
@@ -1826,4 +1773,12 @@ html::-webkit-scrollbar {
   font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
   font-size: 0.875rem;
   line-height: 1.625;
+}
+
+/* Long unbroken tokens (package paths, URLs) in inline code/links must be
+   allowed to break, or they widen the page and shift fixed UI on phones.
+   No effect inside .shiki — white-space: pre never wraps. */
+.portable-text code,
+.portable-text a {
+  overflow-wrap: anywhere;
 }

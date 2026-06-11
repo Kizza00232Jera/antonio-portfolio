@@ -1,44 +1,189 @@
 'use client'
 
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { gsap } from 'gsap'
-import { useCarouselState } from '@/components/ui/useCarouselState'
 
 /* ── Data ─────────────────────────────────────────── */
 
-const ROLES = ['/ WEB DEVELOPMENT', '/ WEB DESIGN', '/ CREATIVE TECHNOLOGY']
+const SUB = 'Web Development · Web Design · Creative Technology'
 
-const ABOUT = 'Half designer, half developer — full attention to detail. Five years across three countries learning how research becomes a system, a system becomes a product, and a product becomes something you actually want to use. Now exploring XR and creative code at Stockholm University.'
+/* ── Stockholm live clock ─────────────────────────── */
+
+function HeroClock() {
+  const [time, setTime] = useState('')
+
+  useEffect(() => {
+    function tick() {
+      setTime(
+        new Date().toLocaleTimeString('en-GB', {
+          timeZone: 'Europe/Stockholm',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: false,
+        }),
+      )
+    }
+    tick()
+    const id = setInterval(tick, 1000)
+    return () => clearInterval(id)
+  }, [])
+
+  return (
+    <span className="hero-corner hero-clock">
+      STOCKHOLM&thinsp;·&thinsp;{time || '··:··:··'}
+    </span>
+  )
+}
 
 /* ── Component ────────────────────────────────────── */
 
 export default function HeroSection() {
-  const { activePanel, goToPanel } = useCarouselState(2)
-  const sectionRef = useRef<HTMLElement>(null)
-  const titleRef = useRef<HTMLDivElement>(null)
+  const heroRef = useRef<HTMLElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
 
-  /* ── Entrance animations ──────────────────────────────────────────── */
+  /* ── Creative Field — retina-correct dot grid that reacts to the cursor ── */
   useEffect(() => {
-    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (prefersReduced) return
+    const hero = heroRef.current
+    const canvas = canvasRef.current
+    if (!hero || !canvas) return
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+    const GAP = 38 // spacing between dots (CSS px)
+    const RADIUS = 160 // cursor influence radius
+    const PUSH = 28 // max displacement
+    const EASE = 0.18 // return-to-home easing
+
+    type Dot = { x: number; y: number; ox: number; oy: number }
+    let W = 0
+    let H = 0
+    let dots: Dot[] = []
+    let raf = 0
+    const mouse = { x: -9999, y: -9999 }
+
+    function build() {
+      const rect = hero!.getBoundingClientRect()
+      W = rect.width
+      H = rect.height
+      const dpr = Math.min(window.devicePixelRatio || 1, 2)
+      canvas!.width = Math.round(W * dpr)
+      canvas!.height = Math.round(H * dpr)
+      ctx!.setTransform(dpr, 0, 0, dpr, 0, 0)
+
+      dots = []
+      for (let y = GAP; y < H; y += GAP) {
+        for (let x = GAP; x < W; x += GAP) {
+          dots.push({ x, y, ox: x, oy: y })
+        }
+      }
+    }
+
+    function draw() {
+      ctx!.clearRect(0, 0, W, H)
+      for (const d of dots) {
+        const dx = d.x - mouse.x
+        const dy = d.y - mouse.y
+        const dist = Math.hypot(dx, dy)
+        let tx = d.ox
+        let ty = d.oy
+        let size = 1.5
+        let alpha = 0.32
+        if (dist < RADIUS) {
+          const f = 1 - dist / RADIUS
+          const ang = Math.atan2(dy, dx)
+          tx = d.ox + Math.cos(ang) * PUSH * f
+          ty = d.oy + Math.sin(ang) * PUSH * f
+          size = 1.5 + f * 3.8
+          alpha = 0.32 + f * 0.68
+        }
+        d.x += (tx - d.x) * EASE
+        d.y += (ty - d.y) * EASE
+        ctx!.beginPath()
+        ctx!.arc(d.x, d.y, size, 0, Math.PI * 2)
+        ctx!.fillStyle = `rgba(247,247,247,${alpha})`
+        ctx!.fill()
+      }
+      raf = requestAnimationFrame(draw)
+    }
+
+    function staticDraw() {
+      ctx!.clearRect(0, 0, W, H)
+      for (const d of dots) {
+        ctx!.beginPath()
+        ctx!.arc(d.ox, d.oy, 1.5, 0, Math.PI * 2)
+        ctx!.fillStyle = 'rgba(247,247,247,0.32)'
+        ctx!.fill()
+      }
+    }
+
+    function onMove(e: PointerEvent) {
+      const rect = canvas!.getBoundingClientRect()
+      mouse.x = e.clientX - rect.left
+      mouse.y = e.clientY - rect.top
+    }
+    function onLeave() {
+      mouse.x = -9999
+      mouse.y = -9999
+    }
+
+    build()
+    if (reduce) {
+      staticDraw()
+    } else {
+      hero.addEventListener('pointermove', onMove)
+      hero.addEventListener('pointerleave', onLeave)
+      raf = requestAnimationFrame(draw)
+    }
+
+    let resizeTimer: ReturnType<typeof setTimeout>
+    function onResize() {
+      clearTimeout(resizeTimer)
+      resizeTimer = setTimeout(() => {
+        build()
+        if (reduce) staticDraw()
+      }, 150)
+    }
+    window.addEventListener('resize', onResize)
+
+    return () => {
+      cancelAnimationFrame(raf)
+      clearTimeout(resizeTimer)
+      hero.removeEventListener('pointermove', onMove)
+      hero.removeEventListener('pointerleave', onLeave)
+      window.removeEventListener('resize', onResize)
+    }
+  }, [])
+
+  /* ── Entrance animation ──────────────────────────── */
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
     const ctx = gsap.context(() => {
-      if (titleRef.current) {
-        gsap.from('.hero-title-svg', {
-          yPercent: 105,
-          duration: 1.5,
-          ease: 'power4.out',
-          delay: 0.1,
-        })
-      }
-      gsap.from('.hero-main .hero-eyebrow', {
-        opacity: 0, y: 8, duration: 0.7, ease: 'power3.out', stagger: 0.15, delay: 0.55,
+      gsap.from('.hero-name span', {
+        yPercent: 110,
+        opacity: 0,
+        duration: 1.2,
+        ease: 'power4.out',
+        stagger: 0.08,
+        delay: 0.1,
       })
-      gsap.from('.hero-main .hero-role', {
-        opacity: 0, x: -10, duration: 0.6, ease: 'power3.out', stagger: 0.08, delay: 0.7,
+      gsap.from('.hero-sub', {
+        opacity: 0,
+        y: 10,
+        duration: 0.8,
+        ease: 'power3.out',
+        delay: 0.6,
       })
-      gsap.from('.hero-main .hero-about', {
-        opacity: 0, y: 10, duration: 0.8, ease: 'power3.out', delay: 0.8,
+      gsap.from('.hero-corner', {
+        opacity: 0,
+        y: 6,
+        duration: 0.7,
+        ease: 'power3.out',
+        stagger: 0.12,
+        delay: 0.95,
       })
     })
 
@@ -48,73 +193,23 @@ export default function HeroSection() {
   /* ── Render ───────────────────────────────────── */
 
   return (
-    <section
-      ref={sectionRef}
-      data-theme="dark"
-      className="hero-section"
-    >
-      <div className="hero-body">
+    <section ref={heroRef} data-theme="dark" className="hero-section">
+      <canvas ref={canvasRef} className="hero-field" aria-hidden />
 
-        {/* ── Main: left-text | right-text (desktop) ─ */}
-        <div className="hero-main">
-          <div className="hero-intro-left">
-            <span className="hero-eyebrow">/ 01 — ROLES</span>
-            <div className="hero-roles">
-              {ROLES.map((r) => (
-                <span key={r} className="hero-role">{r}</span>
-              ))}
-            </div>
-          </div>
+      <div className="hero-center">
+        <h1 className="hero-name" aria-label="ANTONIO JERKOVIC">
+          <span>ANTONIO</span>
+          <span>JERKOVIC</span>
+        </h1>
+        <div className="hero-sub">{SUB}</div>
+      </div>
 
-          <div className="hero-intro-right">
-            <span className="hero-eyebrow">/ 02 — ABOUT ME</span>
-            <p className="hero-about">{ABOUT}</p>
-          </div>
-        </div>
-
-        {/* ── Mobile: carousel panels ─────────────── */}
-        <div className="hero-mobile-carousel">
-          <div className={`hero-carousel-panel${activePanel === 0 ? ' is-active' : ''}`}>
-            <span className="hero-eyebrow">/ 02 — ABOUT ME</span>
-            <p className="hero-about">{ABOUT}</p>
-          </div>
-          <div className={`hero-carousel-panel${activePanel === 1 ? ' is-active' : ''}`}>
-            <span className="hero-eyebrow">/ 01 — ROLES</span>
-            <div className="hero-roles">
-              {ROLES.map((r) => (
-                <span key={r} className="hero-role">{r}</span>
-              ))}
-            </div>
-          </div>
-          <div className="hero-carousel-dots">
-            {[0, 1].map((i) => (
-              <button
-                key={i}
-                className={`hero-carousel-dot${activePanel === i ? ' is-active' : ''}`}
-                onClick={() => goToPanel(i)}
-                aria-label={`Panel ${i + 1}`}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* ── Wordmark ─────────────────────────────── */}
-        <div ref={titleRef} className="hero-title" aria-label="ANTONIO JERKOVIC">
-          <svg viewBox="0 0 1000 180" className="hero-title-svg" aria-hidden>
-            <text
-              x="500"
-              y="158"
-              fontSize={200}
-              textAnchor="middle"
-              textLength="1000"
-              lengthAdjust="spacingAndGlyphs"
-              className="hero-title-text"
-            >
-              ANTONIO JERKOVIC
-            </text>
-          </svg>
-        </div>
-
+      <div className="hero-corners">
+        <span className="hero-corner hero-status">
+          <span className="hero-status-dot" aria-hidden />
+          OPEN FOR WORK
+        </span>
+        <HeroClock />
       </div>
     </section>
   )

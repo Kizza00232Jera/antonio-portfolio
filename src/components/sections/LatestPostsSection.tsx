@@ -23,7 +23,7 @@ export default function LatestPostsSection({ posts }: LatestPostsSectionProps) {
       {posts.length === 0 ? (
         <p className="text-sm text-text-muted pt-6 border-t border-border">Posts coming soon.</p>
       ) : (
-        <BlogListClient posts={posts} mobileLimit={4} />
+        <BlogListClient posts={posts} mobileLimit={4} fitHeight />
       )}
       </div>
     </section>

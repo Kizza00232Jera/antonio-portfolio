@@ -1,4 +1,4 @@
-import { getFeaturedProjects, getLatestBlogPosts, getSiteSettings } from '@/lib/sanity/queries'
+import { getFeaturedProjects, getAllBlogPosts, getSiteSettings } from '@/lib/sanity/queries'
 import Header from '@/components/layout/Header'
 import HeroSection from '@/components/sections/HeroSection'
 import JourneyScrollSection from '@/components/sections/JourneyScrollSection'
@@ -12,7 +12,7 @@ import { HashScrollHandler } from '@/components/providers/HashScrollHandler'
 export default async function HomePage() {
   const [projects, posts, siteSettings] = await Promise.all([
     getFeaturedProjects(),
-    getLatestBlogPosts(6),
+    getAllBlogPosts(),
     getSiteSettings(),
   ])
 
@@ -26,9 +26,9 @@ export default async function HomePage() {
       <HeroSection />
       <SectionTitle title="MY JOURNEY" theme="light" />
       <JourneyScrollSection />
-      <SectionTitle title="MY PROJECTS" theme="dark" />
+      <SectionTitle title="MY PROJECTS" theme="dark" overlap="md" />
       <ProjectShowcaseSection projects={projects} />
-      <SectionTitle title="BLOGS" theme="dark" />
+      <SectionTitle title="BLOGS" theme="dark" overlap="lg" />
       <LatestPostsSection posts={posts} />
       <ContactSection
         phoneCroatian={author?.phoneCroatian}

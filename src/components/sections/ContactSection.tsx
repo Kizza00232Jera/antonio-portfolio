@@ -107,7 +107,10 @@ export default function ContactSection({
   const nameRef = useRef<HTMLDivElement>(null)
 
   useScrubLetters(titleRef, '.ct-letter')
-  useScrubLetters(nameRef, '.fn-char', 'top 95%', 'bottom bottom')
+  /* The name sits at the page end, so its scrub can't extend past max scroll.
+     Starting 70vh before it enters gives it the same total scroll runway as
+     SectionTitle (element height + 70vh) → identical letter speed. */
+  useScrubLetters(nameRef, '.fn-char', 'top 170%', 'bottom bottom')
 
   return (
     <footer id="contact" data-theme="light" className="footer-root">
