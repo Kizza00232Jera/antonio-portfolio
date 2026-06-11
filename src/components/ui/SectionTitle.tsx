@@ -9,9 +9,13 @@ gsap.registerPlugin(ScrollTrigger)
 interface SectionTitleProps {
   title: string
   theme: 'light' | 'dark'
+  /** Slide over the previous section's frozen final viewport (curtain effect).
+   *  'md' matches the journey pin breakpoint (≥769px),
+   *  'lg' matches the project showcase sticky breakpoint (≥1024px). */
+  overlap?: 'md' | 'lg'
 }
 
-export default function SectionTitle({ title, theme }: SectionTitleProps) {
+export default function SectionTitle({ title, theme, overlap }: SectionTitleProps) {
   const sectionRef = useRef<HTMLDivElement>(null)
 
   const bg = theme === 'light' ? '#fafaf8' : '#0d0d0d'
@@ -55,11 +59,14 @@ export default function SectionTitle({ title, theme }: SectionTitleProps) {
     <div
       ref={sectionRef}
       data-theme={theme}
+      className={overlap ? `st-overlap-${overlap}` : undefined}
       style={{
         backgroundColor: bg,
         paddingBlock: 'clamp(3rem, 5vw, 5rem)',
         paddingInline: 'clamp(1rem, 3vw, 3rem)',
         textAlign: 'center',
+        /* paint above frozen (sticky/pinned) sections earlier in the page */
+        position: 'relative',
       }}
     >
       <h2

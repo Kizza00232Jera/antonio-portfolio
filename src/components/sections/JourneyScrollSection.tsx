@@ -151,6 +151,9 @@ export default function JourneyScrollSection() {
       /* ── Desktop ─────────────────────────────────── */
       mm.add('(min-width: 769px)', () => {
         const scrollDistance = N * window.innerHeight
+        // Extra pinned viewport after the last stop: the section stays frozen
+        // while the next section slides up over it (curtain effect)
+        const pinDistance = scrollDistance + window.innerHeight
 
         // Images are in reverse DOM order (stop5 first, stop1 last = on top)
         // Reverse so imgs[0] = stop1 (top of stack), imgs[4] = stop5 (bottom)
@@ -172,7 +175,7 @@ export default function JourneyScrollSection() {
           scrollTrigger: {
             trigger: section,
             start: 'top top',
-            end: `+=${scrollDistance}`,
+            end: `+=${pinDistance}`,
             pin: true,
             scrub: true,
             anticipatePin: 1,
@@ -202,11 +205,15 @@ export default function JourneyScrollSection() {
           mainTl.add(tl)
         })
 
+        // Dead window at the end: stop transitions finish within the first
+        // N viewports of scroll, leaving the final viewport frozen
+        mainTl.to({}, { duration: mainTl.duration() / N })
+
         // Pin the ruler (no extra scroll space — section already pins)
         ScrollTrigger.create({
           trigger: section,
           start: 'top top',
-          end: `+=${scrollDistance}`,
+          end: `+=${pinDistance}`,
           pin: ruler,
           pinSpacing: false,
         })
