@@ -1,11 +1,40 @@
 'use client'
 
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { gsap } from 'gsap'
 
 /* ── Data ─────────────────────────────────────────── */
 
 const SUB = 'Web Development · Web Design · Creative Technology'
+
+/* ── Stockholm live clock ─────────────────────────── */
+
+function HeroClock() {
+  const [time, setTime] = useState('')
+
+  useEffect(() => {
+    function tick() {
+      setTime(
+        new Date().toLocaleTimeString('en-GB', {
+          timeZone: 'Europe/Stockholm',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: false,
+        }),
+      )
+    }
+    tick()
+    const id = setInterval(tick, 1000)
+    return () => clearInterval(id)
+  }, [])
+
+  return (
+    <span className="hero-corner hero-clock">
+      STOCKHOLM&thinsp;·&thinsp;{time || '··:··:··'}
+    </span>
+  )
+}
 
 /* ── Component ────────────────────────────────────── */
 
@@ -148,6 +177,14 @@ export default function HeroSection() {
         ease: 'power3.out',
         delay: 0.6,
       })
+      gsap.from('.hero-corner', {
+        opacity: 0,
+        y: 6,
+        duration: 0.7,
+        ease: 'power3.out',
+        stagger: 0.12,
+        delay: 0.95,
+      })
     })
 
     return () => ctx.revert()
@@ -165,6 +202,14 @@ export default function HeroSection() {
           <span>JERKOVIC</span>
         </h1>
         <div className="hero-sub">{SUB}</div>
+      </div>
+
+      <div className="hero-corners">
+        <span className="hero-corner hero-status">
+          <span className="hero-status-dot" aria-hidden />
+          OPEN FOR WORK
+        </span>
+        <HeroClock />
       </div>
     </section>
   )
