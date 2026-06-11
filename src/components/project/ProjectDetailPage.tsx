@@ -218,8 +218,9 @@ export function ProjectDetailPage({ project, posterUrl }: ProjectDetailPageProps
             </div>
           </div>
 
-          {/* Title — pushed to bottom */}
-          <div className="mt-auto" data-animate>
+          {/* Title — pushed to bottom; pt keeps a gap from the links above
+              even when the hero is full and mt-auto collapses to zero */}
+          <div className="mt-auto pt-10" data-animate>
             <h1
               className="font-heading font-bold uppercase leading-[0.9] text-text"
               style={{ fontSize: 'clamp(2rem, 8vw, 7rem)' }}
