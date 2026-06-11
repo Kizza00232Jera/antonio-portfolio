@@ -125,11 +125,16 @@ export function ProjectDetailPage({ project, posterUrl }: ProjectDetailPageProps
 
   return (
     <div ref={contentRef} className="overflow-x-hidden">
-      {/* Hero section — 75dvh so the video peeks in below */}
-      <div ref={heroRef} style={{ height: '75dvh', paddingInline: 'clamp(1.5rem, 8vw, 12rem)' }}>
+      {/* Hero section — min 75dvh so the video peeks in below; grows with
+          content (e.g. two live links) instead of overflowing onto the video */}
+      <div
+        ref={heroRef}
+        className="flex flex-col"
+        style={{ minHeight: '75dvh', paddingInline: 'clamp(1.5rem, 8vw, 12rem)' }}
+      >
 
         {/* ===== MOBILE LAYOUT (< lg): 2-col grid matching reference ===== */}
-        <div className="flex h-full flex-col pt-24 pb-8 lg:hidden">
+        <div className="flex grow flex-col pt-24 pb-8 lg:hidden">
           <div className="grid grid-cols-1 gap-x-8 gap-y-4 md:grid-cols-2" data-animate>
             {/* Row 1, col 1: X close button */}
             <button
@@ -230,7 +235,7 @@ export function ProjectDetailPage({ project, posterUrl }: ProjectDetailPageProps
         </div>
 
         {/* ===== DESKTOP LAYOUT (lg+): two-column flex ===== */}
-        <div className="hidden h-full lg:flex">
+        <div className="hidden grow lg:flex">
           {/* Left column — X close button top, "Scroll for more" bottom */}
           <div className="flex w-[25%] shrink-0 flex-col justify-between pt-28 pb-8">
             <button

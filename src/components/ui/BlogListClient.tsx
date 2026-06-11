@@ -58,6 +58,9 @@ interface BlogListClientProps {
    *  SSR renders the defaults (6 desktop / mobileLimit), then the client
    *  measures and adjusts. */
   fitHeight?: boolean
+  /** Denser desktop rows — single-line titles, smaller font, tighter padding.
+   *  Used on the homepage so more posts fit in the viewport. */
+  compact?: boolean
 }
 
 /** Desktop row count rendered during SSR before the client measures */
@@ -122,7 +125,7 @@ function resetCellChars(data: CellData) {
 
 // ── Component ─────────────────────────────────────────
 
-export function BlogListClient({ posts, showFilter = true, mobileLimit, fitHeight = false }: BlogListClientProps) {
+export function BlogListClient({ posts, showFilter = true, mobileLimit, fitHeight = false, compact = false }: BlogListClientProps) {
   const listRef = useRef<HTMLDivElement>(null)
   const mobileListRef = useRef<HTMLDivElement>(null)
   const rowRefs = useRef<(HTMLAnchorElement | null)[]>([])
@@ -369,7 +372,11 @@ export function BlogListClient({ posts, showFilter = true, mobileLimit, fitHeigh
       )}
 
       {/* ── Desktop list ── */}
-      <div ref={listRef} className="relative hidden md:block" onMouseLeave={handleLeave}>
+      <div
+        ref={listRef}
+        className={`relative hidden md:block${compact ? ' blog-list--compact' : ''}`}
+        onMouseLeave={handleLeave}
+      >
         {/* Column headers */}
         <div className="blog-list-header">
           <span />

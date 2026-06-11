@@ -285,7 +285,9 @@ export default function ProjectShowcaseSection({
                 <div
                   key={`fg-${project._id}`}
                   ref={(el) => { fgImagesRef.current[i] = el }}
-                  className="project-fg-image"
+                  className="project-fg-image cursor-pointer"
+                  onClick={handleViewMore}
+                  aria-label={`View ${project.title}`}
                 >
                   {url && (
                     <Image

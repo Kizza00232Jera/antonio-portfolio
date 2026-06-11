@@ -920,6 +920,16 @@ html::-webkit-scrollbar {
   letter-spacing: 0.005em;
 }
 
+/* Compact variant (homepage fit-height list) — single-line titles at a
+   smaller size and tighter rows, so laptops fit 6+ posts instead of 2-3. */
+.blog-list--compact .blog-row {
+  padding: 0.8rem 0;
+}
+.blog-list--compact .blog-cell--title {
+  -webkit-line-clamp: 1;
+  font-size: clamp(0.95rem, 1.25vw, 1.25rem);
+}
+
 /* Tags cell — single line ellipsis, smaller. */
 .blog-cell--tags {
   white-space: nowrap;

@@ -234,10 +234,20 @@ interface ProjectAccordionProps {
 export function ProjectAccordion({ sections, className }: ProjectAccordionProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
   const contentRefs = useRef<(HTMLDivElement | null)[]>([])
+  const headerRefs = useRef<(HTMLButtonElement | null)[]>([])
   const prefersReduced = useRef(false)
 
   useEffect(() => {
     prefersReduced.current = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  }, [])
+
+  // After a section expands, bring its title back to the top of the viewport
+  // (leaving room for the fixed header) so reading starts at the beginning
+  const scrollToHeader = useCallback((index: number) => {
+    const header = headerRefs.current[index]
+    if (!header) return
+    const top = header.getBoundingClientRect().top + window.scrollY - 96
+    window.scrollTo({ top, behavior: prefersReduced.current ? 'auto' : 'smooth' })
   }, [])
 
   const toggle = useCallback(
@@ -259,25 +269,35 @@ export function ProjectAccordion({ sections, className }: ProjectAccordionProps)
         if (prefersReduced.current) {
           el.style.height = 'auto'
           el.style.opacity = '1'
+          scrollToHeader(nextOpen)
         } else {
-          gsap.to(el, { height: 'auto', opacity: 1, duration: 0.4, ease: 'power2.inOut' })
+          gsap.to(el, {
+            height: 'auto',
+            opacity: 1,
+            duration: 0.4,
+            ease: 'power2.inOut',
+            onComplete: () => scrollToHeader(nextOpen),
+          })
         }
       }
 
       setOpenIndex(nextOpen)
     },
-    [openIndex],
+    [openIndex, scrollToHeader],
   )
 
   if (sections.length === 0) return null
 
   return (
-    <div className={cn('divide-y divide-border', className)}>
+    // overflow-anchor: none — without it the browser anchors scroll to content
+    // below the expanding section, dumping the viewport at its bottom
+    <div className={cn('divide-y divide-border', className)} style={{ overflowAnchor: 'none' }}>
       {sections.map((section, i) => {
         const isOpen = openIndex === i
         return (
           <div key={section._key}>
             <button
+              ref={(el) => { headerRefs.current[i] = el }}
               type="button"
               onClick={() => toggle(i)}
               className="flex w-full items-center justify-between py-6 text-left transition-colors hover:text-accent"
