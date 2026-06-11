@@ -54,7 +54,14 @@ interface BlogListClientProps {
   posts: BlogPost[]
   showFilter?: boolean
   mobileLimit?: number
+  /** Fit the visible row count to the section height (homepage 100vh card).
+   *  SSR renders the defaults (6 desktop / mobileLimit), then the client
+   *  measures and adjusts. */
+  fitHeight?: boolean
 }
+
+/** Desktop row count rendered during SSR before the client measures */
+const DESKTOP_DEFAULT_COUNT = 6
 
 // ── V4 char-level text splitting & animation ──────────
 
@@ -115,8 +122,9 @@ function resetCellChars(data: CellData) {
 
 // ── Component ─────────────────────────────────────────
 
-export function BlogListClient({ posts, showFilter = true, mobileLimit }: BlogListClientProps) {
+export function BlogListClient({ posts, showFilter = true, mobileLimit, fitHeight = false }: BlogListClientProps) {
   const listRef = useRef<HTMLDivElement>(null)
+  const mobileListRef = useRef<HTMLDivElement>(null)
   const rowRefs = useRef<(HTMLAnchorElement | null)[]>([])
   const imageRefs = useRef<(HTMLDivElement | null)[]>([])
   const activeRef = useRef(-1)
@@ -124,6 +132,7 @@ export function BlogListClient({ posts, showFilter = true, mobileLimit }: BlogLi
   const followerRef = useRef<HTMLDivElement>(null)
 
   const [activeTag, setActiveTag] = useState<string | null>(null)
+  const [fitCount, setFitCount] = useState<number | null>(null)
 
   const allTags = useMemo<Array<{ name: string; slug: string }>>(() => {
     const seen = new Set<string>()
@@ -147,6 +156,85 @@ export function BlogListClient({ posts, showFilter = true, mobileLimit }: BlogLi
 
   const filterKey = filtered.map((p) => p._id).join(',')
 
+  /* ── Fit row count to the section height ── */
+  const desktopShown = fitHeight
+    ? filtered.slice(0, fitCount ?? DESKTOP_DEFAULT_COUNT)
+    : filtered
+  const mobileShown = fitHeight
+    ? filtered.slice(0, fitCount ?? mobileLimit ?? filtered.length)
+    : mobileLimit
+      ? filtered.slice(0, mobileLimit)
+      : filtered
+
+  useEffect(() => {
+    if (!fitHeight) return
+
+    const measure = () => {
+      const isMobile = window.matchMedia('(max-width: 767px)').matches
+      const container = isMobile
+        ? mobileListRef.current
+        : listRef.current?.querySelector('ol')
+      const section = container?.closest('section')
+      if (!container || !section || container.children.length === 0) return
+
+      const rows = container.children
+      const firstRect = rows[0].getBoundingClientRect()
+      // row pitch incl. gap/margin when two rows exist; bare height otherwise
+      const rowH =
+        rows.length > 1
+          ? rows[1].getBoundingClientRect().top - firstRect.top
+          : firstRect.height
+      if (rowH <= 0) return
+
+      const pad =
+        parseFloat(getComputedStyle(section.firstElementChild as Element).paddingBottom) || 0
+      const available = section.getBoundingClientRect().bottom - pad - firstRect.top
+      setFitCount(Math.max(1, Math.floor(available / rowH)))
+    }
+
+    // after paint, then again once webfonts land (row height changes with them)
+    const raf = requestAnimationFrame(measure)
+    document.fonts?.ready.then(measure).catch(() => {})
+
+    let lastW = window.innerWidth
+    let lastH = window.innerHeight
+    const onResize = () => {
+      const w = window.innerWidth
+      const h = window.innerHeight
+      // ignore mobile URL-bar collapse/expand so cards don't pop while scrolling
+      if (w === lastW && Math.abs(h - lastH) < 120) return
+      lastW = w
+      lastH = h
+      measure()
+    }
+    window.addEventListener('resize', onResize)
+    return () => {
+      cancelAnimationFrame(raf)
+      window.removeEventListener('resize', onResize)
+    }
+  }, [fitHeight])
+
+  // Self-correction: the estimate divides available space by the pitch of the
+  // first two rows, which drifts when fonts swap late or a title wraps. After
+  // each render, shrink the count until the last row genuinely fits.
+  useEffect(() => {
+    if (!fitHeight || fitCount == null || fitCount <= 1) return
+    const raf = requestAnimationFrame(() => {
+      const isMobile = window.matchMedia('(max-width: 767px)').matches
+      const container = isMobile
+        ? mobileListRef.current
+        : listRef.current?.querySelector('ol')
+      const section = container?.closest('section')
+      if (!container || !section || container.children.length === 0) return
+      const rows = container.children
+      const lastBottom = rows[rows.length - 1].getBoundingClientRect().bottom
+      if (lastBottom > section.getBoundingClientRect().bottom) {
+        setFitCount(fitCount - 1)
+      }
+    })
+    return () => cancelAnimationFrame(raf)
+  }, [fitHeight, fitCount, filterKey])
+
   // Eager-split cells after paint. handleEnter has a lazy fallback if this races.
   useEffect(() => {
     cellMapRef.current.clear()
@@ -162,7 +250,7 @@ export function BlogListClient({ posts, showFilter = true, mobileLimit }: BlogLi
       })
     })
     return () => cancelAnimationFrame(raf)
-  }, [filterKey])
+  }, [filterKey, desktopShown.length])
 
   // Cursor-follow the Hover Preview Image
   useEffect(() => {
@@ -291,7 +379,7 @@ export function BlogListClient({ posts, showFilter = true, mobileLimit }: BlogLi
         </div>
 
         <ol className="blog-list list-none m-0 p-0">
-          {filtered.map((post, i) => (
+          {desktopShown.map((post, i) => (
             <li key={post._id}>
               <Link
                 ref={(el) => { rowRefs.current[i] = el }}
@@ -321,7 +409,7 @@ export function BlogListClient({ posts, showFilter = true, mobileLimit }: BlogLi
         className="pointer-events-none fixed top-0 left-0 z-40 hidden md:block"
         style={{ width: 320, height: 200, willChange: 'transform' }}
       >
-        {filtered.map((post, i) =>
+        {desktopShown.map((post, i) =>
           post.heroImage ? (
             <div
               key={`img-${post._id}`}
@@ -343,8 +431,8 @@ export function BlogListClient({ posts, showFilter = true, mobileLimit }: BlogLi
       </div>
 
       {/* ── Mobile cards ── */}
-      <div className="blog-mobile-list">
-        {(mobileLimit ? filtered.slice(0, mobileLimit) : filtered).map((post, i) => (
+      <div ref={mobileListRef} className="blog-mobile-list">
+        {mobileShown.map((post, i) => (
           <Link
             key={`m-${post._id}`}
             href={`/blog/${post.slug.current}`}
