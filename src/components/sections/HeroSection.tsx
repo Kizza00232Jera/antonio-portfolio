@@ -120,6 +120,8 @@ export default function HeroSection() {
     }
 
     function onMove(e: PointerEvent) {
+      // touch is for scrolling, not for stirring the field
+      if (e.pointerType === 'touch') return
       const rect = canvas!.getBoundingClientRect()
       mouse.x = e.clientX - rect.left
       mouse.y = e.clientY - rect.top

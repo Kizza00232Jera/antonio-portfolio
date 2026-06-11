@@ -290,7 +290,8 @@ html::-webkit-scrollbar {
   color: #f7f7f7;
 }
 
-/* particle field canvas */
+/* particle field canvas — touch must scroll the page normally,
+   the dot interaction is mouse-only */
 .hero-field {
   position: absolute;
   inset: 0;
@@ -298,7 +299,6 @@ html::-webkit-scrollbar {
   height: 100%;
   display: block;
   z-index: 1;
-  touch-action: none;
 }
 
 /* centered wordmark */
