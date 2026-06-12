@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -49,7 +49,48 @@ export function ProjectDetailPage({ project, posterUrl, relatedPosts }: ProjectD
   const contentRef = useRef<HTMLDivElement>(null)
   const heroRef = useRef<HTMLDivElement>(null)
   const videoWrapperRef = useRef<HTMLDivElement>(null)
+  const focusListRef = useRef<HTMLDivElement>(null)
+  const titleBlockRef = useRef<HTMLDivElement>(null)
   const arrivedViaTransition = useRef(false)
+  const [focusCount, setFocusCount] = useState<number | null>(null)
+
+  // Fit the focus-area count to the hero: SSR renders all, then the client
+  // shows only as many rows as leave breathing room above the title.
+  // Mobile keeps a simple cap so the grid stays short.
+  useEffect(() => {
+    const total = project.focusAreas?.length ?? 0
+    if (total === 0) return
+
+    const measure = () => {
+      if (!window.matchMedia('(min-width: 1024px)').matches) {
+        setFocusCount(Math.min(4, total))
+        return
+      }
+      const hero = heroRef.current
+      const item = focusListRef.current?.querySelector('p')
+      const titleBlock = titleBlockRef.current
+      if (!hero || !item || !titleBlock) return
+      const rowH = item.getBoundingClientRect().height
+      if (rowH <= 0) return
+      // first row's offset inside the hero is scroll-independent
+      const itemsTop = item.getBoundingClientRect().top - hero.getBoundingClientRect().top
+      const heroH = window.innerHeight * 0.75 // hero min-height (75dvh)
+      // titleBlock.offsetHeight already includes its pt-10 gap above the title
+      const reserved = titleBlock.offsetHeight + 32 /* hero pb-8 */ + 8 /* buffer */
+      const budget = heroH - itemsTop - reserved
+      setFocusCount(Math.min(total, Math.max(2, Math.floor(budget / rowH))))
+    }
+
+    const raf = requestAnimationFrame(measure)
+    document.fonts?.ready.then(measure).catch(() => {})
+    window.addEventListener('resize', measure)
+    return () => {
+      cancelAnimationFrame(raf)
+      window.removeEventListener('resize', measure)
+    }
+  }, [project.focusAreas])
+
+  const focusShown = project.focusAreas?.slice(0, focusCount ?? project.focusAreas.length)
 
   // Track if we ever entered via transition — prevents the entrance
   // animation from re-firing when isTransitioning flips back to false
@@ -181,10 +222,10 @@ export function ProjectDetailPage({ project, posterUrl, relatedPosts }: ProjectD
 
             {/* Row 2, col 2: Focus Areas */}
             <div>
-              {project.focusAreas && project.focusAreas.length > 0 && (
+              {focusShown && focusShown.length > 0 && (
                 <>
                   <span className={metaLabelClass}>Focus Areas</span>
-                  {project.focusAreas.map((area) => (
+                  {focusShown.map((area) => (
                     <p key={area} className="text-sm text-text">
                       {area}
                     </p>
@@ -226,7 +267,7 @@ export function ProjectDetailPage({ project, posterUrl, relatedPosts }: ProjectD
           <div className="mt-auto pt-10" data-animate>
             <h1
               className="font-heading font-bold uppercase leading-[0.9] text-text"
-              style={{ fontSize: 'clamp(2rem, 8vw, 7rem)' }}
+              style={{ fontSize: 'clamp(2rem, min(8vw, 9vh), 6.5rem)' }}
             >
               {project.title}
             </h1>
@@ -276,10 +317,10 @@ export function ProjectDetailPage({ project, posterUrl, relatedPosts }: ProjectD
                     </a>
                   </div>
                 )}
-                {project.focusAreas && project.focusAreas.length > 0 && (
-                  <div>
+                {focusShown && focusShown.length > 0 && (
+                  <div ref={focusListRef}>
                     <span className={metaLabelClass}>Focus Areas</span>
-                    {project.focusAreas.map((area) => (
+                    {focusShown.map((area) => (
                       <p key={area} className={metaValueClass}>
                         {area}
                       </p>
@@ -321,11 +362,12 @@ export function ProjectDetailPage({ project, posterUrl, relatedPosts }: ProjectD
               </div>
             </div>
 
-            {/* Huge title — pushed to bottom */}
-            <div data-animate>
+            {/* Huge title — pushed to bottom; vh term keeps it from towering
+                on short laptop screens */}
+            <div ref={titleBlockRef} className="pt-10" data-animate>
               <h1
                 className="font-heading font-bold uppercase leading-[0.9] text-text"
-                style={{ fontSize: 'clamp(2.5rem, 8vw, 7rem)' }}
+                style={{ fontSize: 'clamp(2.25rem, min(6vw, 11vh), 6.5rem)' }}
               >
                 {project.title}
               </h1>
