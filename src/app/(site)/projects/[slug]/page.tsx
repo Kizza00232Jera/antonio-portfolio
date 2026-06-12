@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Header from '@/components/layout/Header'
 import ThemeObserver from '@/components/providers/ThemeObserver'
-import { getProjectBySlug } from '@/lib/sanity/queries'
+import { getProjectBySlug, getPostsByProject } from '@/lib/sanity/queries'
 import { urlFor } from '@/lib/sanity/image'
 import { ProjectDetailPage } from '@/components/project/ProjectDetailPage'
 
@@ -34,6 +34,8 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     notFound()
   }
 
+  const relatedPosts = await getPostsByProject(project._id)
+
   const posterUrl = project.coverImage
     ? urlFor(project.coverImage).width(1920).height(1080).quality(80).url()
     : undefined
@@ -42,7 +44,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     <div className="relative">
       <ThemeObserver />
       <Header />
-      <ProjectDetailPage project={project} posterUrl={posterUrl} />
+      <ProjectDetailPage project={project} posterUrl={posterUrl} relatedPosts={relatedPosts} />
     </div>
   )
 }

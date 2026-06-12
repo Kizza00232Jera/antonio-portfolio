@@ -5,10 +5,12 @@ import { useRouter } from 'next/navigation'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import Image from 'next/image'
+import Link from 'next/link'
 import dynamic from 'next/dynamic'
 import { useProjectTransition } from '@/contexts/ProjectTransitionContext'
 import { urlFor } from '@/lib/sanity/image'
 import type { Project } from '@/lib/sanity/types'
+import type { RelatedPost } from '@/lib/sanity/queries'
 import { formatDateShort } from '@/utils/format'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -38,9 +40,10 @@ const ProjectAccordion = dynamic(
 interface ProjectDetailPageProps {
   project: Project
   posterUrl?: string
+  relatedPosts?: RelatedPost[]
 }
 
-export function ProjectDetailPage({ project, posterUrl }: ProjectDetailPageProps) {
+export function ProjectDetailPage({ project, posterUrl, relatedPosts }: ProjectDetailPageProps) {
   const router = useRouter()
   const { isTransitioning } = useProjectTransition()
   const contentRef = useRef<HTMLDivElement>(null)
@@ -367,6 +370,31 @@ export function ProjectDetailPage({ project, posterUrl }: ProjectDetailPageProps
         {project.sections && project.sections.length > 0 && (
           <div data-animate>
             <ProjectAccordion sections={project.sections} className="mb-12" />
+          </div>
+        )}
+
+        {/* Blogs linked to this project via the blogPost.project reference */}
+        {relatedPosts && relatedPosts.length > 0 && (
+          <div data-animate>
+            <h2 className="mb-4 font-ui text-[0.625rem] uppercase tracking-widest text-text-muted">
+              Related blogs
+            </h2>
+            <div className="divide-y divide-border border-y border-border">
+              {relatedPosts.map((post) => (
+                <Link
+                  key={post._id}
+                  href={`/blog/${post.slug.current}`}
+                  className="group flex items-baseline justify-between gap-4 py-5"
+                >
+                  <span className="font-heading text-lg font-semibold uppercase tracking-wide text-text transition-colors group-hover:text-accent md:text-xl">
+                    {post.title}
+                  </span>
+                  <span className="shrink-0 font-ui text-xs text-text-muted">
+                    {formatDateShort(post.publishedAt)} <span aria-hidden>&rarr;</span>
+                  </span>
+                </Link>
+              ))}
+            </div>
           </div>
         )}
       </div>

@@ -72,6 +72,13 @@ export const blogPost = defineType({
       of: [{ type: 'reference', to: [{ type: 'tag' }] }],
       description: 'Tags for filtering on the blog page.',
     }),
+    defineField({
+      name: 'project',
+      title: 'Related Project',
+      type: 'reference',
+      to: [{ type: 'project' }],
+      description: 'The project this post belongs to. Shown under "Related blogs" on that project\'s detail page.',
+    }),
   ],
   orderings: [
     {
