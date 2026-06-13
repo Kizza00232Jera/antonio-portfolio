@@ -32,7 +32,7 @@ export function MobileProjectCard({ project, index }: MobileProjectCardProps) {
           <h2 className="font-body text-lg font-medium leading-snug text-text">
             {project.title}
           </h2>
-          <span className="shrink-0 pt-1 font-ui text-[0.625rem] text-text-muted">
+          <span className="shrink-0 pt-1 font-ui text-xs text-text-muted">
             {padIndex(index)}
           </span>
         </div>
@@ -42,7 +42,7 @@ export function MobileProjectCard({ project, index }: MobileProjectCardProps) {
           </p>
         )}
         {project.tags && project.tags.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 font-ui text-[0.625rem] uppercase tracking-wider text-text-muted">
+          <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 font-ui text-xs uppercase tracking-wider text-text-muted">
             {project.tags.map((tag) => (
               <span key={tag._id}>{tag.name}</span>
             ))}

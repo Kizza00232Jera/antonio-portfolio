@@ -111,7 +111,7 @@ export function HorizontalProjectCard({
                     <div className="flex h-14 w-14 items-center justify-center rounded-full bg-bg">
                       <span className="text-xl text-text">&rarr;</span>
                     </div>
-                    <span className="whitespace-nowrap text-[0.625rem] tracking-wide text-text-muted">
+                    <span className="whitespace-nowrap text-xs tracking-wide text-text-muted">
                       View Project
                     </span>
                   </div>
@@ -122,12 +122,12 @@ export function HorizontalProjectCard({
             {/* Right annotation column */}
             <div className="ml-3 flex shrink-0 flex-col [writing-mode:vertical-rl]">
               {project.publishedAt && (
-                <span className="inline-block font-ui text-[0.625rem] uppercase tracking-widest text-text-muted">
+                <span className="inline-block font-ui text-xs uppercase tracking-widest text-text-muted">
                   {formatDateCompact(project.publishedAt)}
                 </span>
               )}
               {project.tags && project.tags.length > 0 && (
-                <div className="mt-auto flex flex-wrap gap-4 font-ui text-[0.625rem] uppercase tracking-widest text-text-muted">
+                <div className="mt-auto flex flex-wrap gap-4 font-ui text-xs uppercase tracking-widest text-text-muted">
                   {project.tags.map((tag) => (
                     <span key={tag._id}>{tag.name}</span>
                   ))}
@@ -139,46 +139,40 @@ export function HorizontalProjectCard({
 
         {/* Text area — not clickable, normal cursor */}
         <div className="mt-4 shrink-0">
-          <h2 className="overflow-hidden text-ellipsis whitespace-normal font-body text-base font-medium leading-snug text-text md:text-lg">
+          <h2 className="overflow-hidden text-ellipsis whitespace-normal font-body text-xl font-medium leading-snug text-text md:text-2xl lg:text-3xl">
             {project.title}
           </h2>
 
           {project.tagline && (
-            <p className="mt-2 line-clamp-2 whitespace-normal text-xs leading-relaxed text-text-muted">
+            <p className="mt-3 line-clamp-3 whitespace-normal text-sm leading-relaxed text-text-muted md:text-base">
               {project.tagline}
             </p>
           )}
 
-          {project.tags && project.tags.length > 0 && (
-            <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 font-ui text-[0.625rem] uppercase tracking-wider text-text-muted">
-              {project.tags.map((tag) => (
-                <span key={tag._id}>{tag.name}</span>
-              ))}
-            </div>
-          )}
-
           {project.techStackRefs && project.techStackRefs.length > 0 ? (
-            <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1">
+            <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2">
               {project.techStackRefs.map((tech) => (
                 <span
                   key={tech._id}
-                  className="flex items-center gap-1 font-ui text-[0.625rem] text-text-muted"
+                  className="flex items-center gap-1.5 font-ui text-xs text-text-muted md:text-sm"
                 >
                   {tech.icon && (
-                    <Image
-                      src={urlFor(tech.icon).width(16).height(16).url()}
-                      alt={tech.name}
-                      width={16}
-                      height={16}
-                      className="h-3 w-3 object-contain"
-                    />
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded border border-white/10 bg-[#eef0f6] p-0.5">
+                      <Image
+                        src={urlFor(tech.icon).width(32).height(32).url()}
+                        alt={tech.name}
+                        width={32}
+                        height={32}
+                        className="h-4 w-4 object-contain"
+                      />
+                    </span>
                   )}
                   {tech.name}
                 </span>
               ))}
             </div>
           ) : project.techStack && project.techStack.length > 0 ? (
-            <p className="mt-1.5 font-ui text-[0.625rem] uppercase tracking-wider text-text-muted">
+            <p className="mt-2 font-ui text-xs uppercase tracking-wider text-text-muted md:text-sm">
               {project.techStack.join('  ·  ')}
             </p>
           ) : null}

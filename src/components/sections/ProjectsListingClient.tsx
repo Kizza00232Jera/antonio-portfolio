@@ -54,7 +54,7 @@ export function ProjectsListingClient({ projects }: ProjectsListingClientProps) 
           </h1>
           <p className="mt-3 max-w-xs text-sm leading-relaxed text-text-muted">
             Every project is a journey. From the first spark of an idea to a
-            polished product&mdash;with passion, precision, and a focus on
+            polished product, built with passion, precision, and a focus on
             building things that work beautifully.
           </p>
         </div>
@@ -102,9 +102,9 @@ export function ProjectsListingClient({ projects }: ProjectsListingClientProps) 
                   <br />
                   Work
                 </h1>
-                <p className="max-w-xs text-sm leading-relaxed text-text-muted">
+                <p className="max-w-sm text-base leading-relaxed text-text-muted lg:text-lg">
                   Every project is a journey. From the first spark of an idea to
-                  a polished product &mdash; with passion, precision, and a
+                  a polished product, built with passion, precision, and a
                   focus on building things that work beautifully.
                 </p>
               </div>

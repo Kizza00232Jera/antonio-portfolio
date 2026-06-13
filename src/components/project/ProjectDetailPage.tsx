@@ -120,7 +120,7 @@ export function ProjectDetailPage({ project, posterUrl }: ProjectDetailPageProps
   const closeButtonClass =
     'flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-text/25 text-lg text-text transition-colors hover:border-text/60'
   const metaLabelClass =
-    'block font-ui text-[0.625rem] uppercase tracking-widest text-text-muted/60'
+    'block font-ui text-xs uppercase tracking-widest text-text-muted'
   const metaValueClass = 'text-sm text-text md:text-2xl'
 
   return (
@@ -242,7 +242,7 @@ export function ProjectDetailPage({ project, posterUrl }: ProjectDetailPageProps
               &times;
             </button>
             <span
-              className="font-ui text-[0.625rem] uppercase tracking-widest text-text-muted"
+              className="font-ui text-xs uppercase tracking-widest text-text-muted"
               data-animate
             >
               &darr; Scroll for more

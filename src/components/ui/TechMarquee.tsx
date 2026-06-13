@@ -54,13 +54,15 @@ export function TechMarquee({ items, className }: TechMarqueeProps) {
             className="flex items-center gap-3 px-2"
           >
             {item.icon && (
-              <Image
-                src={urlFor(item.icon).width(40).height(40).url()}
-                alt={item.name}
-                width={40}
-                height={40}
-                className="h-8 w-8 object-contain"
-              />
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-[#eef0f6] p-1.5">
+                <Image
+                  src={urlFor(item.icon).width(40).height(40).url()}
+                  alt={item.name}
+                  width={40}
+                  height={40}
+                  className="h-7 w-7 object-contain"
+                />
+              </span>
             )}
             <span className="font-ui text-sm uppercase tracking-wider text-text-muted">
               {item.name}
