@@ -47,7 +47,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
           <Link
             href="/blog"
-            className="inline-flex items-center gap-1 text-sm font-medium text-text-muted hover:text-text transition-colors mb-10"
+            className="inline-flex items-center gap-1 text-base font-medium text-text-muted hover:text-text transition-colors mb-10"
           >
             ← Back to blogs
           </Link>
@@ -57,7 +57,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               {post.title}
             </h1>
 
-            <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-sm text-text-muted mt-4">
+            <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 text-base text-text-muted mt-4">
               {post.publishedAt && (
                 <time className="font-ui" dateTime={post.publishedAt}>
                   {formatDateFull(post.publishedAt)}
@@ -76,7 +76,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                     href={post.author.githubUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm font-medium text-text-muted underline underline-offset-4 decoration-border hover:text-text hover:decoration-accent transition-colors"
+                    className="text-base font-medium text-text-muted underline underline-offset-4 decoration-border hover:text-text hover:decoration-accent transition-colors"
                   >
                     GitHub ↗
                   </a>
@@ -89,7 +89,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                     href={post.author.linkedinUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm font-medium text-text-muted underline underline-offset-4 decoration-border hover:text-text hover:decoration-accent transition-colors"
+                    className="text-base font-medium text-text-muted underline underline-offset-4 decoration-border hover:text-text hover:decoration-accent transition-colors"
                   >
                     LinkedIn ↗
                   </a>
@@ -102,7 +102,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 {post.tags.filter(Boolean).map((tag) => (
                   <span
                     key={tag._id}
-                    className="rounded-full border border-border px-3 py-0.5 font-ui text-xs"
+                    className="cursor-default rounded-full border border-border px-3.5 py-1 font-ui text-sm transition-colors hover:border-text/40 hover:bg-text/5"
                   >
                     {tag.name}
                   </span>
@@ -111,7 +111,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             )}
 
             {post.excerpt && (
-              <p className="mt-6 text-text-muted leading-relaxed text-(length:--text-body)">
+              <p className="mt-6 text-lg md:text-xl text-text leading-relaxed">
                 {post.excerpt}
               </p>
             )}
@@ -169,7 +169,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                   href={post.githubUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm font-medium text-text-muted underline underline-offset-4 decoration-border hover:text-text hover:decoration-accent transition-colors"
+                  className="text-base font-medium text-text-muted underline underline-offset-4 decoration-border hover:text-text hover:decoration-accent transition-colors"
                 >
                   View on GitHub ↗
                 </a>
@@ -179,7 +179,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                   href={post.appUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm font-medium text-text-muted underline underline-offset-4 decoration-border hover:text-text hover:decoration-accent transition-colors"
+                  className="text-base font-medium text-text-muted underline underline-offset-4 decoration-border hover:text-text hover:decoration-accent transition-colors"
                 >
                   View live app ↗
                 </a>
@@ -188,7 +188,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
             <Link
               href="/blog"
-              className="inline-flex items-center gap-1 text-sm font-medium text-text-muted hover:text-text transition-colors mt-8"
+              className="inline-flex items-center gap-1 text-base font-medium text-text-muted hover:text-text transition-colors mt-8"
             >
               ← All blogs
             </Link>

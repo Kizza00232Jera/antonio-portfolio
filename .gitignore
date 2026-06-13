@@ -85,3 +85,7 @@ public/images/Android large screen.png
 public/images/deedu/
 public/images/habitflow/
 public/images/podcastsummarizer/
+
+# Local responsive/contrast audit artifacts (not for publishing)
+.audit/
+scripts/audit.mjs

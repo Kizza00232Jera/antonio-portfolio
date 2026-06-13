@@ -270,13 +270,28 @@ export function BlogListClient({ posts, showFilter = true, mobileLimit, fitHeigh
     const OFFSET_X = 24
     const HALF_H = 100
 
+    // Coalesce raw mousemove events to one update per frame — the browser can
+    // fire mousemove 100+ times/sec, far more often than it can paint.
+    let rafId: number | null = null
+    let lastX = 0
+    let lastY = 0
+
     const onMove = (e: MouseEvent) => {
-      xTo(e.clientX + OFFSET_X)
-      yTo(e.clientY - HALF_H)
+      lastX = e.clientX
+      lastY = e.clientY
+      if (rafId !== null) return
+      rafId = requestAnimationFrame(() => {
+        rafId = null
+        xTo(lastX + OFFSET_X)
+        yTo(lastY - HALF_H)
+      })
     }
 
     document.addEventListener('mousemove', onMove)
-    return () => document.removeEventListener('mousemove', onMove)
+    return () => {
+      document.removeEventListener('mousemove', onMove)
+      if (rafId !== null) cancelAnimationFrame(rafId)
+    }
   }, [])
 
   const handleEnter = useCallback((index: number) => {

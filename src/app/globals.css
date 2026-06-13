@@ -5,7 +5,7 @@
   --color-bg:         #080c18;
   --color-bg-alt:     #0f1629;
   --color-text:       #eef0f6;
-  --color-text-muted: #5a6178;
+  --color-text-muted: #8a93a8;
   --color-accent:     #3b82f6;
   --color-border:     #1a2035;
 }
@@ -123,7 +123,7 @@ html::-webkit-scrollbar {
   --color-bg:         #080c18;
   --color-bg-alt:     #0f1629;
   --color-text:       #eef0f6;
-  --color-text-muted: #5a6178;
+  --color-text-muted: #8a93a8;
   --color-accent:     #3b82f6;
   --color-border:     #1a2035;
   background-color: #080c18;
@@ -896,8 +896,6 @@ html::-webkit-scrollbar {
   bottom: -8px;
   border-radius: 2px;
   background-color: rgb(229 222 204 / 10%);
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
   transform-origin: 50% 100%;
   transform: scaleY(var(--anim));
   pointer-events: none;
