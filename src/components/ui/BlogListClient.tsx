@@ -129,10 +129,10 @@ export function BlogListClient({ posts, showFilter = true, mobileLimit, fitHeigh
   const listRef = useRef<HTMLDivElement>(null)
   const mobileListRef = useRef<HTMLDivElement>(null)
   const rowRefs = useRef<(HTMLAnchorElement | null)[]>([])
-  const imageRefs = useRef<(HTMLDivElement | null)[]>([])
   const activeRef = useRef(-1)
   const cellMapRef = useRef(new Map<Element, CellData>())
   const followerRef = useRef<HTMLDivElement>(null)
+  const followerImgRef = useRef<HTMLImageElement>(null)
 
   const [activeTag, setActiveTag] = useState<string | null>(null)
   const [fitCount, setFitCount] = useState<number | null>(null)
@@ -168,6 +168,26 @@ export function BlogListClient({ posts, showFilter = true, mobileLimit, fitHeigh
     : mobileLimit
       ? filtered.slice(0, mobileLimit)
       : filtered
+
+  // Hover-preview image URLs for the cursor follower (one per shown post).
+  const previewUrls = useMemo(
+    () => desktopShown.map((p) => (p.heroImage ? urlFor(p.heroImage).width(320).height(200).quality(80).url() : null)),
+    // desktopShown is derived from these; recompute only when the shown set changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [filterKey, fitCount],
+  )
+
+  // Warm the browser cache so swapping the follower image on hover is instant,
+  // without mounting all of them as composited layers.
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    for (const u of previewUrls) {
+      if (u) {
+        const img = new window.Image()
+        img.src = u
+      }
+    }
+  }, [previewUrls])
 
   useEffect(() => {
     if (!fitHeight) return
@@ -336,17 +356,24 @@ export function BlogListClient({ posts, showFilter = true, mobileLimit, fitHeigh
       })
     }
 
-    // Crossfade Hover Preview Image
-    imageRefs.current.forEach((im, i) => {
-      if (!im) return
-      const target = i === index ? 1 : 0
-      if (reduced) {
-        im.style.opacity = String(target)
+    // Swap the single hover-preview image to the active post and fade it in.
+    // One image element (not 20 stacked) keeps the cursor-following layer cheap.
+    const previewImg = followerImgRef.current
+    if (previewImg) {
+      const url = previewUrls[index]
+      gsap.killTweensOf(previewImg)
+      if (url) {
+        if (previewImg.getAttribute('src') !== url) previewImg.src = url
+        if (reduced) {
+          previewImg.style.opacity = '1'
+        } else {
+          gsap.to(previewImg, { opacity: 1, duration: 0.3, ease: 'power2.out', overwrite: true })
+        }
       } else {
-        gsap.to(im, { opacity: target, duration: 0.3, ease: 'power2.out', overwrite: true })
+        previewImg.style.opacity = '0'
       }
-    })
-  }, [])
+    }
+  }, [previewUrls])
 
   const handleLeave = useCallback(() => {
     activeRef.current = -1
@@ -367,12 +394,12 @@ export function BlogListClient({ posts, showFilter = true, mobileLimit, fitHeigh
       })
     })
 
-    imageRefs.current.forEach((im) => {
-      if (!im) return
-      if (reduced) { im.style.opacity = '0' } else {
-        gsap.to(im, { opacity: 0, duration: 0.4, overwrite: true })
+    const previewImg = followerImgRef.current
+    if (previewImg) {
+      if (reduced) { previewImg.style.opacity = '0' } else {
+        gsap.to(previewImg, { opacity: 0, duration: 0.4, overwrite: true })
       }
-    })
+    }
   }, [])
 
   return (
@@ -425,31 +452,22 @@ export function BlogListClient({ posts, showFilter = true, mobileLimit, fitHeigh
 
       </div>
 
-      {/* Hover Preview Image — fixed follower, anchored to cursor */}
+      {/* Hover Preview Image — fixed follower, anchored to cursor. A single
+          <img> whose src swaps to the hovered post, so the cursor-following
+          layer holds one image instead of 20 stacked ones (paint/composite fix). */}
       <div
         ref={followerRef}
         className="pointer-events-none fixed top-0 left-0 z-40 hidden md:block"
         style={{ width: 320, height: 200, willChange: 'transform' }}
       >
-        {desktopShown.map((post, i) =>
-          post.heroImage ? (
-            <div
-              key={`img-${post._id}`}
-              ref={(el) => { imageRefs.current[i] = el }}
-              className="absolute inset-0 opacity-0"
-            >
-              <Image
-                src={urlFor(post.heroImage).width(320).height(200).quality(80).url()}
-                alt=""
-                width={320}
-                height={200}
-                className="object-cover rounded-sm shadow-2xl"
-                sizes="320px"
-                loading={i < 3 ? 'eager' : 'lazy'}
-              />
-            </div>
-          ) : null,
-        )}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          ref={followerImgRef}
+          alt=""
+          width={320}
+          height={200}
+          className="absolute inset-0 h-full w-full rounded-sm object-cover opacity-0 shadow-2xl"
+        />
       </div>
 
       {/* ── Mobile cards ── */}
