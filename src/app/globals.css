@@ -896,8 +896,6 @@ html::-webkit-scrollbar {
   bottom: -8px;
   border-radius: 2px;
   background-color: rgb(229 222 204 / 10%);
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
   transform-origin: 50% 100%;
   transform: scaleY(var(--anim));
   pointer-events: none;
