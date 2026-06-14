@@ -8,6 +8,59 @@ Cards are grouped by status. Move a card between sections by editing its `Status
 
 ## idea
 
+## [nordhem] Two kinds of synonym, and when each one bites you
+
+- **Archetype:** explainer
+- **Pitch:** Elasticsearch makes you pick a type for every synonym: equivalent (all terms swap both directions) or one-way (a search for one term expands to another, but not back). The post explains both with furniture examples and the cases where each quietly does the wrong thing: an equivalent group is symmetric, so one weak member (`ottoman, stool`) pollutes searches both ways; a one-way rule's arrow IS its meaning, so `hassock => ottoman` backwards silently fills "ottoman" results with a rare word. Shows the one-line `toSolrRule` that distinguishes them and notes broad equivalent groups can lower nDCG even as recall rises. Verdict: use equivalent only for true synonyms you'd accept either way; reach for one-way when you want to catch a word without the reverse; one-way is the safer default, and measure a broad group on judged queries before shipping.
+- **Source:** step 9 slice 1; `services/search/src/es/synonyms.ts` (`toSolrRule`/`parseSolrRule`, the kind field), `synonyms.txt` and the catalog-mined one-way rules
+- **Code hooks:** the `toSolrRule` function (~4 lines) showing the `=>` arrow as the only difference between the two kinds
+- **Status:** drafted
+- **Note:** Approved by Antonio 2026-06-14. Drafted to Sanity (explainer, Julia voice) as drafts.0a71c173-23b1-4957-bf23-17223091d69f with a "One Way" signs hero. Not yet published.
+
+## [nordhem] The two words that silently decide whether your embeddings work
+
+- **Archetype:** explainer
+- **Pitch:** I added local semantic search and almost shipped a version that was quietly worse, because of two words. The e5 embedding model is trained to expect a `query:` prefix on searches and a `passage:` prefix on documents; skip them and it returns a slightly-wrong vector with no error, no warning, just silently degraded relevance. The post explains what embeddings are, why e5 cares which role a text plays (it is asymmetric: the same words embed differently as a query vs a passage), what goes wrong if you forget, and how I made it unforgettable by baking the prefixes into `embedQuery`/`embedPassage` so no caller can pass raw text. Verdict: a model's input contract belongs in code, not a README; when there is a detail you must not forget, build it so forgetting is impossible.
+- **Source:** step 8; `services/search/src/embed/embed.ts` (the prefixed `embedQuery`/`embedPassage`/`embedPassages` over `Xenova/multilingual-e5-small`), `services/search/test/integration/embed.test.ts` (the sofa-vs-knife separation test that guards it)
+- **Code hooks:** the embed module core (~20 lines): the private `embed` with `pooling: mean, normalize: true`, and the two public functions that prepend `query:` / `passage:`
+- **Status:** published
+- **Note:** Approved by Antonio 2026-06-14. Drafted to Sanity (explainer, Julia voice) with a vintage filing-cabinet hero, then published 2026-06-14 as c54626ee-eb6e-4a23-9b7a-4c075e771f9d.
+
+## [nordhem] Making a hardcoded query tunable without changing what it does
+
+- **Archetype:** explainer
+- **Pitch:** My Elasticsearch ranking lived baked inside one function, so I had no clean way to ask "does a higher name boost actually help?" without editing code and eyeballing results. I turned the query into a config object (a RankingConfig value with the boosts, fuzziness, phrase boost and popularity as fields) fed to a boring builder, with one non-negotiable rule: the default config reproduces the old query byte for byte, proven by a deep-equality test. That safety is what let me tune afterwards without wondering if I'd quietly broken search. I'm honest that the measured win was modest (nDCG@10 0.6532 to 0.6629). Verdict: the payoff isn't the config object, it's the measurement the object unlocks; make the default reproduce the old behaviour exactly and write the test that proves it before changing anything else.
+- **Source:** step 7; `services/search/src/search/query.ts` (RankingConfig, DEFAULT_RANKING, buildMultiMatch, coerceRankingConfig), `services/search/test/unit/query.test.ts` + `query-ranking.test.ts` (the byte-for-byte default proof and the tuned-config DSL proof), `apps/web/app/components/tune-controls.tsx`
+- **Code hooks:** the `RankingConfig` interface (~14 lines); `buildMultiMatch` with the if-guards that let off-values disappear (~11 lines); the deep-equality `toEqual` proof test (~20 lines); `coerceRankingConfig` clamping untrusted slider input (~18 lines)
+- **Status:** published
+- **Note:** Approved by Antonio 2026-06-14. Published to Sanity as 04b4262b-4235-4a2d-b164-e5b04bdd5605.
+
+## [nordhem] Reading the _explain tree: why did this product rank here?
+
+- **Archetype:** explainer
+- **Pitch:** After a tuning session I still could not point at a single result and say why it ranked where it did. The fix is that Elasticsearch already knows, exactly, and will tell you via the `_explain` API: hand it a query and one document id and it returns the score as a little tree of math. I added an `/explain` endpoint that reuses the real production query builder (so the receipt matches the meal shoppers actually order) plus a recursive studio tree view, then walked `task chair` against product 1864 (score ~50.5) down to its BM25 leaves: term frequency, inverse document frequency, field-length norm, the `best_fields` "max of", and my phrase boost sitting at the top with my `slop: 2` printed verbatim. Verdict: add an explain view the moment you start tuning; it's what turns "I think the ranking does X" into "the ranking does X, and here is the math."
+- **Source:** step 7; `services/search/src/server.ts` (the `/explain` route reusing `buildSearchBody`), `services/search/src/search/query.ts` (DEFAULT_RANKING, the `match_phrase` should clause), `apps/web/app/components/explain-view.tsx` (the recursive ExplainTree), `apps/web/app/studio/relevance/explain/page.tsx`
+- **Code hooks:** the tiny `/explain` handler showing `buildSearchBody` reuse (~18 lines); the `DEFAULT_RANKING` config (~8 lines); the `match_phrase` should-clause construction (~4 lines); the recursive `ExplainTree` renderer with collapsed leaves (~22 lines)
+- **Status:** published
+- **Note:** Approved by Antonio 2026-06-14. Published to Sanity as 7d79895e-3900-4376-8163-2e6f909c9c2f.
+
+## [nordhem] Why my search filters never touch the relevance score
+
+- **Archetype:** technical
+- **Pitch:** When a shopper types "sofa" and ticks the Sofas category, those two conditions are not equal: the typed word should drive ranking, the category is a yes/no gate that must not make a product more relevant. Elasticsearch encodes this as query context (bool.must, scored by BM25) versus filter context (bool.filter, unscored and cached as a reusable bitmap). This post shows the must/filter split in my faceted search, why a category in must quietly pollutes relevance and burns the filter cache, and the regression test that pins a product's score unchanged with and without a filter applied. Verdict: the question that decides where every clause goes is "is this about relevance, or about membership?" — relevance is scored, membership is gated and cached.
+- **Source:** step 4; `services/search/src/search/query.ts` (buildQueryClause must/filter split, queryFilterClauses vs postFilterClauses), `services/search/test/integration/facets.test.ts` (the scoring-invariance guard test), D39 in docs/DECISIONS.md
+- **Code hooks:** the must/filter split in `buildQueryClause` (~15 lines); the `queryFilterClauses` / `postFilterClauses` helpers that decide each clause's home (~12 lines); the "does not change relevance scores" guard test (~15 lines)
+- **Status:** published
+
+## [nordhem] What is Elasticsearch, and why use it?
+
+- **Archetype:** explainer
+- **Pitch:** Elasticsearch is the search engine behind my webshop's search box. This is the plain-English tour I wish I'd had: what it actually is (a back-of-book inverted index over your data, spoken to over a JSON API), the capabilities that make it worth running, and exactly how I use each one in NORDHEM. The tour covers full-text analysis (tokenizing, lowercasing, stop words, stemming, with my real "Antonio's Solid Wood Beds" becoming antonio solid wood bed), synonyms so "couch" finds a sofa, typo tolerance so "vellvet" finds 22 velvet products, relevance scoring with BM25 and field boosts, autocomplete and did-you-mean, faceted filtering with aggregations (what I'm building next), and vector/semantic search (what I'm saving for later). Verdict: a database stores your data, a search engine finds it; the moment search becomes a feature customers judge you on, Elasticsearch earns its place, and I'll show which of its powers I actually reach for and which are still ahead of me.
+- **Source:** steps 1–3; `services/search/src/es/analysis.ts`, `src/search/query.ts`, `synonyms.txt`, D5/D33/D34 in docs/DECISIONS.md; PLAN.md steps 4 (facets) and 8 (semantic) for the honestly-labeled "coming next" capabilities
+- **Code hooks:** the analyzer chain from `analysis.ts` (~20 lines); the boosted fuzzy `multi_match` from `query.ts` (~15 lines); optionally the `synonyms.txt` groups; the analysis-chain example ("Antonio's Solid Wood Beds" → `antonio solid wood bed`)
+- **Status:** published
+- **Note:** Reframed 2026-06-13 at Antonio's request from the "two databases" angle to a capabilities tour ("what is Elasticsearch and why use it"). Original recovered card approved 2026-06-12T22:38Z (session b9fb4cc3); first draft drafts.a949885c discarded and replaced. Published 2026-06-13 as 495021ad-2268-43c0-a220-68c6ab3ce598 with githubUrl set.
+
 ## [even-steven] The 1-cent bug that taught me to stop computing balances in two places
 
 - **Archetype:** technical
@@ -310,6 +363,25 @@ Cards are grouped by status. Move a card between sections by editing its `Status
 
 *Cards picked for the next Drafter pass.*
 
+## [meta] What is MCP, and what changed once I started using it?
+
+- **Archetype:** explainer
+- **Pitch:** I kept hearing "MCP" everywhere, in Claude Code, in Sanity, in every new tool that wanted to talk to an AI. I thought it was just another acronym I'd have to memorise. It turns out MCP is a small idea: a shared protocol that lets AI assistants like Claude actually do things in the apps I use, instead of just talking about them. This post is the friendly version of what MCP is, how it plugs into my work, and why I think it's worth paying attention to. Verdict: MCP isn't magic. It's the moment Claude stopped being a chat window and started being a coworker who can reach into my tools, and that's a bigger deal for non-developers than the protocol's plumbing makes it sound.
+- **Source:** my general use of MCP via Claude Code over the last several months; the `scribe/` folder in this repo as a concrete example to point at; Anthropic's MCP documentation as the underlying spec the post works from.
+- **Code hooks:**
+  - At most one tiny snippet showing what an MCP tool call looks like in practice (~10 LOC), pulled from `scribe/draft.md` lines 127–148 (the `create_documents_from_json` shape). Optional, fine to ship with zero code if the prose carries it.
+- **Status:** published
+
+## [meta] How I taught Claude to fill in my Sanity blog posts for me
+
+- **Archetype:** explainer
+- **Pitch:** Typing a blog post into Sanity Studio is slow. Title in one box, slug in another, body in a third with its own rich-text editor, then tags, then a hero image to upload. I did it for three posts before deciding I'd rather build a small system that lets Claude type for me. It's called Scribe, it sits in this repo at `scribe/`, and it uses the Sanity MCP to write directly into my CMS. This post walks through how the agent fills each field, title, slug, body Portable Text, tags, hero image, and what I had to teach it before it stopped guessing. Verdict: building this kind of agent is worth it once you have enough posts in your backlog to feel the typing pain. For one or two posts, just type them. For a backlog like mine, Scribe paid for itself by the third post, and the field-by-field map below is what it took to get there.
+- **Source:** commit `39e1a96` ("feat: scribe blog automation framework"), commit `4a3c8ff` ("feat: enable blog pages, homepage section, responsive list"); files `scribe/draft.md`, `scribe/scout.md`, `scribe/unsplash-upload.mjs`, `scribe/card-template.md`.
+- **Code hooks:**
+  - One ~15-line snippet of the `create_documents_from_json` call shape from `scribe/draft.md` lines 127–148, showing which fields the agent fills.
+  - Optionally one ~10-line snippet of the Portable Text block structure from `scribe/draft.md` lines 158–168, showing what the body actually becomes once the agent writes it.
+- **Status:** published
+
 ---
 
 ## drafted
@@ -328,6 +400,27 @@ Cards are grouped by status. Move a card between sections by editing its `Status
   - An npm vs pnpm CLI translation table for daily commands.
   - The before / after `du -sh` measurements: combined `node_modules` size across this repo plus typical side-projects on npm, versus the single pnpm store on disk afterwards.
 - **Status:** drafted
+
+## [nordhem] Test a library against a real database, not a mock
+
+- **Archetype:** explainer
+- **Pitch:** When you mock a third-party library in a test, you end up asserting that your own mock got called, which proves nothing about the library. Spin up a real but disposable database with Testcontainers, run the real code against your real schema, and assert on the rows it actually wrote. Verdict: for anything that persists data through an adapter you did not write (auth, ORMs, storage clients), a real ephemeral database catches the schema, adapter, and behaviour bugs mocks hide, and it still runs in CI; mock only true externals and pure functions.
+- **Source:** NORDHEM step 5 auth. `apps/web/test/integration/auth.test.ts`, `apps/web/lib/auth.ts`, `tools/test/integration/write-shop.test.ts`, `docs/TESTING.md`.
+- **Code hooks:**
+  - The Testcontainers `beforeAll`/`afterAll` that boots a real Postgres 17 and applies the schema (~14 LOC).
+  - The Better Auth sign-up assertion reading the account row and checking `password` is truthy but `not.toBe(PASSWORD)` (~12 LOC).
+- **Status:** published (Sanity `71139110-df43-47a4-a9cf-304d2f174a02`, live 2026-06-13)
+
+## [nordhem] The four bugs my unit tests were never going to find
+
+- **Archetype:** explainer
+- **Pitch:** Three test layers, each best at a different job: fast unit tests that pinpoint one function, integration tests against a real Postgres that prove transactions, constraints and rollbacks headlessly, and one Playwright golden flow through a real browser plus both servers plus real Elasticsearch and Postgres. Getting that flow green surfaced four bugs the lower layers structurally could not see (a form submitting as a native GET before hydration, localhost resolving to IPv6 while Fastify bound IPv4, dev-mode HMR breaking hydration on a custom port, an optimistic control clicked before it mounted). Verdict: keep the pyramid (29 / 16 / 2 here); an e2e failure says "somewhere in a long journey", a unit failure names the line, and you want all three.
+- **Source:** NORDHEM step 5 slice 11. `apps/web/playwright.config.ts`, `apps/web/e2e/golden-flow.spec.ts`, `apps/web/vitest.config.ts`, `apps/web/test/integration/checkout-repo.test.ts`, `docs/TESTING.md`.
+- **Code hooks:**
+  - The two-project unit/integration split in `vitest.config.ts` (~20 LOC).
+  - The payment-rollback integration test in `checkout-repo.test.ts` (~18 LOC).
+  - The 127.0.0.1 baseURL + production-build webServer in `playwright.config.ts`, and the `waitForHydration` helper in the spec (~6 LOC).
+- **Status:** published (Sanity `eaf5bb05-559d-4cf2-91f1-92927d34b550`, live 2026-06-13)
 
 ---
 

@@ -4,7 +4,7 @@ Every entry in `blog-ideas.md` follows this shape. Scout writes new cards in thi
 
 ## [project-slug] Title of the post
 
-- **Archetype:** `hybrid` | `technical` | `reflective`
+- **Archetype:** `hybrid` | `technical` | `reflective` | `explainer`
 - **Pitch:** 2–4 sentences. Must end with the verdict the post argues. Not a topic — a thesis. If you can't write the verdict in a sentence, the card isn't ready and shouldn't enter the backlog.
 - **Source:** what surfaced this idea. A commit hash, a file path, an ADR, a decision you remember making. Anchored enough that you can find your own materials six months later.
 - **Code hooks:**
@@ -16,9 +16,10 @@ Every entry in `blog-ideas.md` follows this shape. Scout writes new cards in thi
 - **Project slug** in brackets matches a key in `projects.json`. No slug = the card isn't tied to a project (e.g. cross-cutting reflections); use `[meta]` for those.
 - **Title** is the actual proposed blog title, not a topic name. Scout commits to a phrasing; you can rewrite it before drafting.
 - **Archetype** drives Drafter's structural template:
-  - `hybrid` (default) — tradeoff + verdict, modeled on Antonio's existing Sanity-CMS post. Maps to Mitchell's `building-block-economy` pattern.
-  - `technical` — problem → why it exists → solution → verification → reflection. Heavy code. Maps to Mitchell's `simdutf-no-libcxx` / `tripwire` pattern.
-  - `reflective` — narrative or opinion. Minimal or zero code. Maps to Mitchell's `ghostty-leaving-github` / `my-ai-adoption-journey` pattern.
+  - `hybrid` (default for developer-targeted posts) — tradeoff + verdict, modeled on Antonio's existing Sanity-CMS post. Maps to Mitchell's `building-block-economy` pattern. Mitchell voice.
+  - `technical` — problem → why it exists → solution → verification → reflection. Heavy code. Maps to Mitchell's `simdutf-no-libcxx` / `tripwire` pattern. Mitchell voice.
+  - `reflective` — narrative or opinion. Minimal or zero code. Maps to Mitchell's `ghostty-leaving-github` / `my-ai-adoption-journey` pattern. Mitchell voice.
+  - `explainer` — friendly walkthrough of a concept, accessible to non-developers. Question → plain-English answer → walkthrough with concrete example → "things that surprised me" → take. Headings are questions; analogies replace jargon. Maps to Julia Evans's `/blog/2018/01/06/operating-systems-2018/` pattern. Julia voice. Pick this when the post needs to be readable by someone who is not a developer.
 - **Pitch** must end with the verdict. The verdict is what the post *argues*, not what it *covers*.
 - **Source** lets you (or future-you) reconstruct the post from cold. Specific is better than general: `commit a3f4b2e in habit-flow, src/auth/middleware.ts` beats "auth refactor".
 - **Code hooks** lets Drafter know which snippets to actually show. Without these, Drafter invents code; with these, Drafter shows real code from real files.

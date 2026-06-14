@@ -89,3 +89,12 @@ public/images/podcastsummarizer/
 # Local responsive/contrast audit artifacts (not for publishing)
 .audit/
 scripts/audit.mjs
+
+# Scribe Unsplash candidate thumbnails (local browse cache, not for publishing)
+scribe/.unsplash-cache/
+
+# Scribe local-only authoring scripts (not needed in the public repo)
+scribe/intake.md
+scribe/intake.ps1
+scribe/unsplash-apply.mjs
+scribe/unsplash-search.mjs
