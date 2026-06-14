@@ -66,6 +66,11 @@ interface BlogListClientProps {
 /** Desktop row count rendered during SSR before the client measures */
 const DESKTOP_DEFAULT_COUNT = 6
 
+/** Delay before a hovered row commits to its (expensive) scramble + image swap.
+ *  Sweeping the cursor fast reschedules this timer, so only the row the cursor
+ *  actually settles on does the work — transient pass-through rows are skipped. */
+const HOVER_DEBOUNCE_MS = 70
+
 // ── V4 char-level text splitting & animation ──────────
 
 interface CellData {
@@ -130,6 +135,10 @@ export function BlogListClient({ posts, showFilter = true, mobileLimit, fitHeigh
   const mobileListRef = useRef<HTMLDivElement>(null)
   const rowRefs = useRef<(HTMLAnchorElement | null)[]>([])
   const activeRef = useRef(-1)
+  // Last row that actually ran its scramble — the only one needing a reset.
+  const prevActiveRef = useRef(-1)
+  // Pending debounced hover commit; cleared on re-hover, leave, and unmount.
+  const enterTimerRef = useRef<number | null>(null)
   const cellMapRef = useRef(new Map<Element, CellData>())
   const followerRef = useRef<HTMLDivElement>(null)
   const followerImgRef = useRef<HTMLImageElement>(null)
@@ -262,6 +271,7 @@ export function BlogListClient({ posts, showFilter = true, mobileLimit, fitHeigh
   useEffect(() => {
     cellMapRef.current.clear()
     activeRef.current = -1
+    prevActiveRef.current = -1
 
     const raf = requestAnimationFrame(() => {
       const container = listRef.current
@@ -314,20 +324,20 @@ export function BlogListClient({ posts, showFilter = true, mobileLimit, fitHeigh
     }
   }, [])
 
-  const handleEnter = useCallback((index: number) => {
+  const runEnter = useCallback((index: number) => {
     activeRef.current = index
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-    // Reset all cells
-    rowRefs.current.forEach((row) => {
-      if (!row) return
-      row.querySelectorAll<HTMLElement>('.blog-cell').forEach((cell) => {
+    // Reset only the previously-animated row — it's the only one ever scrambled.
+    const prev = prevActiveRef.current
+    if (prev !== -1 && prev !== index) {
+      rowRefs.current[prev]?.querySelectorAll<HTMLElement>('.blog-cell').forEach((cell) => {
         const d = cellMapRef.current.get(cell)
         if (d) resetCellChars(d)
         gsap.killTweensOf(cell)
         gsap.set(cell, { '--anim': 0 })
       })
-    })
+    }
 
     // Dim all rows
     rowRefs.current.forEach((row, i) => {
@@ -373,10 +383,32 @@ export function BlogListClient({ posts, showFilter = true, mobileLimit, fitHeigh
         previewImg.style.opacity = '0'
       }
     }
+
+    prevActiveRef.current = index
   }, [previewUrls])
 
+  // Debounce the commit: a fast sweep reschedules the timer so only the row the
+  // cursor lands on runs the work, instead of every row it passes through.
+  const handleEnter = useCallback((index: number) => {
+    if (enterTimerRef.current !== null) clearTimeout(enterTimerRef.current)
+    enterTimerRef.current = window.setTimeout(() => {
+      enterTimerRef.current = null
+      runEnter(index)
+    }, HOVER_DEBOUNCE_MS)
+  }, [runEnter])
+
+  // Clear any pending hover commit when the component unmounts.
+  useEffect(() => () => {
+    if (enterTimerRef.current !== null) clearTimeout(enterTimerRef.current)
+  }, [])
+
   const handleLeave = useCallback(() => {
+    if (enterTimerRef.current !== null) {
+      clearTimeout(enterTimerRef.current)
+      enterTimerRef.current = null
+    }
     activeRef.current = -1
+    prevActiveRef.current = -1
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
     rowRefs.current.forEach((row) => {
