@@ -31,12 +31,12 @@ export function BlogFilterBar({
       <div className="relative md:hidden">
         {isOpen && (
           <div
-            className="fixed inset-0 bg-black/40"
+            className="fixed inset-0 z-30 bg-black/40"
             onClick={() => setIsOpen(false)}
           />
         )}
 
-        <div className="relative border-b border-border">
+        <div className="relative z-40 border-b border-border bg-bg">
           <div className="flex items-center justify-between px-6 py-3">
             <button
               type="button"
@@ -59,7 +59,7 @@ export function BlogFilterBar({
 
         <div
           className={cn(
-            'absolute left-0 right-0 overflow-hidden border-b border-border bg-bg transition-all duration-300 ease-out',
+            'absolute left-0 right-0 z-40 overflow-hidden border-b border-border bg-bg transition-all duration-300 ease-out',
             isOpen ? 'max-h-[60vh] opacity-100' : 'max-h-0 opacity-0 pointer-events-none',
           )}
         >
