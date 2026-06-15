@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { gsap } from 'gsap'
 
 declare global {
@@ -16,6 +16,13 @@ const PAUSE_DURATION = 700
 const INITIAL_DELAY = 350
 
 const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms))
+
+// Same-colour 1px horizontal bleed on each curtain column. Covers the
+// sub-pixel seam between adjacent columns so the dark page background never
+// shows through as a hairline. Horizontal-only, so the vertical reveal is clean.
+const COLUMN_BLEED: CSSProperties = {
+  boxShadow: '1px 0 0 0 #fafaf8, -1px 0 0 0 #fafaf8',
+}
 
 export default function Preloader() {
   const [visible, setVisible] = useState(true)
@@ -115,13 +122,17 @@ export default function Preloader() {
       className="fixed inset-0 z-[9999] overflow-hidden"
       aria-hidden="true"
     >
-      {/* 5 full-height vertical columns — the curtain */}
+      {/* 5 full-height vertical columns — the curtain.
+          Each column bleeds 1px sideways (same colour box-shadow) so the
+          sub-pixel seam between adjacent columns can never expose the dark
+          page background behind the overlay. The horizontal-only bleed does
+          not interfere with the vertical (yPercent) reveal animation. */}
       <div className="absolute inset-0 flex">
-        <div ref={c1Ref} className="flex-1 bg-[#fafaf8]" />
-        <div ref={c2Ref} className="flex-1 bg-[#fafaf8]" />
-        <div ref={c3Ref} className="flex-1 bg-[#fafaf8]" />
-        <div ref={c4Ref} className="flex-1 bg-[#fafaf8]" />
-        <div ref={c5Ref} className="flex-1 bg-[#fafaf8]" />
+        <div ref={c1Ref} className="flex-1 bg-[#fafaf8]" style={COLUMN_BLEED} />
+        <div ref={c2Ref} className="flex-1 bg-[#fafaf8]" style={COLUMN_BLEED} />
+        <div ref={c3Ref} className="flex-1 bg-[#fafaf8]" style={COLUMN_BLEED} />
+        <div ref={c4Ref} className="flex-1 bg-[#fafaf8]" style={COLUMN_BLEED} />
+        <div ref={c5Ref} className="flex-1 bg-[#fafaf8]" style={COLUMN_BLEED} />
       </div>
 
       {/* Typing text — centered on top of columns */}
