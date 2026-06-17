@@ -418,22 +418,39 @@ export function ProjectDetailPage({ project, posterUrl, relatedPosts }: ProjectD
         {/* Blogs linked to this project via the blogPost.project reference */}
         {relatedPosts && relatedPosts.length > 0 && (
           <div data-animate>
-            <h2 className="mb-4 font-ui text-[0.625rem] uppercase tracking-widest text-text-muted">
+            <h2 className="mb-6 font-ui text-[0.625rem] uppercase tracking-widest text-text-muted">
               Related blogs
             </h2>
-            <div className="divide-y divide-border border-y border-border">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               {relatedPosts.map((post) => (
                 <Link
                   key={post._id}
                   href={`/blog/${post.slug.current}`}
-                  className="group flex items-baseline justify-between gap-4 py-5"
+                  className="group flex flex-col overflow-hidden rounded-lg border border-border transition-colors hover:border-accent"
                 >
-                  <span className="font-heading text-lg font-semibold uppercase tracking-wide text-text transition-colors group-hover:text-accent md:text-xl">
-                    {post.title}
-                  </span>
-                  <span className="shrink-0 font-ui text-xs text-text-muted">
-                    {formatDateShort(post.publishedAt)} <span aria-hidden>&rarr;</span>
-                  </span>
+                  <div className="relative aspect-video overflow-hidden bg-surface">
+                    {post.heroImage ? (
+                      <Image
+                        src={urlFor(post.heroImage).width(600).height(338).quality(80).url()}
+                        alt={post.title}
+                        fill
+                        sizes="(max-width: 640px) 100vw, 33vw"
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="h-full w-full bg-surface-raised" />
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-1 p-4">
+                    <p className="font-ui text-sm font-medium leading-snug text-text line-clamp-2">
+                      {post.title}
+                    </p>
+                    {post.publishedAt && (
+                      <time className="font-ui text-xs text-text-muted" dateTime={post.publishedAt}>
+                        {formatDateShort(post.publishedAt)}
+                      </time>
+                    )}
+                  </div>
                 </Link>
               ))}
             </div>
