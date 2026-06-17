@@ -421,7 +421,7 @@ export function ProjectDetailPage({ project, posterUrl, relatedPosts }: ProjectD
             <h2 className="mb-6 font-ui text-[0.625rem] uppercase tracking-widest text-text-muted">
               Related blogs
             </h2>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
               {relatedPosts.map((post) => (
                 <Link
                   key={post._id}

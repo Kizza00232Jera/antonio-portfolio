@@ -69,7 +69,7 @@ export const BLOG_POST_BY_SLUG_QUERY = defineQuery(
 )
 
 export const POSTS_BY_PROJECT_QUERY = defineQuery(
-  `*[_type == "blogPost" && project._ref == $projectId] | order(publishedAt desc) {
+  `*[_type == "blogPost" && project._ref == $projectId] | order(publishedAt desc)[0...5] {
     _id, title, slug, publishedAt, heroImage
   }`
 )
