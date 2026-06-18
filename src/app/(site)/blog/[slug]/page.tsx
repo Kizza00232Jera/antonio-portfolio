@@ -126,7 +126,39 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           {relatedPosts.length > 0 && (
             <section className="mt-16 pt-8 border-t border-border">
               <h2 className="font-heading text-lg font-semibold text-text mb-6">Related posts</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {/* Phones (< md): horizontal rows — image left, text right — matching the /blog list */}
+              <div className="blog-mobile-list">
+                {relatedPosts.map((rp) => (
+                  <Link
+                    key={rp._id}
+                    href={`/blog/${rp.slug.current}`}
+                    className="blog-mobile-row"
+                  >
+                    {rp.heroImage && (
+                      <div className="blog-mobile-img">
+                        <Image
+                          src={urlFor(rp.heroImage).width(200).height(200).quality(80).url()}
+                          alt={rp.title}
+                          fill
+                          sizes="72px"
+                          className="object-cover"
+                        />
+                      </div>
+                    )}
+                    <div className="blog-mobile-info">
+                      <h3 className="blog-mobile-title">{rp.title}</h3>
+                      {rp.publishedAt && (
+                        <div className="blog-mobile-meta">
+                          <span className="blog-mobile-date">{formatDateFull(rp.publishedAt)}</span>
+                        </div>
+                      )}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+
+              {/* Tablet & up (>= md): vertical card grid */}
+              <div className="hidden gap-4 md:grid md:grid-cols-3">
                 {relatedPosts.map((rp) => (
                   <Link
                     key={rp._id}

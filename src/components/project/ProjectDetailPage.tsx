@@ -421,7 +421,39 @@ export function ProjectDetailPage({ project, posterUrl, relatedPosts }: ProjectD
             <h2 className="mb-6 font-ui text-[0.625rem] uppercase tracking-widest text-text-muted">
               Related blogs
             </h2>
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+            {/* Phones (< md): horizontal rows — image left, text right — matching the /blog list */}
+            <div className="blog-mobile-list">
+              {relatedPosts.map((post) => (
+                <Link
+                  key={post._id}
+                  href={`/blog/${post.slug.current}`}
+                  className="blog-mobile-row"
+                >
+                  {post.heroImage && (
+                    <div className="blog-mobile-img">
+                      <Image
+                        src={urlFor(post.heroImage).width(200).height(200).quality(80).url()}
+                        alt={post.title}
+                        fill
+                        sizes="72px"
+                        className="object-cover"
+                      />
+                    </div>
+                  )}
+                  <div className="blog-mobile-info">
+                    <h3 className="blog-mobile-title">{post.title}</h3>
+                    {post.publishedAt && (
+                      <div className="blog-mobile-meta">
+                        <span className="blog-mobile-date">{formatDateShort(post.publishedAt)}</span>
+                      </div>
+                    )}
+                  </div>
+                </Link>
+              ))}
+            </div>
+
+            {/* Tablet & up (>= md): vertical card grid */}
+            <div className="hidden max-w-3xl gap-4 md:grid md:grid-cols-3">
               {relatedPosts.map((post) => (
                 <Link
                   key={post._id}
