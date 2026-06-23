@@ -496,8 +496,31 @@ html::-webkit-scrollbar {
   animation-play-state: paused;
 }
 
+/* ── Compact tech-stack strip (project cards) ──────────────
+   One-line marquee with soft fade at both edges. */
+.tech-strip {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 1.25rem,
+    #000 calc(100% - 1.25rem),
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 1.25rem,
+    #000 calc(100% - 1.25rem),
+    transparent
+  );
+}
+.tech-strip:hover > * {
+  animation-play-state: paused;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .marquee-track {
+  .marquee-track,
+  .tech-strip > * {
     animation-play-state: paused;
   }
 }
@@ -1171,6 +1194,33 @@ html::-webkit-scrollbar {
 .tag-rotator-item:not(.is-active) .tag-rotator-char {
   transform: translateY(-110%);
   opacity: 0;
+}
+
+/* ── Project-card corner tag rotator (vertical, one tag at a time) ── */
+.corner-tag-rotator {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.corner-tag-rotator .corner-tag-item {
+  display: inline-block;
+  white-space: nowrap;
+  animation: corner-tag-in 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+@keyframes corner-tag-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.9em);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .corner-tag-rotator .corner-tag-item {
+    animation: none;
+  }
 }
 
 /* ── Dual Wave Tech Stack ─────────────────────────────── */

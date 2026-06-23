@@ -26,8 +26,8 @@ const MuxVideoPlayer = dynamic(
   },
 )
 
-const TechCarousel = dynamic(
-  () => import('@/components/ui/TechCarousel').then((m) => m.TechCarousel),
+const TechMarquee = dynamic(
+  () => import('@/components/ui/TechMarquee').then((m) => m.TechMarquee),
   { ssr: false },
 )
 
@@ -406,7 +406,7 @@ export function ProjectDetailPage({ project, posterUrl, relatedPosts }: ProjectD
       <div className="py-12" style={{ paddingInline: 'clamp(1.5rem, 8vw, 12rem)' }}>
         {project.techStackRefs && project.techStackRefs.length > 0 && (
           <div data-animate>
-            <TechCarousel items={project.techStackRefs} className="mb-12" />
+            <TechMarquee items={project.techStackRefs} className="mb-12" />
           </div>
         )}
         {project.sections && project.sections.length > 0 && (
