@@ -9,6 +9,7 @@ import { useProjectTransition } from '@/contexts/ProjectTransitionContext'
 import { formatDateCompact } from '@/utils/format'
 import { getThumbnailUrl } from '@/utils/project'
 import { TechStackStrip } from '@/components/ui/TechStackStrip'
+import { CornerTagRotator } from '@/components/ui/CornerTagRotator'
 
 interface HorizontalProjectCardProps {
   project: Project
@@ -74,7 +75,12 @@ export function HorizontalProjectCard({
         'h-full max-w-full shrink-0 border-l border-border p-5 last:border-r md:px-10 md:pb-5 md:pt-4',
         className,
       )}
-      style={{ aspectRatio: '49 / 72' }}
+      // Width normally follows the portrait aspect ratio (driven by viewport
+      // height), but a vw-based floor keeps cards from going narrow and
+      // cramped on short laptop screens — so fewer, larger cards are visible.
+      // On tall/large screens the aspect width already exceeds the floor, so
+      // those layouts are unchanged.
+      style={{ aspectRatio: '49 / 72', minWidth: 'min(86vw, 38rem)' }}
     >
       <div className="flex h-full flex-col justify-center">
         {/* Image + annotation row — only the image links to the project */}
@@ -119,19 +125,23 @@ export function HorizontalProjectCard({
               </div>
             </Link>
 
-            {/* Right annotation column */}
-            <div className="ml-3 flex shrink-0 flex-col [writing-mode:vertical-rl]">
+            {/* Right annotation column — date pinned to the top corner, tags
+                to the bottom corner, each as a single vertical line. A normal
+                flex column with per-item vertical writing-mode keeps the
+                corners predictable at any image height; the previous
+                writing-mode-on-the-flex-container approach collapsed into two
+                side-by-side columns on short (laptop) screens. */}
+            <div className="ml-3 flex shrink-0 flex-col items-center justify-between">
               {project.publishedAt && (
-                <span className="inline-block font-ui text-xs uppercase tracking-widest text-text-muted">
+                <span className="[writing-mode:vertical-rl] font-ui text-xs uppercase tracking-widest text-text-muted">
                   {formatDateCompact(project.publishedAt)}
                 </span>
               )}
               {project.tags && project.tags.length > 0 && (
-                <div className="mt-auto flex flex-wrap gap-4 font-ui text-xs uppercase tracking-widest text-text-muted">
-                  {project.tags.map((tag) => (
-                    <span key={tag._id}>{tag.name}</span>
-                  ))}
-                </div>
+                <CornerTagRotator
+                  tags={project.tags.map((tag) => tag.name)}
+                  className="font-ui text-xs uppercase tracking-widest text-text-muted"
+                />
               )}
             </div>
           </div>
