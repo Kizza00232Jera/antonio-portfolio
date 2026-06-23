@@ -496,8 +496,31 @@ html::-webkit-scrollbar {
   animation-play-state: paused;
 }
 
+/* ── Compact tech-stack strip (project cards) ──────────────
+   One-line marquee with soft fade at both edges. */
+.tech-strip {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 1.25rem,
+    #000 calc(100% - 1.25rem),
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 1.25rem,
+    #000 calc(100% - 1.25rem),
+    transparent
+  );
+}
+.tech-strip:hover > * {
+  animation-play-state: paused;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .marquee-track {
+  .marquee-track,
+  .tech-strip > * {
     animation-play-state: paused;
   }
 }

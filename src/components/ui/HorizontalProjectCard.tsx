@@ -3,12 +3,12 @@
 import { useRef, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { urlFor } from '@/lib/sanity/image'
 import type { Project } from '@/lib/sanity/types'
 import { cn } from '@/utils/cn'
 import { useProjectTransition } from '@/contexts/ProjectTransitionContext'
 import { formatDateCompact } from '@/utils/format'
 import { getThumbnailUrl } from '@/utils/project'
+import { TechStackStrip } from '@/components/ui/TechStackStrip'
 
 interface HorizontalProjectCardProps {
   project: Project
@@ -150,29 +150,9 @@ export function HorizontalProjectCard({
           )}
 
           {project.techStackRefs && project.techStackRefs.length > 0 ? (
-            <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2">
-              {project.techStackRefs.map((tech) => (
-                <span
-                  key={tech._id}
-                  className="flex items-center gap-1.5 font-ui text-xs text-text-muted md:text-sm"
-                >
-                  {tech.icon && (
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded border border-white/10 bg-[#eef0f6] p-0.5">
-                      <Image
-                        src={urlFor(tech.icon).width(32).height(32).url()}
-                        alt={tech.name}
-                        width={32}
-                        height={32}
-                        className="h-4 w-4 object-contain"
-                      />
-                    </span>
-                  )}
-                  {tech.name}
-                </span>
-              ))}
-            </div>
+            <TechStackStrip items={project.techStackRefs} className="mt-4" />
           ) : project.techStack && project.techStack.length > 0 ? (
-            <p className="mt-2 font-ui text-xs uppercase tracking-wider text-text-muted md:text-sm">
+            <p className="mt-2 truncate font-ui text-xs uppercase tracking-wider text-text-muted md:text-sm">
               {project.techStack.join('  ·  ')}
             </p>
           ) : null}
