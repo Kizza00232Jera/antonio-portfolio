@@ -149,6 +149,24 @@ html::-webkit-scrollbar {
   --card-h: calc(100dvh - var(--header-h) - var(--filter-h) - var(--progress-h));
 }
 
+/* ── Scroll-reveal stagger (projects bento preview) ── */
+.reveal-item {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+.reveal-item.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal-item {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
 /* ── Header — fixed, 3-col grid, mix-blend-mode: difference ── */
 .header-root {
   position: fixed;
@@ -254,6 +272,138 @@ html::-webkit-scrollbar {
   display: flex;
   justify-content: flex-end;
   align-items: center;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   NAV LAB — prototype nav behaviours (toggle via dev switcher).
+   Variant 0 = untouched baseline. Theme-aware surfaces use the
+   `data-header-theme` attribute set by ThemeObserver, falling back
+   to a dark surface (the hero default).
+   ══════════════════════════════════════════════════════════════ */
+.header-root {
+  --bar-bg: #0b0f1c;
+  --bar-fg: #eef0f6;
+}
+.header-root[data-header-theme='light'] {
+  --bar-bg: #f2ede8;
+  --bar-fg: #11151f;
+}
+.header-root[data-header-theme='dark'] {
+  --bar-bg: #0b0f1c;
+  --bar-fg: #eef0f6;
+}
+
+/* ── Variant 1 — Auto-hide on scroll-down, reveal on scroll-up ── */
+.header-root[data-variant='1'] {
+  transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+.header-root[data-variant='1'].is-hidden {
+  transform: translateY(-100%);
+}
+
+/* ── Variant 2 — Adaptive scrim: hero look at top, blurred bar after ── */
+.header-root[data-variant='2'] {
+  transition: background 0.4s ease, backdrop-filter 0.4s ease, box-shadow 0.4s ease;
+}
+.header-root[data-variant='2'].is-scrolled {
+  mix-blend-mode: normal;
+  color: var(--bar-fg);
+  background: color-mix(in srgb, var(--bar-bg) 72%, transparent);
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  border-bottom: 1px solid color-mix(in srgb, var(--bar-fg) 9%, transparent);
+}
+.header-root[data-variant='2'].is-scrolled .char-reveal {
+  --cr-color: var(--bar-fg);
+  --cr-hover: var(--bar-fg);
+}
+
+/* ── Variant 3 — Condensed floating pill ── */
+.header-root[data-variant='3'] .header-inner {
+  transition:
+    max-width 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+    height 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+    margin 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+    padding 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+    background 0.45s ease,
+    border-radius 0.45s ease,
+    box-shadow 0.45s ease;
+}
+.header-root[data-variant='3'].is-scrolled {
+  mix-blend-mode: normal;
+  color: var(--bar-fg);
+}
+.header-root[data-variant='3'].is-scrolled .header-inner {
+  max-width: min(660px, calc(100% - 2rem));
+  height: 3.25rem;
+  margin: 0.6rem auto 0;
+  padding-inline: 1.4rem;
+  background: color-mix(in srgb, var(--bar-bg) 82%, transparent);
+  backdrop-filter: blur(16px) saturate(1.5);
+  -webkit-backdrop-filter: blur(16px) saturate(1.5);
+  border: 1px solid color-mix(in srgb, var(--bar-fg) 11%, transparent);
+  border-radius: 999px;
+  box-shadow: 0 14px 36px -16px rgba(0, 0, 0, 0.55);
+}
+.header-root[data-variant='3'].is-scrolled .char-reveal {
+  --cr-color: var(--bar-fg);
+  --cr-hover: var(--bar-fg);
+}
+.header-root[data-variant='3'].is-scrolled .header-nav {
+  gap: clamp(0.75rem, 2vw, 1.75rem);
+}
+.header-root[data-variant='3'].is-scrolled .nav-bracket-wrap,
+.header-root[data-variant='3'].is-scrolled .header-nav-link.char-reveal {
+  font-size: 1.05rem;
+}
+
+/* ── Variant 4 — Collapse to a floating menu trigger while reading ── */
+.header-root[data-variant='4'] .header-inner {
+  transition: opacity 0.3s ease;
+}
+.header-root[data-variant='4'].is-scrolled {
+  mix-blend-mode: normal;
+}
+.header-root[data-variant='4'].is-scrolled .header-inner {
+  opacity: 0;
+  pointer-events: none;
+}
+.nav-fab {
+  position: fixed;
+  top: 0.85rem;
+  right: clamp(1rem, 4vw, 2.5rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 999px;
+  color: var(--bar-fg);
+  background: color-mix(in srgb, var(--bar-bg) 84%, transparent);
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  border: 1px solid color-mix(in srgb, var(--bar-fg) 12%, transparent);
+  box-shadow: 0 12px 30px -14px rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  transform: scale(0.82);
+  pointer-events: none;
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+.header-root[data-variant='4'].is-scrolled .nav-fab {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header-root[data-variant='1'],
+  .header-root[data-variant='2'],
+  .header-root[data-variant='3'] .header-inner,
+  .header-root[data-variant='4'] .header-inner,
+  .nav-fab {
+    transition: none;
+  }
 }
 
 /* ── Light background (beige) ─────────── */
@@ -509,7 +659,10 @@ html::-webkit-scrollbar {
   justify-content: space-between;
   max-width: 1300px;
   margin-inline: auto;
-  padding-inline: clamp(2rem, 4vw, 4rem);
+  /* Reserve a left gutter wide enough for the year ruler so the timeline
+     can never overlap the text column; right padding stays compact. */
+  padding-left: clamp(4.5rem, 7vw, 6.5rem);
+  padding-right: clamp(2rem, 4vw, 4rem);
 }
 
 .j-arch-left {
@@ -628,7 +781,9 @@ html::-webkit-scrollbar {
   top: 50%;
   left: 0;
   transform: translateY(-50%);
-  height: 420px;
+  /* Scale with viewport height so the image never dominates short laptop
+     screens, while staying capped on large displays. */
+  height: clamp(280px, 52vh, 460px);
   width: 100%;
   border-radius: 16px;
   overflow: hidden;
@@ -642,10 +797,13 @@ html::-webkit-scrollbar {
 /* Timeline ruler */
 .j-ruler {
   position: absolute;
-  left: clamp(1rem, 3vw, 3rem);
+  /* Anchor to the centered container's left gutter (not the viewport edge)
+     so the ruler tracks the text column and stays inside the reserved
+     left padding at every width. */
+  left: max(1rem, calc((100% - 1300px) / 2 + 1rem));
   top: 0;
   height: 100vh;
-  width: 60px;
+  width: 48px;
   pointer-events: none;
 }
 
@@ -702,7 +860,10 @@ html::-webkit-scrollbar {
 
 /* ── Journey responsive ── */
 @media (max-width: 900px) and (min-width: 769px) {
-  .j-arch { gap: 30px; }
+  .j-arch {
+    gap: 30px;
+    padding-left: clamp(4rem, 9vw, 5rem);
+  }
   .j-ruler { left: 1rem; }
 }
 

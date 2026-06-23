@@ -1,8 +1,11 @@
+'use client'
+
 import Link from 'next/link'
 import { CharRevealText } from '@/components/ui/CharReveal'
 import { SmartNavLink } from '@/components/ui/SmartNavLink'
 import { MenuButton } from '@/components/layout/MenuButton'
 import { CvButton } from '@/components/layout/CvButton'
+import { useNavLab, useHeaderScroll } from '@/components/layout/navLab'
 
 const NAV_LINKS: Array<{ label: string; href: string; soon?: boolean }> = [
   { label: 'Home', href: '/' },
@@ -12,8 +15,17 @@ const NAV_LINKS: Array<{ label: string; href: string; soon?: boolean }> = [
 ]
 
 export default function Header() {
+  const { variant } = useNavLab()
+  const { scrolled, hidden } = useHeaderScroll()
+
+  // Variant 1 reacts to scroll direction; 2-4 react to "past hero".
+  const headerClass =
+    'header-root' +
+    (variant === 1 && hidden ? ' is-hidden' : '') +
+    (variant >= 2 && scrolled ? ' is-scrolled' : '')
+
   return (
-    <header className="header-root">
+    <header className={headerClass} data-variant={variant}>
       <div className="header-inner">
         {/* Logo — left, two stacked rows */}
         <Link href="/" className="header-logo-wrap group">
@@ -53,6 +65,13 @@ export default function Header() {
           </div>
         </div>
       </div>
+
+      {/* Variant 4: floating menu trigger shown while reading */}
+      {variant === 4 && (
+        <div className="nav-fab">
+          <MenuButton />
+        </div>
+      )}
     </header>
   )
 }
