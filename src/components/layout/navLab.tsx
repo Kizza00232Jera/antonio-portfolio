@@ -21,7 +21,7 @@ import {
   type ReactNode,
 } from 'react'
 
-export type NavVariant = 0 | 1 | 2 | 3 | 4
+export type NavVariant = 0 | 1 | 2 | 3 | 4 | 5
 
 export const NAV_VARIANTS: Array<{
   id: NavVariant
@@ -29,10 +29,13 @@ export const NAV_VARIANTS: Array<{
   blurb: string
 }> = [
   { id: 0, name: 'Current', blurb: 'Fixed bar, mix-blend-difference (baseline)' },
-  { id: 1, name: 'Auto-hide', blurb: 'Slides away when reading down, returns on scroll up' },
-  { id: 2, name: 'Adaptive scrim', blurb: 'Hero look at top → blurred readable bar once scrolled' },
-  { id: 3, name: 'Floating pill', blurb: 'Condenses into a compact centred capsule on scroll' },
-  { id: 4, name: 'Collapse', blurb: 'Full nav at top → minimal menu button while reading' },
+  // 1–5 all auto-hide on scroll-down / reveal on scroll-up. They differ only
+  // in the BACKGROUND the revealed bar gets so it never merges with content.
+  { id: 1, name: 'Auto-hide · Solid', blurb: 'Reveals as an opaque bar with a hairline underline' },
+  { id: 2, name: 'Auto-hide · Frosted', blurb: 'Reveals as a translucent blurred glass bar' },
+  { id: 3, name: 'Auto-hide · Pill', blurb: 'Reveals as a compact centred glass capsule' },
+  { id: 4, name: 'Auto-hide · Gradient + cue', blurb: 'Soft top gradient scrim; corner menu button stays while hidden' },
+  { id: 5, name: 'Auto-hide · Underline + cue', blurb: 'Opaque bar w/ accent underline; hover/tap a top handle to peek' },
 ]
 
 const STORAGE_KEY = 'navLabVariant'
@@ -51,7 +54,7 @@ export function NavLabProvider({ children }: { children: ReactNode }) {
     const stored = window.localStorage.getItem(STORAGE_KEY)
     const raw = fromQuery ?? stored
     const n = raw == null ? NaN : Number(raw)
-    if (n >= 0 && n <= 4) setVariantState(n as NavVariant)
+    if (n >= 0 && n <= 5) setVariantState(n as NavVariant)
   }, [])
 
   const setVariant = (v: NavVariant) => {
@@ -182,8 +185,8 @@ export function NavLabSwitcher() {
               marginBottom: 8,
             }}
           >
-            Variants 1–4 change <b>as you scroll</b> — at the very top they keep
-            the hero look. Scroll down a little to see each one.
+            Variants 1–5 all <b>auto-hide</b>: scroll down to hide, up to reveal.
+            Each reveals a different background. 4 &amp; 5 add a cue while hidden.
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
             {NAV_VARIANTS.map((v) => {
