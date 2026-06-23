@@ -7,7 +7,6 @@ import { ProjectTransitionProvider } from '@/contexts/ProjectTransitionContext'
 import { TransitionOverlay } from '@/components/project/TransitionOverlay'
 import { MenuProvider } from '@/contexts/MenuContext'
 import { NavOverlay } from '@/components/layout/NavOverlay'
-import { NavLabProvider, NavLabSwitcher } from '@/components/layout/navLab'
 import PostHogProvider from '@/components/providers/PostHogProvider'
 import PostHogPageview from '@/components/providers/PostHogPageview'
 import LenisProvider from '@/components/providers/LenisProvider'
@@ -26,21 +25,18 @@ export default function SiteLayout({
           <PostHogPageview />
         </Suspense>
         <MenuProvider>
-          <NavLabProvider>
-            <ProjectTransitionProvider>
-              <CustomCursor />
-              <PageWrapper>
-                <main className="min-h-screen">
-                  {children}
-                </main>
-              </PageWrapper>
-              <NavOverlay />
-              <ImageTrailCursor />
-              <div id="transition-portal" />
-              <TransitionOverlay />
-              <NavLabSwitcher />
-            </ProjectTransitionProvider>
-          </NavLabProvider>
+          <ProjectTransitionProvider>
+            <CustomCursor />
+            <PageWrapper>
+              <main className="min-h-screen">
+                {children}
+              </main>
+            </PageWrapper>
+            <NavOverlay />
+            <ImageTrailCursor />
+            <div id="transition-portal" />
+            <TransitionOverlay />
+          </ProjectTransitionProvider>
         </MenuProvider>
       </LenisProvider>
     </PostHogProvider>

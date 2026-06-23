@@ -275,8 +275,9 @@ html::-webkit-scrollbar {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   NAV LAB — prototype nav behaviours (toggle via dev switcher).
-   Variant 0 = untouched baseline. Theme-aware surfaces use the
+   Auto-hide header. Slides away while scrolling down, returns on
+   scroll-up, and gains a solid background once past the hero so it
+   never merges with page content. Theme-aware surfaces use the
    `data-header-theme` attribute set by ThemeObserver, falling back
    to a dark surface (the hero default).
    ══════════════════════════════════════════════════════════════ */
@@ -293,208 +294,33 @@ html::-webkit-scrollbar {
   --bar-fg: #eef0f6;
 }
 
-/* ── Shared auto-hide (variants 1–5) ──────────────────────────
-   All five reveal-style prototypes slide the bar away on scroll-down and
-   back on scroll-up. They differ only in the background the revealed bar
-   gains once past the hero (.is-scrolled), so it never merges with text. */
-.header-root[data-variant='1'],
-.header-root[data-variant='2'],
-.header-root[data-variant='3'],
-.header-root[data-variant='4'],
-.header-root[data-variant='5'] {
+/* ── Auto-hide on scroll-down, reveal on scroll-up ── */
+.header-root {
   transition:
     transform 0.45s cubic-bezier(0.4, 0, 0.2, 1),
     background 0.4s ease,
-    backdrop-filter 0.4s ease,
     box-shadow 0.4s ease,
     border-color 0.4s ease;
   will-change: transform;
 }
-.header-root[data-variant='1'].is-hidden,
-.header-root[data-variant='2'].is-hidden,
-.header-root[data-variant='3'].is-hidden,
-.header-root[data-variant='4'].is-hidden,
-.header-root[data-variant='5'].is-hidden {
+.header-root.is-hidden {
   transform: translateY(-100%);
 }
 
-/* ── Variant 1 — Solid bar ── */
-.header-root[data-variant='1'].is-scrolled {
+/* ── Solid background once past the hero ── */
+.header-root.is-scrolled {
   mix-blend-mode: normal;
   color: var(--bar-fg);
   background: var(--bar-bg);
   border-bottom: 1px solid color-mix(in srgb, var(--bar-fg) 10%, transparent);
 }
-.header-root[data-variant='1'].is-scrolled .char-reveal {
+.header-root.is-scrolled .char-reveal {
   --cr-color: var(--bar-fg);
   --cr-hover: var(--bar-fg);
-}
-
-/* ── Variant 2 — Frosted glass ── */
-.header-root[data-variant='2'].is-scrolled {
-  mix-blend-mode: normal;
-  color: var(--bar-fg);
-  background: color-mix(in srgb, var(--bar-bg) 68%, transparent);
-  backdrop-filter: blur(14px) saturate(1.4);
-  -webkit-backdrop-filter: blur(14px) saturate(1.4);
-  border-bottom: 1px solid color-mix(in srgb, var(--bar-fg) 9%, transparent);
-}
-.header-root[data-variant='2'].is-scrolled .char-reveal {
-  --cr-color: var(--bar-fg);
-  --cr-hover: var(--bar-fg);
-}
-
-/* ── Variant 3 — Condensed floating pill ── */
-.header-root[data-variant='3'] .header-inner {
-  transition:
-    max-width 0.45s cubic-bezier(0.4, 0, 0.2, 1),
-    height 0.45s cubic-bezier(0.4, 0, 0.2, 1),
-    margin 0.45s cubic-bezier(0.4, 0, 0.2, 1),
-    padding 0.45s cubic-bezier(0.4, 0, 0.2, 1),
-    background 0.45s ease,
-    border-radius 0.45s ease,
-    box-shadow 0.45s ease;
-}
-.header-root[data-variant='3'].is-scrolled {
-  mix-blend-mode: normal;
-  color: var(--bar-fg);
-}
-.header-root[data-variant='3'].is-scrolled .header-inner {
-  max-width: min(660px, calc(100% - 2rem));
-  height: 3.25rem;
-  margin: 0.6rem auto 0;
-  padding-inline: 1.4rem;
-  background: color-mix(in srgb, var(--bar-bg) 82%, transparent);
-  backdrop-filter: blur(16px) saturate(1.5);
-  -webkit-backdrop-filter: blur(16px) saturate(1.5);
-  border: 1px solid color-mix(in srgb, var(--bar-fg) 11%, transparent);
-  border-radius: 999px;
-  box-shadow: 0 14px 36px -16px rgba(0, 0, 0, 0.55);
-}
-.header-root[data-variant='3'].is-scrolled .char-reveal {
-  --cr-color: var(--bar-fg);
-  --cr-hover: var(--bar-fg);
-}
-.header-root[data-variant='3'].is-scrolled .header-nav {
-  gap: clamp(0.75rem, 2vw, 1.75rem);
-}
-.header-root[data-variant='3'].is-scrolled .nav-bracket-wrap,
-.header-root[data-variant='3'].is-scrolled .header-nav-link.char-reveal {
-  font-size: 1.05rem;
-}
-
-/* ── Variant 4 — Soft gradient scrim + persistent menu cue ── */
-.header-root[data-variant='4'].is-scrolled {
-  mix-blend-mode: normal;
-  color: var(--bar-fg);
-  /* Gradient fades from a readable top into nothing — no hard edge */
-  background: linear-gradient(
-    to bottom,
-    color-mix(in srgb, var(--bar-bg) 90%, transparent) 0%,
-    color-mix(in srgb, var(--bar-bg) 58%, transparent) 55%,
-    transparent 100%
-  );
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
-}
-.header-root[data-variant='4'].is-scrolled .char-reveal {
-  --cr-color: var(--bar-fg);
-  --cr-hover: var(--bar-fg);
-}
-
-/* Collapsed cue A — corner menu button, visible while the bar is hidden */
-.nav-fab {
-  position: fixed;
-  top: 0.85rem;
-  right: clamp(1rem, 4vw, 2.5rem);
-  z-index: 51;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  border-radius: 999px;
-  color: var(--bar-fg);
-  background: color-mix(in srgb, var(--bar-bg) 84%, transparent);
-  backdrop-filter: blur(14px) saturate(1.4);
-  -webkit-backdrop-filter: blur(14px) saturate(1.4);
-  border: 1px solid color-mix(in srgb, var(--bar-fg) 12%, transparent);
-  box-shadow: 0 12px 30px -14px rgba(0, 0, 0, 0.6);
-  opacity: 0;
-  transform: scale(0.82);
-  pointer-events: none;
-  transition: opacity 0.35s ease, transform 0.35s ease;
-}
-.header-root[data-variant='4'].is-hidden .nav-fab {
-  opacity: 1;
-  transform: none;
-  pointer-events: auto;
-}
-
-/* ── Variant 5 — Opaque bar w/ accent underline + pull-handle cue ── */
-.header-root[data-variant='5'].is-scrolled {
-  mix-blend-mode: normal;
-  color: var(--bar-fg);
-  background: color-mix(in srgb, var(--bar-bg) 90%, transparent);
-  backdrop-filter: blur(10px) saturate(1.3);
-  -webkit-backdrop-filter: blur(10px) saturate(1.3);
-  border-bottom: 2px solid color-mix(in srgb, var(--color-accent) 75%, transparent);
-  box-shadow: 0 8px 24px -16px rgba(0, 0, 0, 0.55);
-}
-.header-root[data-variant='5'].is-scrolled .char-reveal {
-  --cr-color: var(--bar-fg);
-  --cr-hover: var(--bar-fg);
-}
-
-/* Collapsed cue B — a slim handle hanging at the top edge. Hover/focus peeks
-   the whole bar back down; click/tap opens the nav overlay (touch fallback). */
-.nav-peek-handle {
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translate(-50%, -1px);
-  z-index: 51;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  width: 60px;
-  height: 20px;
-  padding: 0;
-  color: var(--bar-fg);
-  background: color-mix(in srgb, var(--bar-bg) 90%, transparent);
-  backdrop-filter: blur(10px) saturate(1.3);
-  -webkit-backdrop-filter: blur(10px) saturate(1.3);
-  border: 1px solid color-mix(in srgb, var(--bar-fg) 13%, transparent);
-  border-top: none;
-  border-radius: 0 0 11px 11px;
-  box-shadow: 0 10px 20px -12px rgba(0, 0, 0, 0.5);
-  cursor: pointer;
-  pointer-events: auto;
-}
-.header-root[data-variant='5'].is-hidden .nav-peek-handle {
-  display: flex;
-}
-.nav-peek-grip {
-  width: 22px;
-  height: 3px;
-  border-radius: 999px;
-  background: currentColor;
-  opacity: 0.55;
-}
-/* Hovering/focusing the handle pulls the whole hidden bar back into view */
-.header-root[data-variant='5'].is-hidden:hover,
-.header-root[data-variant='5'].is-hidden:focus-within {
-  transform: translateY(0);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .header-root[data-variant='1'],
-  .header-root[data-variant='2'],
-  .header-root[data-variant='3'],
-  .header-root[data-variant='3'] .header-inner,
-  .header-root[data-variant='4'],
-  .header-root[data-variant='5'],
-  .nav-fab {
+  .header-root {
     transition: none;
   }
 }
