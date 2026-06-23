@@ -1,8 +1,11 @@
+'use client'
+
 import Link from 'next/link'
 import { CharRevealText } from '@/components/ui/CharReveal'
 import { SmartNavLink } from '@/components/ui/SmartNavLink'
 import { MenuButton } from '@/components/layout/MenuButton'
 import { CvButton } from '@/components/layout/CvButton'
+import { useHeaderScroll } from '@/components/layout/useHeaderScroll'
 
 const NAV_LINKS: Array<{ label: string; href: string; soon?: boolean }> = [
   { label: 'Home', href: '/' },
@@ -12,8 +15,18 @@ const NAV_LINKS: Array<{ label: string; href: string; soon?: boolean }> = [
 ]
 
 export default function Header() {
+  const { scrolled, hidden } = useHeaderScroll()
+
+  // Auto-hide: slide the bar away while scrolling down, reveal on scroll up.
+  // Once past the hero it gains a solid background so it never merges with
+  // the page content underneath.
+  const headerClass =
+    'header-root' +
+    (hidden ? ' is-hidden' : '') +
+    (scrolled ? ' is-scrolled' : '')
+
   return (
-    <header className="header-root">
+    <header className={headerClass}>
       <div className="header-inner">
         {/* Logo — left, two stacked rows */}
         <Link href="/" className="header-logo-wrap group">
