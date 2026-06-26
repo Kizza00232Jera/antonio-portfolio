@@ -207,6 +207,17 @@ export default function HeroSection() {
           <span aria-hidden>JERKOVIC</span>
         </h1>
         <div className="hero-sub">{SUB}</div>
+        {/* Crawlable prose for search engines. The visible hero is built from
+            decorative fragments (ANTONIO / JERKOVIC / OPEN FOR WORK), which
+            Google was stitching into a jumbled snippet. This sr-only sentence
+            gives crawlers one clean, complete sentence to read instead, so the
+            page's own text reinforces the meta description rather than fighting
+            it. Hidden from the visual layout; read by crawlers and screen readers. */}
+        <p className="sr-only">
+          Antonio Jerković is a web developer and designer based in Stockholm,
+          Sweden, working across web development, web design and creative
+          technology. Available for work.
+        </p>
       </div>
 
       <div className="hero-corners">
