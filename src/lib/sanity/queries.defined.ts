@@ -29,7 +29,9 @@ export const PROJECT_BY_SLUG_QUERY = defineQuery(
     techStackRefs[]->{ _id, name, slug, icon },
     tags[]->{ _id, name, slug },
     sections[]{ _key, title, content, images[]{ _type, asset, hotspot, "dimensions": asset->metadata.dimensions }, links },
-    githubUrl, liveUrl, liveUrl2, featured, order, publishedAt
+    githubUrl, liveUrl, liveUrl2, featured, order, publishedAt,
+    "coverImageUrl": coverImage.asset->url,
+    seo{ metaTitle, metaDescription, "ogImageUrl": ogImage.asset->url }
   }`
 )
 
@@ -64,7 +66,9 @@ export const BLOG_POST_BY_SLUG_QUERY = defineQuery(
     _id, _type, title, slug, publishedAt, excerpt,
     body, muxVideoId, githubUrl, appUrl,
     tags[]->{ _id, name, "slug": slug.current },
-    heroImage, author->{ name, githubUrl, linkedinUrl }
+    heroImage, "heroImageUrl": heroImage.asset->url,
+    author->{ name, githubUrl, linkedinUrl },
+    seo{ metaTitle, metaDescription, "ogImageUrl": ogImage.asset->url }
   }`
 )
 
@@ -88,6 +92,7 @@ export const SITE_SETTINGS_QUERY = defineQuery(
   `*[_type == "siteSettings"][0] {
     _id, _type, title, description,
     author->{ _id, name, bio, githubUrl, linkedinUrl, phoneCroatian, phoneSwedish, email },
-    "ogImageUrl": ogImage.asset->url
+    "ogImageUrl": ogImage.asset->url,
+    seo{ metaTitle, metaDescription, "ogImageUrl": ogImage.asset->url }
   }`
 )

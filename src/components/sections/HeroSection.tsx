@@ -164,7 +164,7 @@ export default function HeroSection() {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
     const ctx = gsap.context(() => {
-      gsap.from('.hero-name span', {
+      gsap.from('.hero-name span[aria-hidden]', {
         yPercent: 110,
         opacity: 0,
         duration: 1.2,
@@ -199,9 +199,12 @@ export default function HeroSection() {
       <canvas ref={canvasRef} className="hero-field" aria-hidden />
 
       <div className="hero-center">
-        <h1 className="hero-name" aria-label="ANTONIO JERKOVIC">
-          <span>ANTONIO</span>
-          <span>JERKOVIC</span>
+        <h1 className="hero-name" aria-label="Antonio Jerković">
+          {/* Crawlable, correctly-spelled name for SEO; the spans below are the
+              stylized visual. sr-only keeps it out of the visual layout. */}
+          <span className="sr-only">Antonio Jerković</span>
+          <span aria-hidden>ANTONIO</span>
+          <span aria-hidden>JERKOVIC</span>
         </h1>
         <div className="hero-sub">{SUB}</div>
       </div>

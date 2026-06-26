@@ -79,6 +79,11 @@ export const blogPost = defineType({
       to: [{ type: 'project' }],
       description: 'The project this post belongs to. Shown under "Related blogs" on that project\'s detail page.',
     }),
+    defineField({
+      name: 'seo',
+      title: 'SEO',
+      type: 'seo',
+    }),
   ],
   orderings: [
     {

@@ -95,14 +95,17 @@ export function ProjectsListingClient({ projects }: ProjectsListingClientProps) 
                 projects themselves get most of the horizontal space. */}
             <div className="flex h-full w-[60vw] shrink-0 flex-col justify-center whitespace-normal pl-5 pr-6 md:pl-10 md:pr-0 lg:w-[30vw] xl:w-[26vw]">
               <div className="flex flex-col justify-between" style={{ height: 'calc(50% + 6rem)' }}>
-                <h1
+                {/* Visual-only heading. The real <h1> lives in the mobile block
+                    above so the page has exactly one <h1> in the source, and it
+                    is the one Google's mobile-first crawler renders. */}
+                <div
                   className="font-heading font-bold uppercase leading-none text-text"
                   style={{ fontSize: 'clamp(2rem, 4.5vw, 4.5rem)' }}
                 >
                   Selected
                   <br />
                   Work
-                </h1>
+                </div>
                 <p className="max-w-sm text-base leading-relaxed text-text-muted lg:text-lg">
                   Every project is a journey. From the first spark of an idea to
                   a polished product, built with passion, precision, and a

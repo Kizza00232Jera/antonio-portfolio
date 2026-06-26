@@ -23,6 +23,13 @@ export interface SanitySlug {
   current: string
 }
 
+/** Optional per-document SEO override. When omitted, metadata is derived smartly. */
+export interface Seo {
+  metaTitle?: string
+  metaDescription?: string
+  ogImageUrl?: string
+}
+
 export interface TechStackItem {
   _id: string
   _type: 'techStackItem'
@@ -73,6 +80,8 @@ export interface Project {
   featured: boolean
   order?: number
   publishedAt?: string
+  coverImageUrl?: string
+  seo?: Seo
 }
 
 export interface BlogPost {
@@ -87,8 +96,10 @@ export interface BlogPost {
   githubUrl?: string
   appUrl?: string
   heroImage?: SanityImage
+  heroImageUrl?: string
   author?: { name: string; githubUrl?: string; linkedinUrl?: string } | null
   tags?: Array<{ _id: string; name: string; slug: string }> | null
+  seo?: Seo
 }
 
 export interface Author {
@@ -112,4 +123,5 @@ export interface SiteSettings {
   description?: string
   author?: Author
   ogImageUrl?: string
+  seo?: Seo
 }

@@ -8,6 +8,8 @@ import ContactSection from '@/components/sections/ContactSection'
 import SectionTitle from '@/components/ui/SectionTitle'
 import ThemeObserver from '@/components/providers/ThemeObserver'
 import { HashScrollHandler } from '@/components/providers/HashScrollHandler'
+import { JsonLd } from '@/components/seo/JsonLd'
+import { personJsonLd, webSiteJsonLd } from '@/lib/seo'
 
 export default async function HomePage() {
   const [projects, posts, siteSettings] = await Promise.all([
@@ -20,6 +22,7 @@ export default async function HomePage() {
 
   return (
     <div>
+      <JsonLd data={[personJsonLd(), webSiteJsonLd()]} />
       <ThemeObserver />
       <HashScrollHandler />
       <Header />

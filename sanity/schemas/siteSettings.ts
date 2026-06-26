@@ -27,5 +27,10 @@ export const siteSettings = defineType({
       title: 'Default OG Image',
       type: 'image',
     }),
+    defineField({
+      name: 'seo',
+      title: 'SEO',
+      type: 'seo',
+    }),
   ],
 })

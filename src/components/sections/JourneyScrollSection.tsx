@@ -388,7 +388,7 @@ export default function JourneyScrollSection() {
                 <div className="j-card-img-mobile">
                   <Image
                     src={stop.image}
-                    alt=""
+                    alt={`${stop.title}, ${stop.location}`}
                     fill
                     quality={90}
                     className="object-cover"
@@ -431,7 +431,7 @@ export default function JourneyScrollSection() {
             <div key={`img-${stop.id}`} className="j-img-wrap">
               <Image
                 src={stop.image}
-                alt=""
+                alt={`${stop.title}, ${stop.location}`}
                 fill
                 quality={90}
                 className="j-img object-cover"

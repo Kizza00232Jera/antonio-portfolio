@@ -3,11 +3,14 @@ import Header from '@/components/layout/Header'
 import ThemeObserver from '@/components/providers/ThemeObserver'
 import { BlogListClient } from '@/components/ui/BlogListClient'
 import { getAllBlogPosts } from '@/lib/sanity/queries'
+import { buildPageMetadata, titleWithName } from '@/lib/seo'
 
-export const metadata: Metadata = {
-  title: 'Blog | Antonio',
-  description: 'Thoughts on development, design, and building for the web.',
-}
+export const metadata: Metadata = buildPageMetadata({
+  title: titleWithName('Blog'),
+  description:
+    'Writing by Antonio Jerković on development, design, and building for the web.',
+  path: '/blog',
+})
 
 export default async function BlogPage() {
   const posts = await getAllBlogPosts()

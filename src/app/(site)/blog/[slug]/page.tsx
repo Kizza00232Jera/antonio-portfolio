@@ -8,9 +8,38 @@ import PortableTextRenderer from '@/components/sanity/PortableTextRenderer'
 import { getBlogPostBySlug, getRelatedPosts } from '@/lib/sanity/queries'
 import { urlFor } from '@/lib/sanity/image'
 import { formatDateFull } from '@/utils/format'
+import { JsonLd } from '@/components/seo/JsonLd'
+import {
+  SITE,
+  buildPageMetadata,
+  titleWithName,
+  blogPostingJsonLd,
+  breadcrumbJsonLd,
+} from '@/lib/seo'
 
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>
+}
+
+/** Build a 1200x630 social image from the post hero. */
+function postOgImage(post: Awaited<ReturnType<typeof getBlogPostBySlug>>): string | undefined {
+  if (!post) return undefined
+  if (post.seo?.ogImageUrl) return post.seo.ogImageUrl
+  if (post.heroImage) {
+    return urlFor(post.heroImage).width(1200).height(630).fit('crop').quality(80).url()
+  }
+  return undefined
+}
+
+/** Smart-derived SEO for a blog post: explicit override, else title + excerpt. */
+function postSeo(post: NonNullable<Awaited<ReturnType<typeof getBlogPostBySlug>>>) {
+  return {
+    title: post.seo?.metaTitle ?? titleWithName(post.title),
+    description:
+      post.seo?.metaDescription ?? post.excerpt ?? `${post.title}, written by ${SITE.name}.`,
+    path: `/blog/${post.slug.current}`,
+    image: postOgImage(post),
+  }
 }
 
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
@@ -21,10 +50,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
     return { title: 'Post not found' }
   }
 
-  return {
-    title: `${post.title} | Antonio`,
-    description: post.excerpt ?? 'A blog post by Antonio.',
-  }
+  return buildPageMetadata({ ...postSeo(post), type: 'article', publishedTime: post.publishedAt })
 }
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
@@ -38,8 +64,25 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const tagIds = post.tags?.map(t => t._id) ?? []
   const relatedPosts = await getRelatedPosts(slug, tagIds)
 
+  const seo = postSeo(post)
+
   return (
     <div data-theme="dark">
+      <JsonLd
+        data={[
+          blogPostingJsonLd({
+            title: post.title,
+            description: seo.description,
+            path: seo.path,
+            image: seo.image,
+            datePublished: post.publishedAt,
+          }),
+          breadcrumbJsonLd([
+            { name: 'Blog', path: '/blog' },
+            { name: post.title, path: seo.path },
+          ]),
+        ]}
+      />
       <ThemeObserver />
       <Header />
       <article className="px-[clamp(1rem,3vw,3.5rem)] pt-[clamp(6rem,10vw,10rem)] pb-[clamp(3rem,6vw,6rem)]">

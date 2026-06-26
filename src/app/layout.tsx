@@ -7,6 +7,7 @@ import { SanityLive } from '@/lib/sanity/live'
 import { DisableDraftMode } from '@/components/sanity/DisableDraftMode'
 import { ScrollbarIndicator } from '@/components/ui/ScrollbarIndicator'
 import { getSiteSettings } from '@/lib/sanity/queries'
+import { SITE } from '@/lib/seo'
 import './globals.css'
 
 const satoshi = localFont({
@@ -35,15 +36,41 @@ const jetbrainsMono = JetBrains_Mono({
 
 export async function generateMetadata(): Promise<Metadata> {
   const siteSettings = await getSiteSettings()
+
+  // Sanity values win when present; otherwise fall back to the name-first
+  // defaults. Both layers now agree, so there is no "which one does Google see".
+  const title = siteSettings?.seo?.metaTitle ?? siteSettings?.title ?? SITE.defaultTitle
+  const description =
+    siteSettings?.seo?.metaDescription ?? siteSettings?.description ?? SITE.defaultDescription
+  const ogImage = siteSettings?.seo?.ogImageUrl ?? siteSettings?.ogImageUrl
+
   return {
+    metadataBase: new URL(SITE.url),
     title: {
-      default: siteSettings?.title ?? "Antonio's Portfolio",
-      template: '%s | Antonio Jerkovic',
+      default: title,
+      template: `%s | ${SITE.name}`,
     },
-    description: siteSettings?.description ?? 'Designer and web developer from Croatia, based in Sweden.',
-    openGraph: siteSettings?.ogImageUrl
-      ? { images: [siteSettings.ogImageUrl] }
-      : undefined,
+    description,
+    applicationName: SITE.name,
+    authors: [{ name: SITE.name, url: SITE.url }],
+    creator: SITE.name,
+    alternates: { canonical: SITE.url },
+    openGraph: {
+      type: 'website',
+      siteName: SITE.name,
+      locale: SITE.locale,
+      url: SITE.url,
+      title,
+      description,
+      ...(ogImage ? { images: [ogImage] } : {}),
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      creator: SITE.twitterHandle,
+      ...(ogImage ? { images: [ogImage] } : {}),
+    },
   }
 }
 

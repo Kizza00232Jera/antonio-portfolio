@@ -3,12 +3,14 @@ import Header from '@/components/layout/Header'
 import { getAllProjects } from '@/lib/sanity/queries'
 import { ProjectsListingClient } from '@/components/sections/ProjectsListingClient'
 import { LenisStop } from '@/components/providers/LenisStop'
+import { buildPageMetadata, titleWithName } from '@/lib/seo'
 
-export const metadata: Metadata = {
-  title: 'Projects | Antonio',
+export const metadata: Metadata = buildPageMetadata({
+  title: titleWithName('Projects'),
   description:
-    "A collection of projects I've built — from web apps to experiments.",
-}
+    'Selected work by Antonio Jerković: web and mobile projects, from production apps to experiments.',
+  path: '/projects',
+})
 
 export default async function ProjectsPage() {
   const projects = await getAllProjects()
