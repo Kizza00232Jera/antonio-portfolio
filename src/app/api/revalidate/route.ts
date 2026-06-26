@@ -1,5 +1,6 @@
 import { revalidatePath } from 'next/cache'
 import { type NextRequest, NextResponse } from 'next/server'
+import { submitToIndexNow } from '@/lib/indexnow'
 
 interface WebhookBody {
   _type?: string
@@ -28,24 +29,33 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   const { _type, slug } = body
   const slugValue = slug?.current ?? null
 
+  // Canonical, public page URLs whose content just changed. These are the ones
+  // pinged to IndexNow (Bing/Yandex/etc.) for near-instant re-crawl.
+  const indexNowPaths: string[] = []
+
   switch (_type) {
     case 'project': {
       revalidatePath('/projects', 'layout')
+      indexNowPaths.push('/projects')
       if (slugValue) {
         revalidatePath(`/projects/${slugValue}`, 'page')
+        indexNowPaths.push(`/projects/${slugValue}`)
       }
       break
     }
     case 'blogPost': {
       revalidatePath('/', 'page')
       revalidatePath('/blog', 'layout')
+      indexNowPaths.push('/', '/blog')
       if (slugValue) {
         revalidatePath(`/blog/${slugValue}`, 'page')
+        indexNowPaths.push(`/blog/${slugValue}`)
       }
       break
     }
     case 'siteSettings': {
       revalidatePath('/', 'page')
+      indexNowPaths.push('/')
       break
     }
     default: {
@@ -56,10 +66,15 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     }
   }
 
+  // Fire IndexNow alongside revalidation. submitToIndexNow never throws, so a
+  // search-engine hiccup can't fail the publish/revalidate flow.
+  const indexNowStatus = await submitToIndexNow(indexNowPaths)
+
   return NextResponse.json({
     revalidated: true,
     type: _type,
     slug: slugValue,
+    indexNow: { submitted: indexNowPaths, status: indexNowStatus },
     timestamp: new Date().toISOString(),
   })
 }
