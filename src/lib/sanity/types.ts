@@ -99,6 +99,7 @@ export interface BlogPost {
   heroImageUrl?: string
   author?: { name: string; githubUrl?: string; linkedinUrl?: string } | null
   tags?: Array<{ _id: string; name: string; slug: string }> | null
+  project?: { title: string; slug: string } | null
   seo?: Seo
 }
 

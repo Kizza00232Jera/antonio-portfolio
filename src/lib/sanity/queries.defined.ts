@@ -68,6 +68,7 @@ export const BLOG_POST_BY_SLUG_QUERY = defineQuery(
     tags[]->{ _id, name, "slug": slug.current },
     heroImage, "heroImageUrl": heroImage.asset->url,
     author->{ name, githubUrl, linkedinUrl },
+    project->{ title, "slug": slug.current },
     seo{ metaTitle, metaDescription, "ogImageUrl": ogImage.asset->url }
   }`
 )

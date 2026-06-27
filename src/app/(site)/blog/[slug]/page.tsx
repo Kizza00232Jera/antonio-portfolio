@@ -138,6 +138,17 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                   </a>
                 </>
               )}
+              {post.project && (
+                <>
+                  <span aria-hidden>·</span>
+                  <Link
+                    href={`/projects/${post.project.slug}`}
+                    className="font-ui text-base font-medium text-text-muted underline underline-offset-4 decoration-border hover:text-text hover:decoration-accent transition-colors"
+                  >
+                    Part of {post.project.title}
+                  </Link>
+                </>
+              )}
             </div>
 
             {post.tags && post.tags.filter(Boolean).length > 0 && (
