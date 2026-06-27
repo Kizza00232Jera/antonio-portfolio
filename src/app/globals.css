@@ -403,6 +403,21 @@ html::-webkit-scrollbar {
   letter-spacing: 0.06em;
 }
 
+/* Headline entrance: CSS-only so it runs at first paint, not after JS hydration.
+   Transform-only (opacity stays 1) so the LCP element is visible immediately. */
+@media (prefers-reduced-motion: no-preference) {
+  .hero-name span[aria-hidden] {
+    animation: hero-rise 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .hero-name span[aria-hidden]:last-child {
+    animation-delay: 0.08s;
+  }
+  @keyframes hero-rise {
+    from { transform: translateY(0.42em); }
+    to   { transform: translateY(0); }
+  }
+}
+
 .hero-sub {
   margin-top: 18px;
   font-family: var(--font-body);

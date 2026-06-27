@@ -164,14 +164,11 @@ export default function HeroSection() {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
     const ctx = gsap.context(() => {
-      gsap.from('.hero-name span[aria-hidden]', {
-        yPercent: 110,
-        opacity: 0,
-        duration: 1.2,
-        ease: 'power4.out',
-        stagger: 0.08,
-        delay: 0.1,
-      })
+      // NOTE: the hero headline (the LCP element) is intentionally NOT animated
+      // by GSAP. GSAP runs only after hydration (~6s on slow mobile), and a
+      // from({opacity:0}) would hide the largest element until then, wrecking
+      // LCP. Its entrance is a CSS-only transform rise (see .hero-name span in
+      // globals.css) that keeps it fully visible from first paint.
       gsap.from('.hero-sub', {
         opacity: 0,
         y: 10,
