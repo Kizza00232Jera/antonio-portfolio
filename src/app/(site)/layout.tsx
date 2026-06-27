@@ -1,5 +1,4 @@
 import { Suspense } from 'react'
-import Preloader from '@/components/layout/Preloader'
 import { PageWrapper } from '@/components/layout/PageWrapper'
 import { CustomCursor } from '@/components/ui/CustomCursor'
 import { ImageTrailCursor } from '@/components/ui/ImageTrailCursor'
@@ -26,7 +25,6 @@ export default function SiteLayout({
         >
           Skip to main content
         </a>
-        <Preloader />
         <Suspense fallback={null}>
           <PostHogPageview />
         </Suspense>
