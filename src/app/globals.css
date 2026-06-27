@@ -1559,7 +1559,10 @@ html::-webkit-scrollbar {
     position: relative;
     width: 100%;
     aspect-ratio: 4 / 3;
-    overflow: hidden;
+    /* clip (not hidden): the blurred bg img is scaled 1.1, which bleeds past
+       the card; overflow:hidden lets that transformed box still widen the
+       document on mobile. overflow:clip contains it without page scroll. */
+    overflow: clip;
   }
 
   .project-mobile-card-bg {
