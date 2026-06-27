@@ -8,7 +8,8 @@ interface LatestPostsSectionProps {
 
 export default function LatestPostsSection({ posts }: LatestPostsSectionProps) {
   return (
-    <section data-theme="dark" style={{ backgroundColor: '#0d0d0d' }} className="sticky top-0 min-h-screen md:max-h-screen md:overflow-hidden">
+    <section data-theme="dark" aria-labelledby="latest-posts-heading" style={{ backgroundColor: '#0d0d0d' }} className="sticky top-0 min-h-screen md:max-h-screen md:overflow-hidden">
+      <h2 id="latest-posts-heading" className="sr-only">Latest blog posts</h2>
       <div className="px-[clamp(1.25rem,4vw,4rem)] py-[var(--section-gap)]">
       <div className="flex items-end justify-end gap-4 mb-6">
           <Link

@@ -296,22 +296,30 @@ export function ProjectAccordion({ sections, className }: ProjectAccordionProps)
         const isOpen = openIndex === i
         return (
           <div key={section._key}>
-            <button
-              ref={(el) => { headerRefs.current[i] = el }}
-              type="button"
-              onClick={() => toggle(i)}
-              className="flex w-full items-center justify-between py-6 text-left transition-colors hover:text-accent"
-            >
-              <span className="font-heading text-lg font-semibold uppercase tracking-wide text-text md:text-xl">
-                {section.title}
-              </span>
-              <span className="ml-4 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border text-lg text-text-muted transition-transform">
-                {isOpen ? '×' : '+'}
-              </span>
-            </button>
+            <h2 className="m-0">
+              <button
+                ref={(el) => { headerRefs.current[i] = el }}
+                type="button"
+                id={`project-section-header-${i}`}
+                aria-expanded={isOpen}
+                aria-controls={`project-section-panel-${i}`}
+                onClick={() => toggle(i)}
+                className="flex w-full items-center justify-between py-6 text-left transition-colors hover:text-accent"
+              >
+                <span className="font-heading text-lg font-semibold uppercase tracking-wide text-text md:text-xl">
+                  {section.title}
+                </span>
+                <span className="ml-4 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border text-lg text-text-muted transition-transform">
+                  {isOpen ? '×' : '+'}
+                </span>
+              </button>
+            </h2>
 
             <div
               ref={(el) => { contentRefs.current[i] = el }}
+              id={`project-section-panel-${i}`}
+              role="region"
+              aria-labelledby={`project-section-header-${i}`}
               className="overflow-hidden"
               style={{ height: 0, opacity: 0 }}
             >
