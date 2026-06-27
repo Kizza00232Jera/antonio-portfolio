@@ -266,7 +266,7 @@ export default function ProjectShowcaseSection({
                 {url && (
                   <Image
                     src={url}
-                    alt=""
+                    alt={`${project.title} preview`}
                     fill
                     sizes="61vw"
                     className="object-cover"
@@ -364,7 +364,7 @@ export default function ProjectShowcaseSection({
                         <div className="project-mobile-card-bg">
                           <Image
                             src={url}
-                            alt=""
+                            alt={`${project.title} preview`}
                             fill
                             sizes="100vw"
                           />

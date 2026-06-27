@@ -117,6 +117,7 @@ export function TransitionOverlay() {
 
     // Set up initial state
     img.src = transitionData.thumbnailUrl
+    img.alt = transitionData.projectTitle ?? 'Project preview'
     gsap.set(overlay, { visibility: 'visible', pointerEvents: 'auto', opacity: 1 })
     gsap.set(imageWrapper, {
       left: imageRect.left,
@@ -297,7 +298,7 @@ export function TransitionOverlay() {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           ref={imageRef}
-          alt=""
+          alt="Project preview"
           className="h-full w-full object-cover"
         />
       </div>

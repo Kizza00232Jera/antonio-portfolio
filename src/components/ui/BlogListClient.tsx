@@ -186,6 +186,13 @@ export function BlogListClient({ posts, showFilter = true, mobileLimit, fitHeigh
     [filterKey, fitCount],
   )
 
+  // Alt text for the hover-preview image, parallel to previewUrls.
+  const previewAlts = useMemo(
+    () => desktopShown.map((p) => p.title),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [filterKey, fitCount],
+  )
+
   // Warm the browser cache so swapping the follower image on hover is instant,
   // without mounting all of them as composited layers.
   useEffect(() => {
@@ -374,6 +381,7 @@ export function BlogListClient({ posts, showFilter = true, mobileLimit, fitHeigh
       gsap.killTweensOf(previewImg)
       if (url) {
         if (previewImg.getAttribute('src') !== url) previewImg.src = url
+        previewImg.alt = previewAlts[index] ?? 'Blog post preview'
         if (reduced) {
           previewImg.style.opacity = '1'
         } else {
@@ -385,7 +393,7 @@ export function BlogListClient({ posts, showFilter = true, mobileLimit, fitHeigh
     }
 
     prevActiveRef.current = index
-  }, [previewUrls])
+  }, [previewUrls, previewAlts])
 
   // Debounce the commit: a fast sweep reschedules the timer so only the row the
   // cursor lands on runs the work, instead of every row it passes through.
@@ -495,7 +503,7 @@ export function BlogListClient({ posts, showFilter = true, mobileLimit, fitHeigh
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           ref={followerImgRef}
-          alt=""
+          alt="Blog post preview"
           width={320}
           height={200}
           className="absolute inset-0 h-full w-full rounded-sm object-cover opacity-0 shadow-2xl"

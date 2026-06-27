@@ -46,7 +46,7 @@ const clientPortableTextComponents: PortableTextComponents = {
 }
 
 /* ── Full-screen modal ──────────────────────────────── */
-function ImageModal({ img, onClose }: { img: SanityImage; onClose: () => void }) {
+function ImageModal({ img, alt, onClose }: { img: SanityImage; alt: string; onClose: () => void }) {
   useEffect(() => {
     document.body.style.overflow = 'hidden'
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
@@ -79,7 +79,7 @@ function ImageModal({ img, onClose }: { img: SanityImage; onClose: () => void })
         </button>
         <Image
           src={urlFor(img).width(2400).quality(90).url()}
-          alt=""
+          alt={alt}
           width={w}
           height={h}
           style={{ maxWidth: 'min(90vw, 1200px)', maxHeight: '80vh', width: 'auto', height: 'auto' }}
@@ -92,12 +92,14 @@ function ImageModal({ img, onClose }: { img: SanityImage; onClose: () => void })
 }
 
 /* ── Carousel ───────────────────────────────────────── */
-function SectionCarousel({ images }: { images: SanityImage[] }) {
+function SectionCarousel({ images, label }: { images: SanityImage[]; label: string }) {
   const imgs = images.filter(img => img?.asset)
   const n = imgs.length
   const [current, setCurrent] = useState(0)
   const [paused, setPaused] = useState(false)
   const [modalImg, setModalImg] = useState<SanityImage | null>(null)
+  // Descriptive alt for the image currently shown, e.g. "Search tuning, image 2 of 4".
+  const altFor = (i: number) => (n > 1 ? `${label}, image ${i + 1} of ${n}` : label)
   const touchStartX = useRef<number | null>(null)
 
   useEffect(() => {
@@ -134,7 +136,7 @@ function SectionCarousel({ images }: { images: SanityImage[] }) {
 
   return (
     <>
-      {modalImg && <ImageModal img={modalImg} onClose={() => setModalImg(null)} />}
+      {modalImg && <ImageModal img={modalImg} alt={altFor(current)} onClose={() => setModalImg(null)} />}
       <div
         className="w-full select-none"
         onTouchStart={n > 1 ? onTouchStart : undefined}
@@ -147,7 +149,7 @@ function SectionCarousel({ images }: { images: SanityImage[] }) {
           <Image
             key={current}
             src={urlFor(img).width(1600).quality(85).url()}
-            alt=""
+            alt={altFor(current)}
             fill
             className="carousel-fade-in object-contain"
             sizes="(max-width: 768px) 100vw, 1200px"
@@ -220,7 +222,7 @@ function SectionContent({ section }: { section: ProjectSection }) {
           )}
         </div>
       )}
-      {hasImages && <SectionCarousel images={section.images!} />}
+      {hasImages && <SectionCarousel images={section.images!} label={section.title} />}
     </div>
   )
 }

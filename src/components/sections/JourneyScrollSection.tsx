@@ -330,7 +330,7 @@ export default function JourneyScrollSection() {
                 <div className="j-meta">
                   <Image
                     src={stop.flag}
-                    alt=""
+                    alt={`${stop.location.split(', ').pop()} flag`}
                     width={32}
                     height={20}
                     className="j-flag-sm"
@@ -403,7 +403,7 @@ export default function JourneyScrollSection() {
                 <div className="j-meta">
                   <Image
                     src={stop.flag}
-                    alt=""
+                    alt={`${stop.location.split(', ').pop()} flag`}
                     width={32}
                     height={20}
                     className="j-flag-sm"
