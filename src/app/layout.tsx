@@ -84,14 +84,19 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${satoshi.variable} ${bebasNeue.variable} ${jetbrainsMono.variable}`}
+      // Paint the brand-dark background on the very first frame, before the
+      // render-blocking CSS bundle arrives. Without this the browser shows
+      // white until the CSS loads (the "white frames" in the PageSpeed filmstrip).
+      style={{ backgroundColor: '#080c18' }}
     >
       <head>
         {/* Project images load from Sanity's CDN; preconnect saves the
             TLS/DNS round-trip when the first image is requested. */}
         <link rel="preconnect" href="https://cdn.sanity.io" />
       </head>
-      <body className="antialiased">
+      <body className="antialiased" suppressHydrationWarning>
         <ScrollbarIndicator />
         {children}
         <SanityLive />

@@ -34,7 +34,7 @@ export default function OpengraphImage() {
             color: '#9ca3af',
           }}
         >
-          {SITE.url.replace('https://', '')}
+          Antonio Portfolio
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column' }}>
