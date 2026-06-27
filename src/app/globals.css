@@ -392,7 +392,10 @@ html::-webkit-scrollbar {
   font-weight: 400;
   text-transform: uppercase;
   color: #f7f7f7;
-  mix-blend-mode: difference;
+  /* No mix-blend-mode: the headline is the LCP element. Blending composites it
+     against the <canvas>, which only paints after JS hydration (~3s), so the
+     "final" paint — and thus LCP — was tied to the canvas. A solid colour lets
+     it reach final paint at first render. */
   text-align: center;
 }
 
