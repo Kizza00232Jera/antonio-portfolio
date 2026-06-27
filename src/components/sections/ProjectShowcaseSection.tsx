@@ -29,7 +29,7 @@ export default function ProjectShowcaseSection({
   const bgImagesRef = useRef<(HTMLDivElement | null)[]>([])
   const numberRef = useRef<HTMLDivElement>(null)
   const titleRef = useRef<HTMLDivElement>(null)
-  const listItemsRef = useRef<(HTMLSpanElement | null)[]>([])
+  const listItemsRef = useRef<(HTMLLIElement | null)[]>([])
   const activeIndexRef = useRef(0)
   const [activeIndex, setActiveIndex] = useState(0)
   const { startTransition } = useProjectTransition()
@@ -308,17 +308,17 @@ export default function ProjectShowcaseSection({
         {/* ── Right Panel ── */}
         <div className="project-right-panel">
           {/* Top: project list */}
-          <div className="project-list">
+          <ul className="project-list list-none m-0 p-0">
             {projects.map((project, i) => (
-              <span
+              <li
                 key={`list-${project._id}`}
                 ref={(el) => { listItemsRef.current[i] = el }}
                 className={`project-list-item${i === 0 ? ' active' : ''}`}
               >
                 [ N.{padIndex(i)} ]&nbsp;&nbsp;{project.title}
-              </span>
+              </li>
             ))}
-          </div>
+          </ul>
 
           {/* Big number (top-right, absolute) */}
           <div className="project-number-wrapper">

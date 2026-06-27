@@ -326,7 +326,7 @@ export default function JourneyScrollSection() {
               <div key={stop.id} className="flex flex-col gap-4">
                 <p className="j-label">{stop.number} &mdash; {stop.label}</p>
                 <h3 className="j-title">{stop.title}</h3>
-                <p className="j-desc">{stop.description}</p>
+                <p className="j-desc" data-nosnippet>{stop.description}</p>
                 <div className="j-meta">
                   <Image
                     src={stop.flag}
@@ -399,7 +399,7 @@ export default function JourneyScrollSection() {
                   {stop.number} &mdash; {stop.label}
                 </p>
                 <h2 className="j-title">{stop.title}</h2>
-                <p className="j-desc">{stop.description}</p>
+                <p className="j-desc" data-nosnippet>{stop.description}</p>
                 <div className="j-meta">
                   <Image
                     src={stop.flag}
