@@ -86,6 +86,11 @@ export default async function RootLayout({
       lang="en"
       className={`${satoshi.variable} ${bebasNeue.variable} ${jetbrainsMono.variable}`}
     >
+      <head>
+        {/* Project images load from Sanity's CDN; preconnect saves the
+            TLS/DNS round-trip when the first image is requested. */}
+        <link rel="preconnect" href="https://cdn.sanity.io" />
+      </head>
       <body className="antialiased">
         <ScrollbarIndicator />
         {children}
