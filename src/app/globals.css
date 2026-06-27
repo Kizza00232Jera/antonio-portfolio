@@ -637,7 +637,7 @@ html::-webkit-scrollbar {
   font-size: 0.625rem;
   text-transform: uppercase;
   letter-spacing: 0.2em;
-  color: rgba(17, 17, 17, 0.38);
+  color: rgba(17, 17, 17, 0.7);
   margin-bottom: 4px;
 }
 
@@ -684,7 +684,7 @@ html::-webkit-scrollbar {
 .j-period {
   font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
   font-size: 0.75rem;
-  color: rgba(17, 17, 17, 0.35);
+  color: rgba(17, 17, 17, 0.7);
 }
 
 .j-skills {
@@ -701,7 +701,7 @@ html::-webkit-scrollbar {
   font-size: 0.625rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: rgba(17, 17, 17, 0.45);
+  color: rgba(17, 17, 17, 0.7);
   border: 1px solid rgba(17, 17, 17, 0.14);
   border-radius: 9999px;
   padding: 6px 14px;
@@ -783,12 +783,12 @@ html::-webkit-scrollbar {
   transform: translateY(-50%);
   font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
   font-size: 0.625rem;
-  color: rgba(17, 17, 17, 0.22);
+  color: rgba(17, 17, 17, 0.7);
   transition: color 0.3s;
 }
 
 .j-ruler-year.is-active {
-  color: rgba(17, 17, 17, 0.65);
+  color: #111111;
 }
 
 /* Mobile journey cards — hidden on desktop */

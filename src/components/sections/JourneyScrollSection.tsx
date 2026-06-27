@@ -34,7 +34,7 @@ const stops: JourneyStop[] = [
     description:
       'Three years studying interaction design, front-end fundamentals, and user-centred thinking at Aalborg University. Built my first real understanding of how design and code work together — from UX research and prototyping, to building products with HTML, CSS and JavaScript.',
     skills: ['Prototyping', 'UX Research', 'Interactive Design', 'HTML', 'CSS', 'JavaScript'],
-    image: '/images/multimedia_design.jpg',
+    image: '/images/multimedia_design.webp',
     flag: '/images/flags/denmark.svg',
     accent: '#fafaf8',
   },
@@ -62,7 +62,7 @@ const stops: JourneyStop[] = [
     description:
       'One-year top-up degree deepening the technical side: JavaScript, TypeScript, React, Next.js, databases, and APIs. Bridging design thinking and engineering craft.',
     skills: ['React', 'TypeScript', 'Next.js'],
-    image: '/images/web_development.jpg',
+    image: '/images/web_development.webp',
     flag: '/images/flags/denmark.svg',
     accent: '#fafaf8',
   },
@@ -90,7 +90,7 @@ const stops: JourneyStop[] = [
     description:
       "Master's degree at Stockholm University exploring the intersection of design, emerging technology, and immersive experiences. Pushing into XR, creative coding, and human-centred innovation.",
     skills: ['Unity', 'IoT', 'VR & MR', 'Immersive Technology'],
-    image: '/images/stockholm_university.jpeg',
+    image: '/images/stockholm_university.webp',
     flag: '/images/flags/sweden.svg',
     accent: '#fafaf8',
   },

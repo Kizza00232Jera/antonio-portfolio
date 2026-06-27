@@ -254,9 +254,10 @@ export default function ProjectShowcaseSection({
       <div ref={stickyRef} className="project-showcase-sticky">
         {/* ── Left Panel ── */}
         <div className="project-left-panel">
-          {/* Background images (blurred, darkened) */}
+          {/* Background images (blurred, darkened) — tiny source since it's
+              blurred 8px and darkened, so full resolution is wasted bytes. */}
           {projects.map((project, i) => {
-            const url = getThumbnailUrl(project)
+            const url = getThumbnailUrl(project, 400)
             return (
               <div
                 key={`bg-${project._id}`}
