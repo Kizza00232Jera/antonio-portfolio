@@ -96,27 +96,43 @@ function SectionCarousel({ images, label }: { images: SanityImage[]; label: stri
   const imgs = images.filter(img => img?.asset)
   const n = imgs.length
   const [current, setCurrent] = useState(0)
-  const [paused, setPaused] = useState(false)
+  const [userPaused, setUserPaused] = useState(false)
+  const [hovering, setHovering] = useState(false)
+  const [focused, setFocused] = useState(false)
+  const [reducedMotion, setReducedMotion] = useState(false)
   const [modalImg, setModalImg] = useState<SanityImage | null>(null)
   // Descriptive alt for the image currently shown, e.g. "Search tuning, image 2 of 4".
   const altFor = (i: number) => (n > 1 ? `${label}, image ${i + 1} of ${n}` : label)
   const touchStartX = useRef<number | null>(null)
 
   useEffect(() => {
-    if (n <= 1 || paused) return
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const update = () => setReducedMotion(mq.matches)
+    update()
+    mq.addEventListener('change', update)
+    return () => mq.removeEventListener('change', update)
+  }, [])
+
+  // Auto-advance only when nothing should hold it: a single image, an explicit
+  // pause, pointer hover, keyboard focus inside the carousel, or reduced-motion
+  // all stop it (WCAG 2.2.2 Pause, Stop, Hide).
+  const autoAdvancing = n > 1 && !userPaused && !hovering && !focused && !reducedMotion
+
+  useEffect(() => {
+    if (!autoAdvancing) return
     const timer = setTimeout(() => {
       setCurrent(c => (c + 1) % n)
     }, 5000)
     return () => clearTimeout(timer)
-  }, [current, paused, n])
+  }, [current, autoAdvancing, n])
 
   const navigate = (dir: 1 | -1) => {
-    setPaused(true)
+    setUserPaused(true)
     setCurrent(c => (c + dir + n) % n)
   }
 
   const goTo = (i: number) => {
-    setPaused(true)
+    setUserPaused(true)
     setCurrent(i)
   }
 
@@ -141,6 +157,10 @@ function SectionCarousel({ images, label }: { images: SanityImage[]; label: stri
         className="w-full select-none"
         onTouchStart={n > 1 ? onTouchStart : undefined}
         onTouchEnd={n > 1 ? onTouchEnd : undefined}
+        onMouseEnter={() => setHovering(true)}
+        onMouseLeave={() => setHovering(false)}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
       >
         <div
           className="relative h-[450px] md:h-[600px] overflow-hidden rounded-sm bg-bg cursor-zoom-in"
@@ -158,6 +178,16 @@ function SectionCarousel({ images, label }: { images: SanityImage[]; label: stri
 
         {n > 1 && (
           <div className="mt-3 flex items-center justify-center gap-3">
+            {!reducedMotion && (
+              <button
+                onClick={() => setUserPaused(p => !p)}
+                aria-label={userPaused ? 'Play image slideshow' : 'Pause image slideshow'}
+                aria-pressed={userPaused}
+                className="flex h-7 w-7 items-center justify-center text-text-muted transition-colors hover:text-text"
+              >
+                {userPaused ? '▶' : '❚❚'}
+              </button>
+            )}
             <button
               onClick={() => navigate(-1)}
               aria-label="Previous image"
