@@ -131,6 +131,20 @@ html::-webkit-scrollbar {
   outline: none;
 }
 
+/* ── Mobile horizontal-scroll safety net ───────────────────
+   Decorative layers that are transformed/blurred (e.g. the project-card
+   background, scaled 1.1) can leak past their own `overflow: clip` on iOS
+   Safari, which Chrome contains but Safari does not — that bleed widens the
+   document and lets the page scroll left/right. Clipping the root on mobile
+   contains any such bleed. `clip` (not `hidden`) is deliberate: it does NOT
+   create a scroll container, so Lenis smooth-scroll and position:sticky stay
+   intact, and only the horizontal axis is affected (vertical scroll is normal). */
+@media (max-width: 1023px) {
+  html {
+    overflow-x: clip;
+  }
+}
+
 /* ── Section-scoped dark theme ─────────────────────────── */
 [data-theme="dark"] {
   --color-bg:         #080c18;
@@ -1592,8 +1606,12 @@ html::-webkit-scrollbar {
     aspect-ratio: 4 / 3;
     /* clip (not hidden): the blurred bg img is scaled 1.1, which bleeds past
        the card; overflow:hidden lets that transformed box still widen the
-       document on mobile. overflow:clip contains it without page scroll. */
+       document on mobile. overflow:clip contains it without page scroll.
+       clip-path is the belt: iOS Safari does NOT reliably contain a scaled
+       (transform) child with overflow:clip and leaks it into page width;
+       clip-path:inset(0) clips transformed descendants where clip alone fails. */
     overflow: clip;
+    clip-path: inset(0);
   }
 
   .project-mobile-card-bg {
