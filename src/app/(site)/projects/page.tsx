@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import Header from '@/components/layout/Header'
 import { getAllProjects } from '@/lib/sanity/queries'
 import { ProjectsListingClient } from '@/components/sections/ProjectsListingClient'
 import { LenisStop } from '@/components/providers/LenisStop'
@@ -19,7 +18,6 @@ export default async function ProjectsPage() {
     <div className="relative md:h-dvh md:overflow-hidden">
       <LenisStop />
       <ProjectsListingClient projects={projects} />
-      <Header />
     </div>
   )
 }

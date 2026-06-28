@@ -45,9 +45,10 @@ export function ProjectFilterBar({
             isOpen ? 'max-h-[60vh] opacity-100' : 'max-h-0 opacity-0',
           )}
         >
-          <div className="flex flex-col gap-1 px-6 py-4">
+          <div role="group" aria-label="Filter projects by tag" className="flex flex-col gap-1 px-6 py-4">
             <button
               type="button"
+              aria-pressed={activeTag === null}
               onClick={() => handleSelect(null)}
               className="flex items-center gap-3 py-1.5 font-ui text-xs uppercase tracking-wider text-text-muted transition-colors hover:text-text"
             >
@@ -63,6 +64,7 @@ export function ProjectFilterBar({
               <button
                 key={tag._id}
                 type="button"
+                aria-pressed={activeTag === tag.slug.current}
                 onClick={() => handleSelect(tag.slug.current)}
                 className="flex items-center gap-3 py-1.5 font-ui text-xs uppercase tracking-wider text-text-muted transition-colors hover:text-text"
               >
@@ -106,13 +108,14 @@ export function ProjectFilterBar({
 
       {/* ── Desktop: inline horizontal row ── */}
       <div className="hidden border-t border-border bg-bg/80 backdrop-blur-md lg:block">
-        <div className="scrollbar-hide flex items-center gap-6 overflow-x-auto px-10 py-3">
+        <div role="group" aria-label="Filter projects by tag" className="scrollbar-hide flex items-center gap-6 overflow-x-auto px-10 py-3">
           <span className="shrink-0 font-ui text-xs uppercase tracking-widest text-text-muted">
             Filter
           </span>
 
           <button
             type="button"
+            aria-pressed={activeTag === null}
             onClick={() => onTagChange(null)}
             className="flex shrink-0 items-center gap-2 font-ui text-xs uppercase tracking-wider text-text-muted transition-colors hover:text-text"
           >
@@ -129,6 +132,7 @@ export function ProjectFilterBar({
             <button
               key={tag._id}
               type="button"
+              aria-pressed={activeTag === tag.slug.current}
               onClick={() => onTagChange(tag.slug.current)}
               className="flex shrink-0 items-center gap-2 font-ui text-xs uppercase tracking-wider text-text-muted transition-colors hover:text-text"
             >

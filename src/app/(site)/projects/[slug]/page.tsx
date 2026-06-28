@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import Header from '@/components/layout/Header'
 import ThemeObserver from '@/components/providers/ThemeObserver'
 import { getProjectBySlug, getPostsByProject } from '@/lib/sanity/queries'
 import { urlFor } from '@/lib/sanity/image'
@@ -88,7 +87,6 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         ]}
       />
       <ThemeObserver />
-      <Header />
       <ProjectDetailPage project={project} posterUrl={posterUrl} relatedPosts={relatedPosts} />
     </div>
   )

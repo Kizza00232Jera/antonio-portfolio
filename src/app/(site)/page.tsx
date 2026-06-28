@@ -1,5 +1,4 @@
 import { getFeaturedProjects, getAllBlogPosts, getSiteSettings } from '@/lib/sanity/queries'
-import Header from '@/components/layout/Header'
 import HeroSection from '@/components/sections/HeroSection'
 import JourneyScrollSection from '@/components/sections/JourneyScrollSection'
 import ProjectShowcaseSection from '@/components/sections/ProjectShowcaseSection'
@@ -25,7 +24,6 @@ export default async function HomePage() {
       <JsonLd data={[personJsonLd(), webSiteJsonLd()]} />
       <ThemeObserver />
       <HashScrollHandler />
-      <Header />
       <HeroSection />
       <SectionTitle title="MY JOURNEY" theme="light" />
       <JourneyScrollSection />

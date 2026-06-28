@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import Header from '@/components/layout/Header'
 import ThemeObserver from '@/components/providers/ThemeObserver'
 import { BlogListClient } from '@/components/ui/BlogListClient'
 import { getAllBlogPosts } from '@/lib/sanity/queries'
@@ -18,7 +17,6 @@ export default async function BlogPage() {
   return (
     <div data-theme="dark">
       <ThemeObserver />
-      <Header />
       <section className="px-[clamp(1rem,3vw,3.5rem)] pt-[clamp(6rem,10vw,10rem)] pb-[clamp(3rem,6vw,6rem)]">
         <div className="mb-8">
           <h1 className="font-heading font-bold text-text leading-none text-[length:var(--text-display)]">

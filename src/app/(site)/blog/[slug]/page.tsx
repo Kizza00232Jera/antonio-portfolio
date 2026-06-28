@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import Header from '@/components/layout/Header'
 import ThemeObserver from '@/components/providers/ThemeObserver'
 import PortableTextRenderer from '@/components/sanity/PortableTextRenderer'
 import { getBlogPostBySlug, getRelatedPosts } from '@/lib/sanity/queries'
@@ -84,7 +83,6 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         ]}
       />
       <ThemeObserver />
-      <Header />
       <article className="px-[clamp(1rem,3vw,3.5rem)] pt-[clamp(6rem,10vw,10rem)] pb-[clamp(3rem,6vw,6rem)]">
         <div className="mx-auto max-w-4xl">
 

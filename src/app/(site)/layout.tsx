@@ -1,4 +1,5 @@
 import { Suspense } from 'react'
+import Header from '@/components/layout/Header'
 import { PageWrapper } from '@/components/layout/PageWrapper'
 import { CustomCursor } from '@/components/ui/CustomCursor'
 import { ImageTrailCursor } from '@/components/ui/ImageTrailCursor'
@@ -31,6 +32,10 @@ export default function SiteLayout({
         <MenuProvider>
           <ProjectTransitionProvider>
             <CustomCursor />
+            {/* Header lives here (not inside each page) so it sits BEFORE
+                <main id="main-content">. That makes the "skip to main content"
+                link actually bypass the nav. */}
+            <Header />
             <PageWrapper>
               <main id="main-content" tabIndex={-1} className="min-h-screen">
                 {children}

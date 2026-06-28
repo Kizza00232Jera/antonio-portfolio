@@ -124,7 +124,9 @@ export default function ProjectShowcaseSection({
       if (!item) return
       if (i === newIndex) {
         item.classList.add('active')
-        scrambleText(item, `[ N.${padIndex(i)} ]  ${projects[i].title}`)
+        // Scramble the inner text span, not the <li>, so the <Link> wrapper
+        // (keyboard focus + navigation) survives the animation.
+        scrambleText(item.querySelector<HTMLElement>('.project-list-text') ?? item, `[ N.${padIndex(i)} ]  ${projects[i].title}`)
       } else {
         item.classList.remove('active')
       }
@@ -315,7 +317,9 @@ export default function ProjectShowcaseSection({
                 ref={(el) => { listItemsRef.current[i] = el }}
                 className={`project-list-item${i === 0 ? ' active' : ''}`}
               >
-                [ N.{padIndex(i)} ]&nbsp;&nbsp;{project.title}
+                <Link href={`/projects/${project.slug.current}`} className="project-list-link">
+                  <span className="project-list-text">[ N.{padIndex(i)} ]&nbsp;&nbsp;{project.title}</span>
+                </Link>
               </li>
             ))}
           </ul>
