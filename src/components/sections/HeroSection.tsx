@@ -7,7 +7,7 @@ import { gsap } from 'gsap'
 
 const SUB = 'Web Development · Web Design · Creative Technology'
 
-/* ── Stockholm live clock ─────────────────────────── */
+/* ── Copenhagen live clock ─────────────────────────── */
 
 function HeroClock() {
   const [time, setTime] = useState('')
@@ -16,7 +16,7 @@ function HeroClock() {
     function tick() {
       setTime(
         new Date().toLocaleTimeString('en-GB', {
-          timeZone: 'Europe/Stockholm',
+          timeZone: 'Europe/Copenhagen',
           hour: '2-digit',
           minute: '2-digit',
           second: '2-digit',
@@ -31,7 +31,7 @@ function HeroClock() {
 
   return (
     <span className="hero-corner hero-clock">
-      STOCKHOLM&thinsp;·&thinsp;{time || '··:··:··'}
+      COPENHAGEN&thinsp;·&thinsp;{time || '··:··:··'}
     </span>
   )
 }
@@ -211,8 +211,8 @@ export default function HeroSection() {
             page's own text reinforces the meta description rather than fighting
             it. Hidden from the visual layout; read by crawlers and screen readers. */}
         <p className="sr-only">
-          Antonio Jerković is a web developer and designer based in Stockholm,
-          Sweden, working across web development, web design and creative
+          Antonio Jerković is a web developer and designer based in Copenhagen,
+          Denmark, working across web development, web design and creative
           technology. Available for work.
         </p>
       </div>
