@@ -26,16 +26,16 @@ const DEFAULTS = {
   githubUrl: 'https://github.com/Kizza00232Jera',
 }
 
-/* ── Stockholm live clock ─────────────────────────── */
+/* ── Copenhagen live clock ─────────────────────────── */
 
-function StockholmClock() {
+function CopenhagenClock() {
   const [time, setTime] = useState('')
 
   useEffect(() => {
     function tick() {
       setTime(
         new Date().toLocaleTimeString('en-GB', {
-          timeZone: 'Europe/Stockholm',
+          timeZone: 'Europe/Copenhagen',
           hour: '2-digit',
           minute: '2-digit',
           second: '2-digit',
@@ -48,7 +48,7 @@ function StockholmClock() {
     return () => clearInterval(id)
   }, [])
 
-  return <span className="footer-clock">STOCKHOLM: (GMT+2) {time}</span>
+  return <span className="footer-clock">COPENHAGEN: (GMT+2) {time}</span>
 }
 
 /* ── Scroll-scrub letter animation (matches SectionTitle) ── */
@@ -204,9 +204,9 @@ export default function ContactSection({
             </div>
           </div>
 
-          {/* ── Stockholm clock centered ── */}
+          {/* ── Copenhagen clock centered ── */}
           <div className="footer-bottom">
-            <StockholmClock />
+            <CopenhagenClock />
           </div>
         </div>
 

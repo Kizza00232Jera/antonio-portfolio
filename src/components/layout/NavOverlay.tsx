@@ -180,7 +180,7 @@ export function NavOverlay() {
           className="mt-auto flex items-end justify-between px-8 pb-10 opacity-0 md:px-16"
         >
           <span className="font-mono text-xs uppercase tracking-widest text-white/30">
-            Based in Stockholm, Sweden
+            Based in Copenhagen, Denmark
           </span>
           <span className="font-mono text-xs tracking-widest text-white/20">
             © {new Date().getFullYear()}

@@ -5,7 +5,7 @@ import type { Metadata } from 'next'
  *
  * The goal is entity disambiguation: several public figures share the name
  * "Antonio Jerković", so every page reinforces, in a machine-readable way,
- * that THIS site is about Antonio the web developer in Stockholm. The name,
+ * that THIS site is about Antonio the web developer in Copenhagen. The name,
  * role, location and verified social profiles below feed both the page
  * metadata (title/description/OpenGraph/Twitter) and the JSON-LD structured
  * data (Person / WebSite / BlogPosting / CreativeWork).
@@ -19,13 +19,13 @@ export const SITE = {
   nameAscii: 'Antonio Jerkovic',
   jobTitle: 'Web Developer',
   role: 'Web Developer and Designer',
-  locality: 'Stockholm',
-  country: 'Sweden',
-  countryCode: 'SE',
+  locality: 'Copenhagen',
+  country: 'Denmark',
+  countryCode: 'DK',
   locale: 'en_US',
-  defaultTitle: 'Antonio Jerković | Web Developer in Stockholm',
+  defaultTitle: 'Antonio Jerković | Web Developer in Copenhagen',
   defaultDescription:
-    'Antonio Jerković is a web developer and designer based in Stockholm, Sweden. Portfolio of web and mobile projects, plus writing on building for the web.',
+    'Antonio Jerković is a web developer and designer based in Copenhagen, Denmark. Portfolio of web and mobile projects, plus writing on building for the web.',
   twitterHandle: '@Kizza00232Jera',
   email: 'antonio.jera10@gmail.com',
   social: {
