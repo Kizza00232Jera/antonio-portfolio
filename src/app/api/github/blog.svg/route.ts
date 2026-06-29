@@ -11,7 +11,6 @@ const W = 600
 const ROW_H = 46
 const HEAD_H = 44
 const PAD_Y = 12
-const ROW_DWELL_S = 1.8 // seconds the sweep highlight rests on each row
 const MAX_ROWS = 5
 
 // Three columns matching the portfolio blog list.
@@ -40,36 +39,6 @@ function truncate(v: string, max: number): string {
   return v.length > max ? v.slice(0, max - 1).trimEnd() + '…' : v
 }
 
-/** Each row brightens in turn, looping — the static echo of the site's hover dim. */
-function sweepCss(n: number): string {
-  if (n <= 1) return `.row{opacity:1}.tick{opacity:1}`
-  const cycle = (n * ROW_DWELL_S).toFixed(2)
-  const vis = 100 / n
-  const fade = Math.min(3, vis * 0.25)
-  const dim = `@keyframes rowSweep {
-    0%{opacity:.45}
-    ${fade.toFixed(2)}%{opacity:1}
-    ${(vis - fade).toFixed(2)}%{opacity:1}
-    ${vis.toFixed(2)}%{opacity:.45}
-    100%{opacity:.45}
-  }`
-  const tick = `@keyframes tickSweep {
-    0%{opacity:0}
-    ${fade.toFixed(2)}%{opacity:1}
-    ${(vis - fade).toFixed(2)}%{opacity:1}
-    ${vis.toFixed(2)}%{opacity:0}
-    100%{opacity:0}
-  }`
-  const delays = Array.from({ length: n }, (_, i) => {
-    const d = (-(i * ROW_DWELL_S)).toFixed(2)
-    return `.row.r${i}{animation-delay:${d}s}.tick.r${i}{animation-delay:${d}s}`
-  }).join('')
-  return `${dim}${tick}
-  .row{opacity:.45;animation:rowSweep ${cycle}s infinite}
-  .tick{opacity:0;animation:tickSweep ${cycle}s infinite}
-  ${delays}`
-}
-
 function renderRow(p: Post, i: number): string {
   const y = HEAD_H + PAD_Y + i * ROW_H
   const baseline = y + ROW_H / 2 + 5
@@ -78,8 +47,13 @@ function renderRow(p: Post, i: number): string {
   const tags = escapeXml(truncate(tagNames.join(', ') || '—', 26))
   const date = escapeXml(formatDateMedium(p.publishedAt))
 
-  return `<g class="row r${i}">
-    <rect class="tick r${i}" x="0" y="${y + 8}" width="3" height="${ROW_H - 16}" rx="1.5" fill="#3b82f6"/>
+  // Static accent tick on the newest post only (no animation).
+  const tick = i === 0
+    ? `<rect x="0" y="${y + 8}" width="3" height="${ROW_H - 16}" rx="1.5" fill="#3b82f6"/>`
+    : ''
+
+  return `<g class="row">
+    ${tick}
     <text x="${COL_TITLE}" y="${baseline}" class="rowtitle">${title}</text>
     <text x="${COL_TAGS}" y="${baseline}" class="mono rowtags">${tags}</text>
     <text x="${COL_DATE}" y="${baseline}" text-anchor="end" class="mono rowdate">${date}</text>
@@ -111,7 +85,6 @@ export async function GET() {
       .rowtitle{fill:#eef0f6;font-size:14px;font-weight:600}
       .rowtags{fill:#8a93a8;font-size:11px}
       .rowdate{fill:#8a93a8;font-size:11px}
-      ${sweepCss(rows.length)}
     </style>
   </defs>
   <rect width="${W}" height="${H}" rx="16" fill="#0f1629" stroke="#1a2035"/>
