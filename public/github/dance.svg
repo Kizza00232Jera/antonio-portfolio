@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="260" height="180" viewBox="0 0 260 180" role="img" aria-label="Dancing Claude">
+  <defs>
+    <style>
+      /* Slide back and forth across the stage — the "walking around". */
+      @keyframes walk { 0%{transform:translateX(-46px)} 50%{transform:translateX(46px)} 100%{transform:translateX(-46px)} }
+      /* The anti-gravity lean, synced with the slide. */
+      @keyframes lean { 0%{transform:rotate(8deg)} 25%{transform:rotate(0deg)} 50%{transform:rotate(-8deg)} 75%{transform:rotate(0deg)} 100%{transform:rotate(8deg)} }
+      /* Moonwalk shuffle. */
+      @keyframes shuffleL { 0%,100%{transform:rotate(14deg)} 50%{transform:rotate(-14deg)} }
+      @keyframes shuffleR { 0%,100%{transform:rotate(-14deg)} 50%{transform:rotate(14deg)} }
+      /* Slow flair spin on the mark. */
+      @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+      /* A little bob. */
+      @keyframes bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+
+      #stage   { animation: walk 6s ease-in-out infinite; }
+      #bob     { animation: bob 0.75s ease-in-out infinite; }
+      #lean    { transform-origin: 110px 150px; animation: lean 6s ease-in-out infinite; }
+      #mark    { transform-origin: 110px 78px; animation: spin 14s linear infinite; }
+      #legL    { transform-origin: 100px 140px; animation: shuffleL 0.5s ease-in-out infinite; }
+      #legR    { transform-origin: 120px 140px; animation: shuffleR 0.5s ease-in-out infinite; }
+    </style>
+  </defs>
+
+  <g id="stage">
+    <g id="bob">
+      <g id="lean">
+        <!-- legs -->
+        <rect id="legL" x="97" y="138" width="7" height="26" rx="3.5" fill="#0f1629"/>
+        <rect id="legR" x="116" y="138" width="7" height="26" rx="3.5" fill="#0f1629"/>
+        <!-- single white glove (MJ) -->
+        <circle cx="150" cy="96" r="7" fill="#ffffff"/>
+        <rect x="118" y="92" width="34" height="7" rx="3.5" fill="#C15F3C" transform="rotate(20 118 95)"/>
+        <!-- starburst body -->
+        <g id="mark">
+          <ellipse cx="110" cy="48" rx="7" ry="22" fill="#D97757" transform="rotate(0 110 78)"/>
+      <ellipse cx="110" cy="48" rx="7" ry="22" fill="#D97757" transform="rotate(30 110 78)"/>
+      <ellipse cx="110" cy="48" rx="7" ry="22" fill="#D97757" transform="rotate(60 110 78)"/>
+      <ellipse cx="110" cy="48" rx="7" ry="22" fill="#D97757" transform="rotate(90 110 78)"/>
+      <ellipse cx="110" cy="48" rx="7" ry="22" fill="#D97757" transform="rotate(120 110 78)"/>
+      <ellipse cx="110" cy="48" rx="7" ry="22" fill="#D97757" transform="rotate(150 110 78)"/>
+      <ellipse cx="110" cy="48" rx="7" ry="22" fill="#D97757" transform="rotate(180 110 78)"/>
+      <ellipse cx="110" cy="48" rx="7" ry="22" fill="#D97757" transform="rotate(210 110 78)"/>
+      <ellipse cx="110" cy="48" rx="7" ry="22" fill="#D97757" transform="rotate(240 110 78)"/>
+      <ellipse cx="110" cy="48" rx="7" ry="22" fill="#D97757" transform="rotate(270 110 78)"/>
+      <ellipse cx="110" cy="48" rx="7" ry="22" fill="#D97757" transform="rotate(300 110 78)"/>
+      <ellipse cx="110" cy="48" rx="7" ry="22" fill="#D97757" transform="rotate(330 110 78)"/>
+          <circle cx="110" cy="78" r="13" fill="#C15F3C"/>
+        </g>
+        <!-- fedora -->
+        <g transform="rotate(-12 110 40)">
+          <ellipse cx="110" cy="44" rx="34" ry="8" fill="#111722"/>
+          <path d="M 90 44 Q 92 22 110 22 Q 128 22 130 44 Z" fill="#111722"/>
+          <rect x="90" y="39" width="40" height="6" fill="#2a3350"/>
+        </g>
+      </g>
+    </g>
+    <!-- shadow -->
+    <ellipse cx="110" cy="170" rx="38" ry="6" fill="#000000" fill-opacity="0.25"/>
+  </g>
+</svg>
